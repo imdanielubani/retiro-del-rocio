@@ -64,11 +64,12 @@ class SetNewPasswordTest extends TestCase
             ->set('password_confirmation', 'NewStrongPass1!')
             ->call('resetPassword')
             ->assertHasNoErrors()
-            ->assertSet('done', true);
+            ->assertRedirectToRoute('admin.password.success');
 
         $this->assertTrue(Hash::check('NewStrongPass1!', $user->fresh()->password));
         $this->assertDatabaseMissing('password_reset_tokens', ['email' => 'admin@retirodelrocio.com']);
         $this->assertNull(session('password_reset_verified_email'));
+        $this->assertSame('admin@retirodelrocio.com', session('password_reset_success_email'));
     }
 
     public function test_a_weak_password_is_rejected(): void
@@ -81,7 +82,7 @@ class SetNewPasswordTest extends TestCase
             ->set('password_confirmation', 'short')
             ->call('resetPassword')
             ->assertHasErrors('password')
-            ->assertSet('done', false);
+            ->assertNoRedirect();
     }
 
     public function test_mismatched_confirmation_is_rejected(): void
@@ -94,6 +95,6 @@ class SetNewPasswordTest extends TestCase
             ->set('password_confirmation', 'Different1!')
             ->call('resetPassword')
             ->assertHasErrors(['password' => 'confirmed'])
-            ->assertSet('done', false);
+            ->assertNoRedirect();
     }
 }

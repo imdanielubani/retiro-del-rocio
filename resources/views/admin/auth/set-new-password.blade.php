@@ -21,12 +21,6 @@
             <div class="mt-2 h-px w-full bg-[#e5e7eb]"></div>
         </div>
 
-        @if ($done)
-            <div class="w-full rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-[13px] text-green-700">
-                Your password has been reset successfully. You can now sign in with your new password.
-            </div>
-        @endif
-
         <form wire:submit="resetPassword"
               x-data="{
                   pw: '',

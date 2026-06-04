@@ -65,12 +65,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage transport',
         ]);
 
-        // Default super-admin account for first login.
+        // Default super-admin account for first login (temporary credentials).
         $user = User::updateOrCreate(
-            ['email' => 'admin@retirodelrocio.com'],
+            ['email' => 'kendansoft@gmail.com'],
             [
-                'name' => 'Hotel Administrator',
-                'password' => Hash::make('password'),
+                'name' => 'Super Admin',
+                'password' => Hash::make('Admin12345'),
                 'status' => 'active',
                 'email_verified_at' => now(),
             ]

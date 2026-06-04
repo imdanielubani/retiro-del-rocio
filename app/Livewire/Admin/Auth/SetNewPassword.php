@@ -22,8 +22,6 @@ class SetNewPassword extends Component
 
     public string $password_confirmation = '';
 
-    public bool $done = false;
-
     /**
      * Ensure the visitor passed the verification step.
      */
@@ -100,7 +98,10 @@ class SetNewPassword extends Component
 
         event(new PasswordReset($user));
 
-        $this->done = true;
+        // Hand off to the success step.
+        session(['password_reset_success_email' => $this->email]);
+
+        $this->redirectRoute('admin.password.success', navigate: true);
     }
 
     public function render()

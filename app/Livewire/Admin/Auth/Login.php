@@ -59,7 +59,12 @@ class Login extends Component
 
         session()->regenerate();
 
-        $this->redirectIntended(route('admin.dashboard'), navigate: true);
+        session()->flash('toast', [
+            'type' => 'success',
+            'message' => 'Welcome back, '.$user->name.'!',
+        ]);
+
+        $this->redirectIntended(route('admin.dashboard'));
     }
 
     /**

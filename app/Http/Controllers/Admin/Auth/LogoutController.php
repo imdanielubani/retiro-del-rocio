@@ -19,6 +19,12 @@ class LogoutController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        // Surface a one-time toast on the login screen.
+        $request->session()->flash('toast', [
+            'type' => 'success',
+            'message' => 'You have been signed out successfully.',
+        ]);
+
         return redirect()->route('admin.login');
     }
 }
