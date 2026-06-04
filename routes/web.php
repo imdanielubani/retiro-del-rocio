@@ -3,7 +3,8 @@
 use App\Http\Controllers\Admin\Auth\LogoutController;
 use App\Livewire\Admin\Auth\ForgotPassword;
 use App\Livewire\Admin\Auth\Login;
-use App\Livewire\Admin\Auth\ResetPassword;
+use App\Livewire\Admin\Auth\SetNewPassword;
+use App\Livewire\Admin\Auth\VerifyCode;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -15,7 +16,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('guest')->group(function () {
         Route::get('login', Login::class)->name('login');
         Route::get('forgot-password', ForgotPassword::class)->name('password.request');
-        Route::get('reset-password/{token}', ResetPassword::class)->name('password.reset');
+        Route::get('verify-code', VerifyCode::class)->name('password.verify');
+        Route::get('set-password', SetNewPassword::class)->name('password.set');
     });
 
     // Authenticated admin portal.

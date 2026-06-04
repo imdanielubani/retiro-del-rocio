@@ -19,8 +19,6 @@ class ForgotPassword extends Component
     #[Validate('required|string|email')]
     public string $email = '';
 
-    public bool $sent = false;
-
     /**
      * Generate a 6-digit verification code and email it to the admin.
      */
@@ -47,7 +45,10 @@ class ForgotPassword extends Component
             $user->notify(new SendPasswordResetCode($code));
         }
 
-        $this->sent = true;
+        // Carry the email to the verification step (never reveals existence).
+        session(['password_reset_email' => $this->email]);
+
+        $this->redirectRoute('admin.password.verify', navigate: true);
     }
 
     /**

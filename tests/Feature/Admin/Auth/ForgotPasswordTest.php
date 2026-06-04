@@ -34,13 +34,15 @@ class ForgotPasswordTest extends TestCase
             ->set('email', 'admin@retirodelrocio.com')
             ->call('sendCode')
             ->assertHasNoErrors()
-            ->assertSet('sent', true);
+            ->assertRedirectToRoute('admin.password.verify');
 
         Notification::assertSentTo($user, SendPasswordResetCode::class);
 
         $this->assertDatabaseHas('password_reset_tokens', [
             'email' => 'admin@retirodelrocio.com',
         ]);
+
+        $this->assertSame('admin@retirodelrocio.com', session('password_reset_email'));
     }
 
     public function test_email_is_required_and_must_be_valid(): void
@@ -49,7 +51,7 @@ class ForgotPasswordTest extends TestCase
             ->set('email', 'not-an-email')
             ->call('sendCode')
             ->assertHasErrors(['email' => 'email'])
-            ->assertSet('sent', false);
+            ->assertNoRedirect();
     }
 
     public function test_it_does_not_reveal_whether_the_account_exists(): void
@@ -60,7 +62,7 @@ class ForgotPasswordTest extends TestCase
             ->set('email', 'nobody@retirodelrocio.com')
             ->call('sendCode')
             ->assertHasNoErrors()
-            ->assertSet('sent', true);
+            ->assertRedirectToRoute('admin.password.verify');
 
         Notification::assertNothingSent();
     }

@@ -33,12 +33,6 @@
             </svg>
         </div>
 
-        @if ($sent)
-            <div class="w-full rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-[13px] text-green-700">
-                If an account matches that email, a 6-digit verification code is on its way.
-            </div>
-        @endif
-
         @error('email')
             <div class="w-full rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-600">
                 {{ $message }}
