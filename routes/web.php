@@ -8,9 +8,8 @@ use App\Livewire\Admin\Auth\SetNewPassword;
 use App\Livewire\Admin\Auth\VerifyCode;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('admin.login');
-});
+// Public website homepage.
+Route::view('/', 'welcome')->name('home');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     // Guest-only authentication screens.

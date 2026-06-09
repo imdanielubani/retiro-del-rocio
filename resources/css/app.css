@@ -8,6 +8,11 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Website fonts (match Figma design) */
+    --font-inter: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-poppins: 'Poppins', 'Inter', ui-sans-serif, sans-serif;
+    --font-script: 'Italianno', cursive;
 }
 
 /* Hide scrollbar while keeping the element scrollable. */

@@ -132,7 +132,7 @@
                         </button>
                         {{-- Submenu --}}
                         <div x-show="!mini && open === '{{ $item['key'] }}'" x-collapse x-cloak
-                             class="ml-4 flex flex-col rounded-xl bg-white/5 p-1.5">
+                             class="ml-5 flex flex-col rounded-xl bg-white/5 p-1.5">
                             @foreach ($item['children'] as $child)
                                 <a href="{{ $child['href'] }}" @click="mobileOpen = false"
                                    class="rounded-lg px-4 py-2 text-[14px] text-[#c7cfc0] transition hover:bg-white/5 hover:text-white">
