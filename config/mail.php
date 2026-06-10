@@ -115,4 +115,16 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Contact Form Recipient
+    |--------------------------------------------------------------------------
+    |
+    | Where website "Get in touch" enquiries are delivered. Falls back to the
+    | global "from" address when MAIL_CONTACT_TO is not set.
+    |
+    */
+
+    'contact_to' => env('MAIL_CONTACT_TO', env('MAIL_FROM_ADDRESS', 'hello@example.com')),
+
 ];

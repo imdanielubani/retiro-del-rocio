@@ -1,6 +1,6 @@
 @php
     $links = [
-        ['label' => 'Home', 'href' => '#', 'active' => true],
+        ['label' => 'Home', 'href' => route('home'), 'active' => request()->routeIs('home')],
         ['label' => 'Rooms & Apartment', 'href' => '#', 'active' => false],
         ['label' => 'Gym', 'href' => '#', 'active' => false],
         ['label' => 'Cinema', 'href' => '#', 'active' => false],
@@ -9,7 +9,7 @@
     ];
 @endphp
 
-<nav x-data="{ open: false }" class="relative z-50 w-full bg-[#222a1f]">
+<nav x-data="{ open: false }" class="relative z-50 w-full bg-[#232d22]">
     <x-layouts.container class="flex h-[80px] items-center justify-between lg:h-[114px]">
         {{-- Logo --}}
         <a href="{{ url('/') }}" class="flex shrink-0 items-center" wire:navigate>
@@ -20,13 +20,13 @@
         {{-- Desktop nav --}}
         <div class="hidden items-center gap-[18px] xl:flex xl:gap-[25px]">
             @foreach ($links as $link)
-                <a href="{{ $link['href'] }}"
+                <a href="{{ $link['href'] }}" @if ($link['href'] !== '#') wire:navigate @endif
                    class="whitespace-nowrap text-[18px] transition hover:text-[#f38c00] {{ $link['active'] ? 'font-black text-[#f38c00]' : 'font-medium text-white' }}">
                     {{ $link['label'] }}
                 </a>
             @endforeach
 
-            <a href="#"
+            <a href="{{ route('contact') }}" wire:navigate
                class="flex h-[50px] w-[156px] items-center justify-center rounded-[13px] border border-[#c8c8c8] bg-[#ba6d04] text-[18px] font-medium text-white transition hover:bg-[#a35f03]">
                 Get in touch
             </a>
@@ -46,16 +46,16 @@
     </x-layouts.container>
 
     {{-- Mobile drawer --}}
-    <div x-show="open" x-cloak x-collapse class="border-t border-white/10 bg-[#222a1f] xl:hidden">
+    <div x-show="open" x-cloak x-collapse class="border-t border-white/10 bg-[#232d22] xl:hidden">
         <div class="flex flex-col gap-1 px-5 py-4 sm:px-8">
             @foreach ($links as $link)
-                <a href="{{ $link['href'] }}"
+                <a href="{{ $link['href'] }}" @if ($link['href'] !== '#') wire:navigate @endif
                    class="rounded-lg px-3 py-3 text-[17px] transition hover:bg-white/5 {{ $link['active'] ? 'font-black text-[#f38c00]' : 'font-medium text-white' }}">
                     {{ $link['label'] }}
                 </a>
             @endforeach
 
-            <a href="#"
+            <a href="{{ route('contact') }}" wire:navigate
                class="mt-2 flex h-[50px] items-center justify-center rounded-[13px] border border-[#c8c8c8] bg-[#ba6d04] text-[18px] font-medium text-white transition hover:bg-[#a35f03]">
                 Get in touch
             </a>

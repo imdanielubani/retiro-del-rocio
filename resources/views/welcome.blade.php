@@ -1,4 +1,5 @@
-<x-layouts.web title="Retiro Del Rocio">
+<x-layouts.web title="Retiro Del Rocio — Luxury Hotel & Retreat in Jos"
+    description="Experience stillness at Retiro Del Rocio, a luxury retreat in Jos, Plateau State. Book rooms and apartments, wellness and spa experiences, fine dining, and curated escapes across Jos City.">
     @php
         $rooms = [
             ['name' => "Pandora's Suite", 'price' => '₦350,000', 'image' => 'image 3.jpg'],
@@ -98,22 +99,22 @@
     </section>
 
     {{-- ====================== WHERE STILLNESS FINDS YOU ====================== --}}
-    <section class="relative w-full overflow-hidden pt-14 lg:pt-[20px]">
-        <x-layouts.container class="relative">
-            {{-- Watermark behind, left-aligned, single line --}}
-            <span aria-hidden="true"
-                  class="pointer-events-none absolute left-0 top-[42%] z-0 -translate-y-1/2 -rotate-1 select-none whitespace-nowrap pl-4 text-[64px] font-semibold leading-none tracking-tighter text-white/[0.06] sm:text-[120px] lg:text-[210px] lg:tracking-[-0.08em]">
-                Retiro Del Rocio
-            </span>
+    <section class="relative w-full overflow-hidden py-20 lg:pb-[120px]">
+        <x-layouts.container>
+            {{-- Heading with the del.png wordmark sitting behind + below it (like the design) --}}
+            <div class="relative">
+                {{-- Watermark: flush left, anchored just under the heading's first line, extending down --}}
+                <img src="{{ asset('images/del.png') }}" alt="" aria-hidden="true"
+                     class="pointer-events-none absolute left-0 top-[40px] z-0 w-full max-w-none select-none pl-2 opacity-[10] sm:top-[58px] lg:top-[78px]">
 
-            {{-- Heading + paragraph --}}
-            <div class="relative z-10 grid grid-cols-1 items-start gap-6 px-4 sm:px-8 lg:grid-cols-2 lg:gap-16 lg:px-[60px]">
-                <h2 class="text-4xl font-medium leading-tight tracking-tight text-white sm:text-8xl lg:text-[92px] lg:leading-[88px]">
-                    Where stillness finds you
-                </h2>
-                <p class="text-lg leading-relaxed tracking-tight text-white/90 lg:pt-3 lg:text-[22px]">
-                    Retiro Del Rocio blends modern hospitality with intentional living. From intelligent room experiences and personalized comfort to curated wellness spaces and attentive service, every part of your journey is designed to feel effortless.
-                </p>
+                <div class="relative z-10 grid grid-cols-1 items-start gap-6 px-4 sm:px-8 lg:grid-cols-2 lg:gap-16 lg:px-[60px]">
+                    <h2 class="text-4xl font-medium leading-tight tracking-tight text-white sm:text-6xl lg:text-[72px] lg:leading-[74px]">
+                        Where stillness finds you
+                    </h2>
+                    <p class="text-lg leading-relaxed tracking-tight text-white/90 lg:pt-3 lg:text-[22px]">
+                        Retiro Del Rocio blends modern hospitality with intentional living. From intelligent room experiences and personalized comfort to curated wellness spaces and attentive service, every part of your journey is designed to feel effortless.
+                    </p>
+                </div>
             </div>
 
             {{-- Mobile fallback: the strip's labels stacked, since the wide strip is unreadable on small screens --}}
@@ -127,11 +128,13 @@
             </div>
         </x-layouts.container>
 
+    </section>
+
+    
         {{-- Values strip (roll.jpg) — full-bleed, full viewport width --}}
         <img src="{{ asset('images/roll.jpg') }}"
              alt="Wellness · Pureness · Tranquility · Luxury · Harmony"
              class="mt-10 hidden w-full lg:mt-14 lg:block">
-    </section>
 
     {{-- ===== TEAL BACKDROP (Rectangle 611.jpg) behind offers #1 + destination ===== --}}
     <div class="relative bg-no-repeat"
