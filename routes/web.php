@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Route;
 
 // Public website.
 Route::view('/', 'welcome')->name('home');
+Route::view('rooms-apartment', 'rooms')->name('rooms');
+Route::view('rooms-apartment/pandoras-suite', 'room-detail')->name('rooms.show');
 Route::view('contact-us', 'contact')->name('contact');
 Route::post('contact-us', function () {
     $data = request()->validate([

@@ -105,7 +105,7 @@
             <div class="relative">
                 {{-- Watermark: flush left, anchored just under the heading's first line, extending down --}}
                 <img src="{{ asset('images/del.png') }}" alt="" aria-hidden="true"
-                     class="pointer-events-none absolute left-0 top-[40px] z-0 w-full max-w-none select-none pl-2 opacity-[10] sm:top-[58px] lg:top-[78px]">
+                     class="pointer-events-none absolute left-0 top-[78px] z-0 hidden w-full max-w-none select-none opacity-[10] lg:block">
 
                 <div class="relative z-10 grid grid-cols-1 items-start gap-6 px-4 sm:px-8 lg:grid-cols-2 lg:gap-16 lg:px-[60px]">
                     <h2 class="text-4xl font-medium leading-tight tracking-tight text-white sm:text-6xl lg:text-[72px] lg:leading-[74px]">
@@ -117,24 +117,20 @@
                 </div>
             </div>
 
-            {{-- Mobile fallback: the strip's labels stacked, since the wide strip is unreadable on small screens --}}
-            <div class="relative z-10 mt-10 grid grid-cols-2 gap-x-6 gap-y-8 px-4 sm:grid-cols-3 sm:px-8 lg:hidden">
-                @foreach ($values as $value)
-                    <div class="flex flex-col gap-1">
-                        <p class="text-[13px] font-semibold tracking-[0.15em] text-[#caa468]">{{ $value['title'] }}</p>
-                        <p class="text-[13px] leading-snug text-white/60">{{ $value['text'] }}</p>
-                    </div>
-                @endforeach
-            </div>
+            {{-- Mobile: del.png wordmark shown below the text in a clear band (not behind text) --}}
+            <img src="{{ asset('images/del.png') }}" alt="" aria-hidden="true"
+                 class="pointer-events-none mt-10 h-[62px] w-full max-w-none select-none object-contain object-left opacity-90 lg:hidden">
         </x-layouts.container>
 
     </section>
 
     
         {{-- Values strip (roll.jpg) — full-bleed, full viewport width --}}
-        <img src="{{ asset('images/roll.jpg') }}"
-             alt="Wellness · Pureness · Tranquility · Luxury · Harmony"
-             class="mt-10 hidden w-full lg:mt-14 lg:block">
+        <div class="no-scrollbar mt-10 w-full overflow-x-auto lg:mt-14">
+            <img src="{{ asset('images/roll.jpg') }}"
+                 alt="Wellness · Pureness · Tranquility · Luxury · Harmony"
+                 class="h-auto w-full min-w-[760px]">
+        </div>
 
     {{-- ===== TEAL BACKDROP (Rectangle 611.jpg) behind offers #1 + destination ===== --}}
     <div class="relative bg-no-repeat"
@@ -161,6 +157,7 @@
                     </p>
                 </div>
             </div>
+
         </x-layouts.container>
     </section>
     </div>

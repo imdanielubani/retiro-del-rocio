@@ -15,6 +15,11 @@
     --font-script: 'Italianno', cursive;
 }
 
+/* Keep Alpine x-cloak elements hidden until Alpine initializes (prevents modal/drawer flash). */
+[x-cloak] {
+    display: none !important;
+}
+
 /* Hide scrollbar while keeping the element scrollable. */
 @utility no-scrollbar {
     scrollbar-width: none;
