@@ -13,7 +13,35 @@
     --font-inter: 'Inter', ui-sans-serif, system-ui, sans-serif;
     --font-poppins: 'Poppins', 'Inter', ui-sans-serif, sans-serif;
     --font-script: 'Italianno', cursive;
+
+    /* ----------------------------------------------------------------------
+       Desktop type scale — one standardized set (replaces ~34 ad-hoc sizes).
+       Use these tokens (text-display … text-caption) instead of text-[NNpx].
+       Decorative/script + main-hero sizes (58/72/92px) intentionally stay
+       as one-off arbitrary values.
+       ---------------------------------------------------------------------- */
+    --text-display: 60px;   /* big section / hero-secondary headings */
+    --text-h1: 48px;        /* page titles                          */
+    --text-h2: 36px;        /* major section headings               */
+    --text-h3: 28px;        /* sub-section headings                 */
+    --text-title: 24px;     /* card titles / emphasis               */
+    --text-body-lg: 20px;   /* lead body / list text                */
+    --text-body: 18px;      /* base body                            */
+    --text-body-sm: 16px;   /* secondary body                       */
+    --text-label: 14px;     /* field labels / chips                 */
+    --text-caption: 12px;   /* fine print                           */
 }
+
+/* ----------------------------------------------------------------------
+   Desktop icon scale — one standardized set (replaces ~13 ad-hoc sizes).
+   Use icon-xs … icon-xl on <svg>/<img> icons instead of size-[NNpx].
+   Large decorative graphics (gallery arrows, success badge) stay as-is.
+   ---------------------------------------------------------------------- */
+@utility icon-xs { width: 16px; height: 16px; }
+@utility icon-sm { width: 20px; height: 20px; }
+@utility icon-md { width: 24px; height: 24px; }
+@utility icon-lg { width: 32px; height: 32px; }
+@utility icon-xl { width: 40px; height: 40px; }
 
 /* Keep Alpine x-cloak elements hidden until Alpine initializes (prevents modal/drawer flash). */
 [x-cloak] {

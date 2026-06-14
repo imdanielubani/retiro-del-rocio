@@ -33,18 +33,18 @@
                     {{-- Category tabs --}}
                     <div class="flex flex-wrap items-center gap-x-12 gap-y-3 px-1">
                         <div class="flex flex-col items-start gap-2">
-                            <span class="flex items-center gap-2 text-[18px] font-semibold tracking-tight text-[#ba6d04] sm:text-[22px]">
-                                <img src="{{ asset('images/fluent_bed-24-regular.png') }}" alt="" class="size-[26px] object-contain [filter:brightness(0)_saturate(100%)_invert(48%)_sepia(72%)_saturate(1100%)_hue-rotate(2deg)]">
+                            <span class="flex items-center gap-2 text-body font-semibold tracking-tight text-[#ba6d04] sm:text-body-lg">
+                                <img src="{{ asset('images/fluent_bed-24-regular.png') }}" alt="" class="icon-md object-contain [filter:brightness(0)_saturate(100%)_invert(48%)_sepia(72%)_saturate(1100%)_hue-rotate(2deg)]">
                                 Rooms &amp; Apartment
                             </span>
                             <span class="h-[3px] w-[207px] max-w-full rounded-full bg-[#ba6d04]"></span>
                         </div>
-                        <span class="flex items-center gap-2 text-[18px] font-semibold tracking-tight text-[#6c6c6c] sm:text-[22px]">
-                            <img src="{{ asset('images/Airport.png') }}" alt="" class="size-[28px] object-contain [filter:brightness(0)_opacity(45%)]">
+                        <span class="flex items-center gap-2 text-body font-semibold tracking-tight text-[#6c6c6c] sm:text-body-lg">
+                            <img src="{{ asset('images/Airport.png') }}" alt="" class="icon-lg object-contain [filter:brightness(0)_opacity(45%)]">
                             Airport Pickup
                         </span>
-                        <span class="flex items-center gap-2 text-[18px] font-semibold tracking-tight text-[#6c6c6c] sm:text-[22px]">
-                            <img src="{{ asset('images/travel.png') }}" alt="" class="size-[30px] object-contain [filter:brightness(0)_opacity(45%)]">
+                        <span class="flex items-center gap-2 text-body font-semibold tracking-tight text-[#6c6c6c] sm:text-body-lg">
+                            <img src="{{ asset('images/travel.png') }}" alt="" class="icon-lg object-contain [filter:brightness(0)_opacity(45%)]">
                             Experience
                         </span>
                     </div>
@@ -53,44 +53,44 @@
                     {{-- Search fields (translucent cards on the gray panel) --}}
                     <div class="flex flex-wrap items-stretch gap-[9px]">
                         <div class="flex min-w-[240px] flex-1 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[26px] py-[13px]">
-                            <p class="text-[15px] font-medium tracking-tight text-[#3c3c3c] sm:text-[16px]">Room Type</p>
+                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Room Type</p>
                             <div class="flex items-center justify-between gap-2">
-                                <p class="text-[18px] font-bold text-black sm:text-[20px]">Deluxe (1 Bedroom)</p>
-                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="size-[24px] shrink-0 object-contain">
+                                <p class="text-body font-bold text-black sm:text-body-lg">Deluxe (1 Bedroom)</p>
+                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="icon-md shrink-0 object-contain">
                             </div>
                         </div>
                         <div class="flex min-w-[150px] flex-1 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[23px] py-[14px]">
-                            <p class="text-[15px] font-medium tracking-tight text-[#3c3c3c] sm:text-[16px]">Number of Guest</p>
+                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Number of Guest</p>
                             <div class="flex items-center justify-between gap-2">
-                                <p class="text-[18px] font-bold text-black sm:text-[20px]">2</p>
-                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="size-[24px] shrink-0 object-contain">
+                                <p class="text-body font-bold text-black sm:text-body-lg">2</p>
+                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="icon-md shrink-0 object-contain">
                             </div>
                         </div>
                         <div class="flex min-w-[170px] flex-1 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[25px] py-[11px]">
-                            <p class="text-[15px] font-medium tracking-tight text-[#3c3c3c] sm:text-[16px]">Check-in Date</p>
+                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Check-in Date</p>
                             <div class="flex items-center gap-[6px]">
-                                <img src="{{ asset('images/date.png') }}" alt="" class="size-[28px] shrink-0 object-contain">
-                                <p class="text-[18px] font-bold text-black sm:text-[20px]">23/05/2026</p>
+                                <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
+                                <p class="text-body font-bold text-black sm:text-body-lg">23/05/2026</p>
                             </div>
                         </div>
                         <div class="flex min-w-[170px] flex-1 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[25px] py-[11px]">
-                            <p class="text-[15px] font-medium tracking-tight text-[#3c3c3c] sm:text-[16px]">Check-out Date</p>
+                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Check-out Date</p>
                             <div class="flex items-center gap-[7px]">
-                                <img src="{{ asset('images/date.png') }}" alt="" class="size-[28px] shrink-0 object-contain">
-                                <p class="text-[18px] font-bold text-black sm:text-[20px]">25/05/2026</p>
+                                <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
+                                <p class="text-body font-bold text-black sm:text-body-lg">25/05/2026</p>
                             </div>
                         </div>
                         <div class="flex min-w-[170px] flex-1 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[25px] py-[11px]">
-                            <p class="text-[15px] font-medium tracking-tight text-[#3c3c3c] sm:text-[16px]">Amenities &amp; Services</p>
+                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Amenities &amp; Services</p>
                             <div class="flex items-center justify-between gap-2">
-                                <p class="text-[18px] font-semibold tracking-tight text-[#8c8c8c] sm:text-[20px]">Select</p>
-                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="size-[24px] shrink-0 object-contain">
+                                <p class="text-body font-semibold tracking-tight text-[#8c8c8c] sm:text-body-lg">Select</p>
+                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="icon-md shrink-0 object-contain">
                             </div>
                         </div>
                         <button type="button"
-                                class="flex min-h-[73px] min-w-[180px] flex-1 items-center justify-center gap-[10px] rounded-[14px] bg-[#ba6d04] text-[19px] font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
+                                class="flex min-h-[73px] min-w-[180px] flex-1 items-center justify-center gap-[10px] rounded-[14px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
                             Search
-                            <img src="{{ asset('images/search-line.png') }}" alt="" class="size-[24px] object-contain [filter:brightness(0)_invert(1)]">
+                            <img src="{{ asset('images/search-line.png') }}" alt="" class="icon-md object-contain [filter:brightness(0)_invert(1)]">
                         </button>
                     </div>
                 </div>
@@ -111,7 +111,7 @@
                     <h2 class="text-4xl font-medium leading-tight tracking-tight text-white sm:text-6xl lg:text-[72px] lg:leading-[74px]">
                         Where stillness finds you
                     </h2>
-                    <p class="text-lg leading-relaxed tracking-tight text-white/90 lg:pt-3 lg:text-[22px]">
+                    <p class="text-lg leading-relaxed tracking-tight text-white/90 lg:pt-3 lg:text-body-lg">
                         Retiro Del Rocio blends modern hospitality with intentional living. From intelligent room experiences and personalized comfort to curated wellness spaces and attentive service, every part of your journey is designed to feel effortless.
                     </p>
                 </div>
@@ -152,7 +152,7 @@
                     <h2 class="text-4xl font-medium leading-none tracking-tight text-white sm:text-6xl lg:w-[640px] lg:shrink-0 lg:text-[92px] lg:leading-[90px]">
                         More than a<br>destination
                     </h2>
-                    <p class="text-base leading-relaxed tracking-tight text-white/90 lg:flex-1 lg:pb-3 lg:text-[22px]">
+                    <p class="text-base leading-relaxed tracking-tight text-white/90 lg:flex-1 lg:pb-3 lg:text-body-lg">
                         Surrounded by calming architecture and refined hospitality, every experience is thoughtfully crafted to help you slow down and reconnect. From personalized room experiences and wellness-centered spaces to seamless service and quiet luxury, every detail is designed to make your stay feel effortless.
                     </p>
                 </div>
@@ -171,22 +171,22 @@
                      class="h-[260px] w-full object-cover lg:h-full lg:min-h-[508px]">
                 <div class="flex flex-col justify-center gap-[27px] bg-[#e8e6e1] px-8 py-12 lg:px-[51px] lg:py-[80px]">
                     <div class="flex flex-col gap-[12px] text-[#343a40]">
-                        <h2 class="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-[52px] lg:leading-[52px]">
+                        <h2 class="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-h1 lg:leading-[52px]">
                             Become a member of Retiro Del Rocio
                         </h2>
-                        <p class="text-base leading-snug lg:text-[20px]">
+                        <p class="text-base leading-snug lg:text-body-lg">
                             Get exclusive discounts on services, experiences, and curated destinations across Jos and beyond. Enjoy member-only perks designed to help you explore more for less.
                         </p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <button type="button"
-                                class="flex items-center justify-center rounded-[6px] bg-[#ba6d04] px-6 py-4 text-[20px] font-semibold text-white transition hover:bg-[#a35f03]">
+                                class="flex items-center justify-center rounded-[6px] bg-[#ba6d04] px-6 py-4 text-body-lg font-semibold text-white transition hover:bg-[#a35f03]">
                             Subscribe
                         </button>
                         <button type="button"
-                                class="flex items-center justify-center gap-3 rounded-[6px] px-6 py-4 text-[20px] font-semibold text-[#343a40] transition hover:text-[#ba6d04]">
+                                class="flex items-center justify-center gap-3 rounded-[6px] px-6 py-4 text-body-lg font-semibold text-[#343a40] transition hover:text-[#ba6d04]">
                             Contact Us
-                            <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="m10 8 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="m10 8 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
                     </div>
                 </div>
@@ -204,10 +204,10 @@
             <img src="{{ asset('images/IMG_2625 1.jpg') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[300px]">
             {{-- top-right text --}}
             <div class="flex flex-col justify-center gap-[24px]">
-                <h2 class="text-4xl font-medium leading-tight tracking-tight text-white sm:text-5xl lg:text-[60px] lg:leading-[60px]">
+                <h2 class="text-4xl font-medium leading-tight tracking-tight text-white sm:text-5xl lg:text-display lg:leading-[60px]">
                     Beyond the stay<br>Explore Jos City
                 </h2>
-                <p class="text-base leading-relaxed tracking-tight text-white/90 lg:text-[20px]">
+                <p class="text-base leading-relaxed tracking-tight text-white/90 lg:text-body-lg">
                     Experience the beauty and calm that make Jos truly unforgettable. From breathtaking rock landscapes and cool weather to peaceful nature trails and rich local culture, every moment invites discovery. Whether you seek adventure, relaxation, or quiet reflection, Jos offers a refreshing escape where nature, serenity, and memorable experiences come together beautifully.
                 </p>
             </div>
@@ -227,11 +227,11 @@
                      class="absolute inset-0 h-full w-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 <div class="absolute inset-x-0 bottom-0 flex flex-col gap-[29px] p-8 lg:p-[60px]">
-                    <h2 class="max-w-[420px] text-3xl font-medium leading-tight tracking-tight text-white sm:text-4xl lg:text-[60px] lg:leading-[58px]">
+                    <h2 class="max-w-[420px] text-3xl font-medium leading-tight tracking-tight text-white sm:text-4xl lg:text-display lg:leading-[58px]">
                         Explore our wellness lifestyle
                     </h2>
                     <button type="button"
-                            class="flex h-[64px] w-[220px] items-center justify-center rounded-[10px] bg-[#ba6d04] text-[20px] font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
+                            class="flex h-[64px] w-[220px] items-center justify-center rounded-[10px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
                         Explore
                     </button>
                 </div>
@@ -240,10 +240,10 @@
             {{-- Right: train/recover text + gym image --}}
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col gap-[24px]">
-                    <h2 class="text-3xl font-medium leading-tight tracking-tight text-white sm:text-5xl lg:text-[60px] lg:leading-[60px]">
+                    <h2 class="text-3xl font-medium leading-tight tracking-tight text-white sm:text-5xl lg:text-display lg:leading-[60px]">
                         Train. Recover. Recharge.
                     </h2>
-                    <p class="text-base leading-relaxed tracking-tight text-white/90 lg:text-[20px]">
+                    <p class="text-base leading-relaxed tracking-tight text-white/90 lg:text-body-lg">
                         Stay active and restore your balance in a space designed for movement, wellness, and recovery. Whether you’re maintaining your routine, starting your day with energy, or unwinding after a long one, our fitness and wellness experience is designed to help you feel refreshed, focused, and recharged throughout your stay.
                     </p>
                 </div>

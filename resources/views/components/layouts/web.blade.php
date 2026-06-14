@@ -43,5 +43,6 @@
     <x-toast />
 
     @livewireScripts
+    @stack('scripts')
 </body>
 </html>
