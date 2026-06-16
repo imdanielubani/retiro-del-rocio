@@ -9,8 +9,13 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
-    /* Website fonts (match Figma design) */
-    --font-inter: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    /* Website fonts (match Figma design)
+       Primary UI font is SF Pro Text (per Figma). SF Pro is Apple-licensed and
+       cannot be self-hosted for the web, so the stack renders the real SF on
+       Apple devices (-apple-system / BlinkMacSystemFont) and falls back to the
+       loaded Inter — the closest free match — everywhere else. */
+    --font-sf: 'SF Pro Text', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-inter: var(--font-sf);
     --font-poppins: 'Poppins', 'Inter', ui-sans-serif, sans-serif;
     --font-script: 'Italianno', cursive;
 

@@ -31,7 +31,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="flex min-h-screen flex-col bg-[#242d22] font-inter text-white antialiased">
+<body class="flex min-h-screen flex-col bg-[#242d22] font-sf text-white antialiased">
     <x-layouts.navbar />
 
     <main class="flex-1 overflow-x-hidden">

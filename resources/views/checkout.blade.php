@@ -48,7 +48,7 @@
              }">
         <x-layouts.container class="flex flex-col gap-8">
             {{-- Breadcrumb --}}
-            <a href="{{ route('rooms.show') }}" wire:navigate class="flex w-fit items-center gap-2 text-body font-semibold tracking-tight text-white transition hover:text-[#f38c00] sm:text-title">
+            <a href="{{ ! empty($booking['room_slug']) ? route('rooms.show', $booking['room_slug']) : route('rooms') }}" wire:navigate class="flex w-fit items-center gap-2 text-body font-semibold tracking-tight text-white transition hover:text-[#f38c00] sm:text-title">
                 <svg class="icon-lg shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                 <span>Home / Room &amp; Apartment / Pandora's_suite / <span class="text-[#f38c00]">Checkout</span></span>
             </a>
@@ -74,7 +74,7 @@
                     <div class="flex flex-col gap-8 rounded-[10px] bg-[#373d35]/[0.34] p-6 sm:p-8 lg:p-10">
                         <div class="flex items-center justify-between gap-4">
                             <h2 class="text-3xl font-semibold tracking-tight text-white lg:text-h2">Summary</h2>
-                            <a href="{{ route('rooms.show') }}" wire:navigate class="flex shrink-0 items-center gap-2 text-body font-semibold tracking-tight text-white transition hover:text-[#f38c00] lg:text-body-lg">
+                            <a href="{{ ! empty($booking['room_slug']) ? route('rooms.show', $booking['room_slug']) : route('rooms') }}" wire:navigate class="flex shrink-0 items-center gap-2 text-body font-semibold tracking-tight text-white transition hover:text-[#f38c00] lg:text-body-lg">
                                 Edit selection
                                 <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                             </a>

@@ -13,18 +13,23 @@
             <div x-ref="track"
                  class="no-scrollbar flex w-full snap-x snap-mandatory gap-[14px] overflow-x-auto scroll-smooth">
                 @foreach ($rooms as $room)
-                    <a href="#" data-card
-                       class="group relative block w-[686px] max-w-[88%] shrink-0 snap-start overflow-hidden rounded-2xl">
-                        <img src="{{ asset('images/'.$room['image']) }}" alt="{{ $room['name'] }}"
+                    @php($isModel = $room instanceof \App\Models\Room)
+                    @php($cardImage = $isModel ? $room->featuredUrl() : str_replace(' ', '%20', asset('images/'.$room['image'])))
+                    @php($cardName = $isModel ? $room->name : $room['name'])
+                    @php($cardPrice = $isModel ? $room->priceLabel() : $room['price'])
+                    @php($cardHref = $isModel ? route('rooms.show', $room) : '#')
+                    <a href="{{ $cardHref }}" @if ($isModel) wire:navigate @endif data-card
+                       class="group relative block w-[686px] max-w-[88%] shrink-0 snap-start overflow-hidden rounded-2xl bg-[#1e1e1e]">
+                        <img src="{{ $cardImage }}" alt="{{ $cardName }}"
                              class="h-[420px] w-full object-cover transition duration-500 group-hover:scale-105 lg:h-[541px]">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent"></div>
 
                         <div class="absolute inset-x-0 bottom-0 flex flex-col gap-4 p-6 lg:p-9">
                             {{-- Title + price --}}
                             <div class="flex flex-wrap items-center justify-between gap-2">
-                                <p class="text-2xl font-semibold tracking-tight text-white lg:text-h2">{{ $room['name'] }}</p>
+                                <p class="text-2xl font-semibold tracking-tight text-white lg:text-h2">{{ $cardName }}</p>
                                 <p class="flex items-baseline gap-1 text-white">
-                                    <span class="text-2xl font-bold tracking-tight lg:text-h3">{{ $room['price'] }}</span>
+                                    <span class="text-2xl font-bold tracking-tight lg:text-h3">{{ $cardPrice }}</span>
                                     <span class="text-base font-semibold text-white/60 lg:text-body-lg">/ night</span>
                                 </p>
                             </div>

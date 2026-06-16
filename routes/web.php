@@ -1,20 +1,52 @@
 <?php
 
 use App\Http\Controllers\Admin\Auth\LogoutController;
-use App\Mail\BookingRequest;
-use App\Mail\ContactEnquiry;
-use Illuminate\Support\Facades\Mail;
 use App\Livewire\Admin\Auth\ForgotPassword;
 use App\Livewire\Admin\Auth\Login;
 use App\Livewire\Admin\Auth\ResetSuccess;
 use App\Livewire\Admin\Auth\SetNewPassword;
 use App\Livewire\Admin\Auth\VerifyCode;
+use App\Livewire\Admin\Rooms\Edit;
+use App\Livewire\Admin\Rooms\Index;
+use App\Mail\BookingRequest;
+use App\Mail\ContactEnquiry;
+use App\Models\Booking;
+use App\Models\ContactMessage;
+use App\Models\Room;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 // Public website.
 Route::view('/', 'welcome')->name('home');
 Route::view('rooms-apartment', 'rooms')->name('rooms');
-Route::view('rooms-apartment/pandoras-suite', 'room-detail')->name('rooms.show');
+Route::get('rooms-apartment/{room:slug}', function (Room $room) {
+    abort_unless($room->is_published, 404);
+
+    return view('room-detail', [
+        'room' => $room,
+        'offers' => Room::published()->where('id', '!=', $room->id)->ordered()->take(2)->get(),
+    ]);
+})->name('rooms.show');
+
+// Live room availability for a date range (used by the room detail page).
+Route::get('rooms-apartment/{room:slug}/availability', function (Room $room) {
+    $checkIn = request('check_in');
+    $checkOut = request('check_out');
+
+    if (! $checkIn || ! $checkOut || Carbon::parse($checkOut)->lte(Carbon::parse($checkIn))) {
+        return response()->json(['ok' => false, 'available' => null, 'count' => null]);
+    }
+
+    $count = $room->availableUnitsForDates($checkIn, $checkOut);
+
+    return response()->json([
+        'ok' => true,
+        'available' => $count === null ? true : $count > 0,
+        'count' => $count, // null = no inventory limit configured
+    ]);
+})->name('rooms.availability');
 
 /*
 |--------------------------------------------------------------------------
@@ -24,9 +56,13 @@ Route::view('rooms-apartment/pandoras-suite', 'room-detail')->name('rooms.show')
 
 // Build the full priced booking summary from the raw reservation input.
 $buildBooking = function (array $b): array {
-    $pricePerNight = 350000;
-    $checkIn = \Illuminate\Support\Carbon::parse($b['check_in']);
-    $checkOut = \Illuminate\Support\Carbon::parse($b['check_out']);
+    // Prefer the real room price; fall back to the submitted label, then a default.
+    $room = ! empty($b['room_slug']) ? Room::where('slug', $b['room_slug'])->first() : null;
+    $pricePerNight = $room?->price
+        ?? (! empty($b['price']) ? (int) preg_replace('/[^0-9]/', '', $b['price']) : 0)
+        ?: 350000;
+    $checkIn = Carbon::parse($b['check_in']);
+    $checkOut = Carbon::parse($b['check_out']);
     $nights = max(1, (int) $checkIn->diffInDays($checkOut));
     $roomSubtotal = $pricePerNight * $nights;
     $pickupPrice = ! empty($b['pickup_price']) ? (int) preg_replace('/[^0-9]/', '', $b['pickup_price']) : 0;
@@ -44,6 +80,7 @@ $buildBooking = function (array $b): array {
 
     return [
         'room' => $b['room'],
+        'room_slug' => $b['room_slug'] ?? null,
         'price_per_night' => $pricePerNight,
         'price' => $naira($pricePerNight),
         'guests' => (int) $b['guests'],
@@ -71,6 +108,7 @@ $buildBooking = function (array $b): array {
 Route::post('checkout', function () use ($buildBooking) {
     $data = request()->validate([
         'room' => ['required', 'string', 'max:190'],
+        'room_slug' => ['nullable', 'string', 'max:190'],
         'price' => ['required', 'string', 'max:60'],
         'guests' => ['required', 'integer', 'min:1', 'max:30'],
         'check_in' => ['required', 'date'],
@@ -83,6 +121,17 @@ Route::post('checkout', function () use ($buildBooking) {
         'pickup_time' => ['nullable', 'string', 'max:20'],
         'flight_number' => ['nullable', 'string', 'max:40'],
     ]);
+
+    // Block booking when no room number is free for the requested dates.
+    if (! empty($data['room_slug'])) {
+        $room = Room::where('slug', $data['room_slug'])->first();
+        if ($room && ! $room->isAvailableForDates($data['check_in'], $data['check_out'])) {
+            return back()->with('toast', [
+                'type' => 'error',
+                'message' => 'Sorry, '.$room->name.' is fully booked for those dates. Please choose different dates.',
+            ]);
+        }
+    }
 
     session(['booking' => $buildBooking($data)]);
 
@@ -115,7 +164,7 @@ Route::get('checkout/callback', function () {
     $secret = config('services.paystack.secret_key');
 
     try {
-        $response = \Illuminate\Support\Facades\Http::withToken($secret)
+        $response = Http::withToken($secret)
             ->acceptJson()
             ->get(rtrim(config('services.paystack.payment_url'), '/').'/transaction/verify/'.$reference);
 
@@ -127,7 +176,7 @@ Route::get('checkout/callback', function () {
                 'message' => 'We could not verify your payment. If you were charged, please contact us with your reference: '.$reference,
             ]);
         }
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         report($e);
 
         return redirect()->route('checkout')->with('toast', [
@@ -146,6 +195,36 @@ Route::get('checkout/callback', function () {
 
     session(['order' => $order]);
     session()->forget('booking');
+
+    // Persist the paid booking so it appears in Admin → Apartments → Bookings.
+    try {
+        $room = Room::where('slug', $order['room_slug'] ?? null)
+            ->orWhere('name', $order['room'] ?? null)
+            ->first();
+
+        Booking::updateOrCreate(
+            ['reference' => $reference],
+            [
+                'room_id' => $room?->id,
+                'room_name' => $order['room'] ?? null,
+                'guests' => (int) ($order['guests'] ?? 1),
+                'check_in' => $order['check_in'] ?? null,
+                'check_out' => $order['check_out'] ?? null,
+                'nights' => (int) ($order['nights'] ?? 1),
+                'amount' => (int) ($order['total'] ?? 0),
+                'customer_name' => $order['customer_name'] ?? null,
+                'customer_email' => $order['customer_email'] ?? null,
+                'customer_phone' => $order['customer_phone'] ?? null,
+                'pickup_vehicle' => $order['pickup_vehicle'] ?? null,
+                'pickup_price' => $order['pickup_price'] ?? null,
+                'status' => 'paid',
+                'payment_method' => data_get($body, 'data.channel'),
+                'paid_at' => $order['paid_at'] ?? now(),
+            ]
+        );
+    } catch (Throwable $e) {
+        report($e);
+    }
 
     // Notify the hotel of the confirmed, paid reservation.
     try {
@@ -167,7 +246,7 @@ Route::get('checkout/callback', function () {
             'pickup_time' => $order['pickup_time'],
             'flight_number' => $order['flight_number'],
         ]));
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         report($e);
     }
 
@@ -205,18 +284,19 @@ Route::post('contact-us', function () {
         'message' => ['nullable', 'string', 'max:5000'],
     ]);
 
+    // Persist the enquiry so it appears in Admin → Website CMS → Messages.
+    try {
+        ContactMessage::create($data + ['status' => 'new']);
+    } catch (Throwable $e) {
+        report($e);
+    }
+
     try {
         $recipient = config('mail.contact_to', config('mail.from.address'));
         Mail::to($recipient)->send(new ContactEnquiry($data));
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         report($e);
-
-        return back()
-            ->withInput()
-            ->with('toast', [
-                'type' => 'error',
-                'message' => 'Sorry, we could not send your message right now. Please try again or email us directly.',
-            ]);
+        // The message is already saved; surface a soft notice but don't lose it.
     }
 
     return back()->with('toast', [
@@ -239,5 +319,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth', 'admin'])->group(function () {
         Route::view('/', 'admin.dashboard')->name('dashboard');
         Route::post('logout', LogoutController::class)->name('logout');
+
+        // Apartments — Rooms (full-page Livewire components)
+        Route::get('apartments/rooms', Index::class)->name('rooms.index');
+        Route::get('apartments/rooms/create', Edit::class)->name('rooms.create');
+        Route::get('apartments/rooms/{room}/edit', Edit::class)->name('rooms.edit');
+        Route::get('apartments/rooms/{room}/calendar', \App\Livewire\Admin\Rooms\Calendar::class)->name('rooms.calendar');
+
+        // Apartments — Bookings
+        Route::get('apartments/bookings', App\Livewire\Admin\Bookings\Index::class)->name('bookings.index');
+        Route::get('apartments/bookings/{booking}', App\Livewire\Admin\Bookings\Show::class)->name('bookings.show');
+
+        // Website CMS — editable content + contact messages
+        Route::get('website-cms', App\Livewire\Admin\Cms\Edit::class)->name('cms.edit');
+        Route::get('website-cms/messages', App\Livewire\Admin\Messages\Index::class)->name('messages.index');
+
+        // Payment — transactions captured from checkout
+        Route::get('payment', App\Livewire\Admin\Payment\Index::class)->name('payment.index');
     });
 });

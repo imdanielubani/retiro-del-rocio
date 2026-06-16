@@ -1,31 +1,19 @@
-<x-layouts.web title="Pandora's Suite — Rooms & Apartment — Retiro Del Rocio"
-    description="Pandora's Suite at Retiro Del Rocio — a luxury apartment with twin beds, ensuite bathroom, fitness lounge, pool, wifi, complimentary breakfast, and more. ₦350,000 / night.">
+<x-layouts.web :title="$room->name.' — Rooms & Apartment — Retiro Del Rocio'"
+    :description="\Illuminate\Support\Str::limit(strip_tags($room->short_description ?: $room->description), 150)">
 
     @php
-        $gallery = ['image 7bg.jpg', 'images 2.jpg', 'images 8.jpg', 'images 10.jpg', 'images 9.jpg', 'images 12.jpg'];
-        $galleryUrls = array_map(fn ($img) => str_replace(' ', '%20', asset('images/'.$img)), $gallery);
-
-        $amenities = [
-            ['label' => 'Fitness Lounge', 'icon' => 'fitness'],
-            ['label' => '2 Beds', 'icon' => 'bed'],
-            ['label' => 'Wifi', 'icon' => 'wifi'],
-            ['label' => 'Pool', 'icon' => 'pool'],
-            ['label' => 'Restaurant', 'icon' => 'restaurant'],
-            ['label' => 'Parking', 'icon' => 'parking'],
-            ['label' => 'Complimentary Breakfast', 'icon' => 'breakfast'],
-        ];
-
-        $offers = [
-            ['name' => "Pandora's Suite", 'price' => '₦350,000', 'image' => 'image 3.jpg'],
-            ['name' => "Pandora's Suite", 'price' => '₦350,000', 'image' => 'image 9.jpg'],
-        ];
+        $galleryUrls = $room->galleryUrls();
+        if (empty($galleryUrls)) {
+            $galleryUrls = [str_replace(' ', '%20', asset('images/image 7bg.jpg'))];
+        }
+        $amenities = $room->amenities ?: [];
     @endphp
 
     {{-- =========================== GALLERY HERO =========================== --}}
     <section x-data="{ urls: @js($galleryUrls), i: 0, prev() { this.i = (this.i - 1 + this.urls.length) % this.urls.length }, next() { this.i = (this.i + 1) % this.urls.length } }">
         {{-- Main image --}}
         <div class="relative w-full overflow-hidden">
-            <img :src="urls[i]" alt="Pandora's Suite"
+            <img :src="urls[i]" alt="{{ $room->name }}"
                  class="h-[380px] w-full object-cover sm:h-[560px] lg:h-[720px]">
             <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/75 via-transparent to-black/20"></div>
 
@@ -41,7 +29,7 @@
                         <span class="text-white/80"> / </span>
                         <a href="{{ route('rooms') }}" wire:navigate class="hover:text-[#f38c00]">Room &amp; Apartment</a>
                         <span class="text-white/80"> / </span>
-                        <span class="text-[#f38c00]">Pandora's_Suite</span>
+                        <span class="text-[#f38c00]">{{ $room->name }}</span>
                     </p>
                 </nav>
             </x-layouts.container>
@@ -91,17 +79,32 @@
                 pickupTime: '11:30',
                 flightNumber: 'LOS3782923',
                 pickup: null,
+                availUrl: @js(route('rooms.availability', $room)),
+                checking: false, availChecked: false, available: true, availCount: null,
                 selectVehicle(v) { this.pickup = v; this.vehicleModal = false; },
                 fmtDate(d) { if (!d) return ''; return new Date(d + 'T00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); },
                 fmtTime(t) { if (!t) return ''; let [h, m] = t.split(':'); h = parseInt(h); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return h + ':' + m + ' ' + ap; },
+                async checkAvail() {
+                    if (!this.checkIn || !this.checkOut || this.checkOut <= this.checkIn) { this.availChecked = false; this.available = true; this.availCount = null; return; }
+                    this.checking = true;
+                    try {
+                        const r = await fetch(this.availUrl + '?check_in=' + this.checkIn + '&check_out=' + this.checkOut, { headers: { 'Accept': 'application/json' } });
+                        const d = await r.json();
+                        this.available = d.available !== false;
+                        this.availCount = d.count;
+                        this.availChecked = !!d.ok;
+                    } catch (e) { this.availChecked = false; this.available = true; }
+                    this.checking = false;
+                },
+                init() { this.checkAvail(); this.$watch('checkIn', () => this.checkAvail()); this.$watch('checkOut', () => this.checkAvail()); },
              }"
              class="w-full bg-gradient-to-t from-[#222a1f] to-[#1e1e1e] py-12 lg:py-16">
         <x-layouts.container class="flex flex-col gap-[26px]">
             {{-- Title + price --}}
             <div class="flex flex-wrap items-center justify-between gap-4">
-                <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-h1">Pandora's Suite</h1>
+                <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-h1">{{ $room->name }}</h1>
                 <p class="flex items-baseline gap-1 text-white">
-                    <span class="text-2xl font-semibold tracking-tight lg:text-h2">₦350,000</span>
+                    <span class="text-2xl font-semibold tracking-tight lg:text-h2">{{ $room->priceLabel() }}</span>
                     <span class="text-base text-white/60 lg:text-body-lg">/ night</span>
                 </p>
             </div>
@@ -109,8 +112,9 @@
             {{-- Booking row (functional) --}}
             <form method="POST" action="{{ route('checkout.start') }}" class="flex flex-col gap-[3px] sm:flex-row sm:flex-wrap">
                 @csrf
-                <input type="hidden" name="room" value="Pandora's Suite">
-                <input type="hidden" name="price" value="₦350,000">
+                <input type="hidden" name="room" value="{{ $room->name }}">
+                <input type="hidden" name="room_slug" value="{{ $room->slug }}">
+                <input type="hidden" name="price" value="{{ $room->priceLabel() }}">
                 {{-- Airport pick-up (only submitted when a vehicle is selected) --}}
                 <input type="hidden" name="pickup_vehicle" :value="pickup ? pickup.name : ''">
                 <input type="hidden" name="pickup_price" :value="pickup ? pickup.price : ''">
@@ -148,11 +152,20 @@
                                class="w-full bg-transparent text-body-lg font-bold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
                     </div>
                 </div>
-                <button type="submit"
-                        class="flex min-h-[78px] min-w-[200px] items-center justify-center rounded-[6px] bg-[#ba6d04] px-6 text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] sm:min-w-[279px]">
-                    Make reservation
+                <button type="submit" :disabled="availChecked && !available"
+                        class="flex min-h-[78px] min-w-[200px] items-center justify-center rounded-[6px] bg-[#ba6d04] px-6 text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] sm:min-w-[279px]"
+                        :class="(availChecked && !available) ? 'opacity-50 cursor-not-allowed hover:bg-[#ba6d04]' : ''">
+                    <span x-show="!(availChecked && !available)">Make reservation</span>
+                    <span x-show="availChecked && !available" x-cloak>Unavailable</span>
                 </button>
             </form>
+
+            {{-- Live date-range availability --}}
+            <p x-show="availChecked" x-cloak class="-mt-2 text-body-sm tracking-tight">
+                <span x-show="available && availCount !== null" class="font-semibold text-[#7ee0a1]" x-text="availCount + (availCount === 1 ? ' room' : ' rooms') + ' available for these dates'"></span>
+                <span x-show="available && availCount === null" class="text-white/60">Available for these dates</span>
+                <span x-show="!available" class="font-semibold text-[#ff8a8a]">Fully booked for these dates — please choose different dates.</span>
+            </p>
 
             {{-- Airport pickup trigger (shown until a vehicle is selected) --}}
             <button type="button" x-show="!pickup" @click="airportModal = true" class="flex w-fit cursor-pointer items-center gap-1.5 text-white transition hover:text-[#f38c00]">
@@ -430,9 +443,7 @@
     <section class="w-full pb-10">
         <x-layouts.container class="flex flex-col gap-[17px]">
             <h2 class="text-h3 font-semibold tracking-tight text-white">Description</h2>
-            <p class="text-lg leading-relaxed tracking-tight text-white/90 lg:text-body-lg">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed lacus luctus dolor volutpat aliquet eget ut dolor. Duis diam nisl, maximus ac egestas eget, porta eget ipsum. Fusce tristique erat elit, sit amet pretium nisi consectetur sed. Integer sagittis fermentum semper. Duis metus erat,
-            </p>
+            <p class="whitespace-pre-line text-lg leading-relaxed tracking-tight text-white/90 lg:text-body-lg">{{ $room->description }}</p>
         </x-layouts.container>
     </section>
 
@@ -520,8 +531,8 @@
         <x-layouts.container class="flex flex-col gap-[50px] lg:gap-[68px]">
             <h2 class="text-center text-2xl tracking-tight text-white sm:text-3xl lg:text-h2">Explore our exclusive offers</h2>
             <div class="grid grid-cols-1 gap-[15px] md:grid-cols-2">
-                @foreach ($offers as $room)
-                    <x-layouts.room-card :image="$room['image']" :name="$room['name']" :price="$room['price']" />
+                @foreach ($offers as $offer)
+                    <x-layouts.room-card :room="$offer" />
                 @endforeach
             </div>
         </x-layouts.container>

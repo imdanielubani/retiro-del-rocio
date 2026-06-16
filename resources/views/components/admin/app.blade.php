@@ -14,8 +14,8 @@
     // NOTE: submenu links use '#' placeholders until their module routes exist.
     $operations = [
         ['key' => 'apartments', 'label' => 'Apartments', 'icon' => 'Exclude.png', 'children' => [
-            ['label' => 'Bookings', 'href' => '#'],
-            ['label' => 'Rooms', 'href' => '#'],
+            ['label' => 'Bookings', 'href' => route('admin.bookings.index'), 'active' => request()->routeIs('admin.bookings.*')],
+            ['label' => 'Rooms', 'href' => route('admin.rooms.index'), 'active' => request()->routeIs('admin.rooms.*')],
         ]],
         ['key' => 'restaurants', 'label' => 'Restaurants', 'icon' => 'restaurants.png', 'children' => [
             ['label' => 'Menus', 'href' => '#'],
@@ -29,15 +29,22 @@
             ['label' => 'Services', 'href' => '#'],
             ['label' => 'Appointments', 'href' => '#'],
         ]],
-        ['label' => 'Website CMS', 'icon' => 'websitecms.png', 'href' => '#'],
+        ['key' => 'website-cms', 'label' => 'Website CMS', 'icon' => 'websitecms.png', 'children' => [
+            ['label' => 'Content', 'href' => route('admin.cms.edit'), 'active' => request()->routeIs('admin.cms.*')],
+            ['label' => 'Messages', 'href' => route('admin.messages.index'), 'active' => request()->routeIs('admin.messages.*')],
+        ]],
         ['label' => 'Gym', 'icon' => 'gym.png', 'href' => '#'],
         ['key' => 'cinema', 'label' => 'Cinema', 'icon' => 'cinema.png', 'children' => [
             ['label' => 'Movies', 'href' => '#'],
             ['label' => 'Showtimes', 'href' => '#'],
         ]],
-        ['label' => 'Payment', 'icon' => 'payment.png', 'href' => '#'],
+        ['label' => 'Payment', 'icon' => 'payment.png', 'href' => route('admin.payment.index'), 'active' => request()->routeIs('admin.payment.*')],
         ['label' => 'Role & Permissions', 'icon' => 'spa&wellness.png', 'href' => '#'],
     ];
+
+    // Which expandable group should start open (the one containing the active route).
+    $activeMenu = collect($operations)
+        ->first(fn ($item) => ! empty($item['children']) && collect($item['children'])->contains(fn ($c) => $c['active'] ?? false))['key'] ?? null;
 @endphp
 
 <!DOCTYPE html>
@@ -55,7 +62,7 @@
     <div
         x-data="{
             collapsed: JSON.parse(localStorage.getItem('sidebarCollapsed') ?? 'false'),
-            open: null,
+            open: @js($activeMenu),
             mobileOpen: false,
             isDesktop: window.matchMedia('(min-width: 1024px)').matches,
             get mini() { return this.collapsed && this.isDesktop },
@@ -86,16 +93,8 @@
                 <img x-show="mini" x-cloak src="{{ asset('images/Hotel Logo 1.png') }}" alt="" class="h-9 w-auto object-contain">
             </div>
 
-            <div x-show="mini" x-cloak class="my-4 h-px w-full shrink-0 bg-white/10"></div>
-
-            {{-- User card (static) --}}
-            <div class="mt-4 flex shrink-0 items-center gap-3 rounded-xl bg-white/5 p-3" :class="mini ? 'justify-center bg-transparent p-0' : ''">
-                <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f38c00] text-[15px] font-bold text-white">{{ $initial }}</div>
-                <div x-show="!mini" x-cloak class="min-w-0">
-                    <p class="truncate text-[14px] font-bold text-white">{{ $user->name }}</p>
-                    <p class="truncate text-[12px] text-[#9aa491]">{{ $user->email }}</p>
-                </div>
-            </div>
+            {{-- Demarcation line above the navigation --}}
+            <div class="my-2 h-px w-full shrink-0 bg-white/20"></div>
 
             {{-- Nav (scrollable) --}}
             <nav class="no-scrollbar mt-6 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
@@ -119,7 +118,11 @@
                     @if (! empty($item['children']))
                         {{-- Expandable item --}}
                         <button type="button" @click="toggleMenu('{{ $item['key'] }}')"
-                                class="group flex items-center gap-3 rounded-xl px-3 py-3 text-[14px] font-medium text-[#c7cfc0] transition hover:bg-white/5 hover:text-white"
+                                @class([
+                                    'group flex items-center gap-3 rounded-xl px-3 py-3 text-[14px] font-medium transition',
+                                    'bg-[#3a4631] text-white' => $activeMenu === $item['key'],
+                                    'text-[#c7cfc0] hover:bg-white/5 hover:text-white' => $activeMenu !== $item['key'],
+                                ])
                                 :class="mini ? 'justify-center' : ''"
                                 x-bind:title="mini ? '{{ $item['label'] }}' : ''">
                             <img src="{{ asset('images/'.$item['icon']) }}" alt="" class="size-5 shrink-0">
@@ -132,18 +135,26 @@
                         </button>
                         {{-- Submenu --}}
                         <div x-show="!mini && open === '{{ $item['key'] }}'" x-collapse x-cloak
-                             class="ml-5 flex flex-col rounded-xl bg-white/5 p-1.5">
+                             class="flex flex-col rounded-xl bg-white/5 p-1.5">
                             @foreach ($item['children'] as $child)
-                                <a href="{{ $child['href'] }}" @click="mobileOpen = false"
-                                   class="rounded-lg px-4 py-2 text-[14px] text-[#c7cfc0] transition hover:bg-white/5 hover:text-white">
+                                <a href="{{ $child['href'] }}" @if(($child['href'] ?? '#') !== '#') wire:navigate @endif @click="mobileOpen = false"
+                                   @class([
+                                       'rounded-lg px-4 py-2 text-[14px] transition',
+                                       'bg-white/10 font-semibold text-white' => $child['active'] ?? false,
+                                       'text-[#c7cfc0] hover:bg-white/5 hover:text-white' => ! ($child['active'] ?? false),
+                                   ])>
                                     {{ $child['label'] }}
                                 </a>
                             @endforeach
                         </div>
                     @else
                         {{-- Direct link --}}
-                        <a href="{{ $item['href'] }}" @click="mobileOpen = false"
-                           class="group flex items-center gap-3 rounded-xl px-3 py-3 text-[14px] font-medium text-[#c7cfc0] transition hover:bg-white/5 hover:text-white"
+                        <a href="{{ $item['href'] }}" @if(($item['href'] ?? '#') !== '#') wire:navigate @endif @click="mobileOpen = false"
+                           @class([
+                               'group flex items-center gap-3 rounded-xl px-3 py-3 text-[14px] font-medium transition',
+                               'bg-[#3a4631] text-white' => $item['active'] ?? false,
+                               'text-[#c7cfc0] hover:bg-white/5 hover:text-white' => ! ($item['active'] ?? false),
+                           ])
                            :class="mini ? 'justify-center' : ''"
                            x-bind:title="mini ? '{{ $item['label'] }}' : ''">
                             <img src="{{ asset('images/'.$item['icon']) }}" alt="" class="size-5 shrink-0">
@@ -179,50 +190,50 @@
         {{-- ===== Main panel ===== --}}
         <main class="m-3 flex flex-1 flex-col overflow-hidden rounded-[20px] bg-[#f3f3ee] sm:rounded-[28px] lg:ml-0">
             {{-- Topbar --}}
-            <header class="m-3 flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm sm:m-4 sm:gap-4 sm:px-5">
-                <div class="flex min-w-0 items-center gap-3 sm:gap-4">
+            <header class="m-3 flex items-center justify-between gap-3 rounded-[15px] border border-[#e5e5e5]/95 bg-white px-3.5 py-2.5 sm:m-4 sm:gap-4">
+                <div class="flex min-w-0 items-center gap-3 sm:gap-[15px]">
                     {{-- Mobile: open drawer --}}
                     <button type="button" @click="mobileOpen = true"
-                            class="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#e5e7eb] transition hover:bg-[#f9fafb] lg:hidden"
+                            class="flex size-8 shrink-0 items-center justify-center rounded-md border border-[#ededed] bg-white text-[#1e1e1e] transition hover:bg-[#f9fafb] lg:hidden"
                             aria-label="Open menu">
-                        <svg class="size-5 text-[#1e1e1e]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 6h18M3 12h18M3 18h18" />
                         </svg>
                     </button>
                     {{-- Desktop: collapse toggle --}}
                     <button type="button" @click="collapsed = !collapsed"
-                            class="hidden size-10 shrink-0 items-center justify-center rounded-xl border border-[#e5e7eb] transition hover:bg-[#f9fafb] lg:flex"
+                            class="hidden size-8 shrink-0 items-center justify-center rounded-md border border-[#ededed] bg-white text-[#1e1e1e] transition hover:bg-[#f9fafb] lg:flex"
                             aria-label="Toggle sidebar">
-                        <img x-show="!collapsed" x-cloak src="{{ asset('images/arrowback.png') }}" alt="" class="size-10">
-                        <img x-show="collapsed" x-cloak src="{{ asset('images/arrowfront.png') }}" alt="" class="size-10">
+                        <svg class="size-4 transition-transform duration-200" :class="collapsed ? 'rotate-180' : ''"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m17 7-5 5 5 5M11 7l-5 5 5 5" />
+                        </svg>
                     </button>
                     <div class="min-w-0">
                         <h1 class="truncate text-[17px] font-bold leading-tight text-[#1e1e1e] sm:text-[20px]">{{ $title }}</h1>
                         @if ($subtitle)
-                            <p class="truncate text-[12px] text-[#6b7280] sm:text-[13px]">{{ $subtitle }}</p>
+                            <p class="truncate text-[12px] text-[#6b7280]">{{ $subtitle }}</p>
                         @endif
                     </div>
                 </div>
 
-                <div class="flex shrink-0 items-center gap-2 sm:gap-4">
+                <div class="flex shrink-0 items-center gap-2 sm:gap-[13px]">
                     {{-- Search --}}
                     <div class="relative hidden md:block">
-                        <img src="{{ asset('images/search-line.png') }}" alt="" class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 opacity-50">
+                        <svg class="pointer-events-none absolute left-[17px] top-1/2 size-[18px] -translate-y-1/2 text-[#9f9f9f]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg>
                         <input type="text" placeholder="Search pages..."
-                               class="h-11 w-[200px] rounded-full bg-[#f3f4f6] pl-11 pr-4 text-[14px] text-[#1e1e1e] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/20 lg:w-[360px]">
+                               class="h-[37px] w-[240px] rounded-full border border-[#e5e5e5]/90 bg-[#f5f5f0] pl-[44px] pr-4 text-[14px] text-[#1e1e1e] placeholder:text-[#9f9f9f] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/20 lg:w-[312px]">
                     </div>
 
-                    {{-- Bell --}}
-                    <button type="button" class="relative flex size-10 items-center justify-center rounded-full transition hover:bg-[#f3f4f6]" aria-label="Notifications">
-                        <img src="{{ asset('images/bell-03.png') }}" alt="" class="size-5">
-                    </button>
+                    {{-- Notifications (real-time, polled) --}}
+                    <livewire:admin.notifications.bell />
 
                     {{-- User --}}
-                    <div class="hidden items-center gap-3 sm:flex">
-                        <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f38c00] text-[15px] font-bold text-white">{{ $initial }}</div>
+                    <div class="hidden items-center gap-[10px] sm:flex">
+                        <div class="flex size-9 shrink-0 items-center justify-center rounded-[18px] bg-[#f38c00] text-[18px] font-bold leading-none text-white">{{ $initial }}</div>
                         <div class="hidden leading-tight md:block">
-                            <p class="text-[14px] font-bold text-[#1e1e1e]">{{ $user->name }}</p>
-                            <p class="text-[12px] text-[#9ca3af]">{{ $user->email }}</p>
+                            <p class="text-[15px] font-bold text-[#1e1e1e]">{{ $user->name }}</p>
+                            <p class="text-[12px] text-[#99a694]">{{ $user->email }}</p>
                         </div>
                     </div>
                 </div>

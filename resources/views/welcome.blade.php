@@ -1,11 +1,7 @@
 <x-layouts.web title="Retiro Del Rocio — Luxury Hotel & Retreat in Jos"
     description="Experience stillness at Retiro Del Rocio, a luxury retreat in Jos, Plateau State. Book rooms and apartments, wellness and spa experiences, fine dining, and curated escapes across Jos City.">
     @php
-        $rooms = [
-            ['name' => "Pandora's Suite", 'price' => '₦350,000', 'image' => 'image 3.jpg'],
-            ['name' => "Pandora's Suite", 'price' => '₦350,000', 'image' => 'image 6.jpg'],
-            ['name' => "Pandora's Suite", 'price' => '₦350,000', 'image' => 'image 7.jpg'],
-        ];
+        $rooms = \App\Models\Room::published()->ordered()->get();
 
         $values = [
             ['title' => 'WELLNESS', 'text' => 'Nurturing mind, body and soul.'],
@@ -15,7 +11,7 @@
             ['title' => 'HARMONY', 'text' => 'Balance, flow and inner peace.'],
         ];
 
-        $offersHeading = 'Explore our exclusive offers';
+        $offersHeading = cms('home.offers_heading');
     @endphp
 
     {{-- ============================ HERO + SEARCH ============================ --}}
@@ -24,14 +20,14 @@
             <div class="relative">
                 {{-- Hero image --}}
                 <div class="overflow-hidden rounded-[19px]">
-                    <img src="{{ asset('images/image 1.jpg') }}" alt="Retiro Del Rocio"
+                    <img src="{{ cms_image('home.hero_image') }}" alt="Retiro Del Rocio"
                          class="h-[380px] w-full object-cover sm:h-[520px] lg:h-[660px]">
                 </div>
 
                 {{-- Search panel (#d9d9d9) overlapping the hero bottom --}}
                 <div class="relative z-10 mx-auto -mt-[100px] w-full rounded-[19px] bg-[#d9d9d9] px-4 py-5 shadow-2xl sm:-mt-[120px] sm:px-6 lg:-mt-[130px] lg:px-[26px] lg:py-[20px]">
                     {{-- Category tabs --}}
-                    <div class="flex flex-wrap items-center gap-x-12 gap-y-3 px-1">
+                    <div class="flex flex-wrap items-center gap-x-6 gap-y-3 px-1 sm:gap-x-10 lg:gap-x-12">
                         <div class="flex flex-col items-start gap-2">
                             <span class="flex items-center gap-2 text-body font-semibold tracking-tight text-[#ba6d04] sm:text-body-lg">
                                 <img src="{{ asset('images/fluent_bed-24-regular.png') }}" alt="" class="icon-md object-contain [filter:brightness(0)_saturate(100%)_invert(48%)_sepia(72%)_saturate(1100%)_hue-rotate(2deg)]">
@@ -51,36 +47,36 @@
                     <hr class="my-4 border-black/10">
 
                     {{-- Search fields (translucent cards on the gray panel) --}}
-                    <div class="flex flex-wrap items-stretch gap-[9px]">
-                        <div class="flex min-w-[240px] flex-1 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[26px] py-[13px]">
+                    <div class="grid grid-cols-1 gap-[9px] sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-wrap lg:items-stretch">
+                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[26px] py-[13px] lg:min-w-[240px] lg:flex-1">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Room Type</p>
                             <div class="flex items-center justify-between gap-2">
                                 <p class="text-body font-bold text-black sm:text-body-lg">Deluxe (1 Bedroom)</p>
                                 <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="icon-md shrink-0 object-contain">
                             </div>
                         </div>
-                        <div class="flex min-w-[150px] flex-1 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[23px] py-[14px]">
+                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[23px] py-[14px] lg:min-w-[150px] lg:flex-1">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Number of Guest</p>
                             <div class="flex items-center justify-between gap-2">
                                 <p class="text-body font-bold text-black sm:text-body-lg">2</p>
                                 <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="icon-md shrink-0 object-contain">
                             </div>
                         </div>
-                        <div class="flex min-w-[170px] flex-1 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[25px] py-[11px]">
+                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Check-in Date</p>
                             <div class="flex items-center gap-[6px]">
                                 <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
                                 <p class="text-body font-bold text-black sm:text-body-lg">23/05/2026</p>
                             </div>
                         </div>
-                        <div class="flex min-w-[170px] flex-1 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[25px] py-[11px]">
+                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Check-out Date</p>
                             <div class="flex items-center gap-[7px]">
                                 <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
                                 <p class="text-body font-bold text-black sm:text-body-lg">25/05/2026</p>
                             </div>
                         </div>
-                        <div class="flex min-w-[170px] flex-1 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[25px] py-[11px]">
+                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Amenities &amp; Services</p>
                             <div class="flex items-center justify-between gap-2">
                                 <p class="text-body font-semibold tracking-tight text-[#8c8c8c] sm:text-body-lg">Select</p>
@@ -88,7 +84,7 @@
                             </div>
                         </div>
                         <button type="button"
-                                class="flex min-h-[73px] min-w-[180px] flex-1 items-center justify-center gap-[10px] rounded-[14px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
+                                class="flex min-h-[73px] items-center justify-center gap-[10px] rounded-[14px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] lg:min-w-[180px] lg:flex-1">
                             Search
                             <img src="{{ asset('images/search-line.png') }}" alt="" class="icon-md object-contain [filter:brightness(0)_invert(1)]">
                         </button>
@@ -109,10 +105,10 @@
 
                 <div class="relative z-10 grid grid-cols-1 items-start gap-6 px-4 sm:px-8 lg:grid-cols-2 lg:gap-16 lg:px-[60px]">
                     <h2 class="text-4xl font-medium leading-tight tracking-tight text-white sm:text-6xl lg:text-[72px] lg:leading-[74px]">
-                        Where stillness finds you
+                        {{ cms('home.stillness_title') }}
                     </h2>
                     <p class="text-lg leading-relaxed tracking-tight text-white/90 lg:pt-3 lg:text-body-lg">
-                        Retiro Del Rocio blends modern hospitality with intentional living. From intelligent room experiences and personalized comfort to curated wellness spaces and attentive service, every part of your journey is designed to feel effortless.
+                        {{ cms('home.stillness_text') }}
                     </p>
                 </div>
             </div>
@@ -143,17 +139,17 @@
     <section class="w-full py-12 lg:py-16">
         <x-layouts.container>
             <div class="relative overflow-hidden rounded-2xl">
-                <img src="{{ asset('images/image 5.png') }}" alt="More than a destination"
+                <img src="{{ cms_image('home.destination_image') }}" alt="More than a destination"
                      class="h-[440px] w-full object-cover sm:h-[600px] lg:h-[780px]">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
 
                 {{-- Heading (left) + paragraph (right), aligned to the bottom --}}
                 <div class="absolute inset-x-0 bottom-0 flex flex-col gap-6 p-6 sm:p-10 lg:flex-row lg:items-end lg:gap-12 lg:p-16">
                     <h2 class="text-4xl font-medium leading-none tracking-tight text-white sm:text-6xl lg:w-[640px] lg:shrink-0 lg:text-[92px] lg:leading-[90px]">
-                        More than a<br>destination
+                        {{ cms('home.destination_title') }}
                     </h2>
                     <p class="text-base leading-relaxed tracking-tight text-white/90 lg:flex-1 lg:pb-3 lg:text-body-lg">
-                        Surrounded by calming architecture and refined hospitality, every experience is thoughtfully crafted to help you slow down and reconnect. From personalized room experiences and wellness-centered spaces to seamless service and quiet luxury, every detail is designed to make your stay feel effortless.
+                        {{ cms('home.destination_text') }}
                     </p>
                 </div>
             </div>
@@ -167,15 +163,15 @@
     <section class="w-full py-12 lg:py-16">
         <x-layouts.container>
             <div class="grid grid-cols-1 overflow-hidden rounded-[6px] lg:grid-cols-[57%_43%]">
-                <img src="{{ asset('images/image 47.jpg') }}" alt=""
+                <img src="{{ cms_image('home.member_image') }}" alt=""
                      class="h-[260px] w-full object-cover lg:h-full lg:min-h-[508px]">
                 <div class="flex flex-col justify-center gap-[27px] bg-[#e8e6e1] px-8 py-12 lg:px-[51px] lg:py-[80px]">
                     <div class="flex flex-col gap-[12px] text-[#343a40]">
                         <h2 class="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-h1 lg:leading-[52px]">
-                            Become a member of Retiro Del Rocio
+                            {{ cms('home.member_title') }}
                         </h2>
                         <p class="text-base leading-snug lg:text-body-lg">
-                            Get exclusive discounts on services, experiences, and curated destinations across Jos and beyond. Enjoy member-only perks designed to help you explore more for less.
+                            {{ cms('home.member_text') }}
                         </p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
@@ -201,20 +197,20 @@
     <section class="w-full py-16 lg:py-24">
         <x-layouts.container class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {{-- top-left landscape --}}
-            <img src="{{ asset('images/IMG_2625 1.jpg') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[300px]">
+            <img src="{{ cms_image('home.jos_image_1') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[300px]">
             {{-- top-right text --}}
             <div class="flex flex-col justify-center gap-[24px]">
                 <h2 class="text-4xl font-medium leading-tight tracking-tight text-white sm:text-5xl lg:text-display lg:leading-[60px]">
-                    Beyond the stay<br>Explore Jos City
+                    {{ cms('home.jos_title') }}
                 </h2>
                 <p class="text-base leading-relaxed tracking-tight text-white/90 lg:text-body-lg">
-                    Experience the beauty and calm that make Jos truly unforgettable. From breathtaking rock landscapes and cool weather to peaceful nature trails and rich local culture, every moment invites discovery. Whether you seek adventure, relaxation, or quiet reflection, Jos offers a refreshing escape where nature, serenity, and memorable experiences come together beautifully.
+                    {{ cms('home.jos_text') }}
                 </p>
             </div>
             {{-- bottom-left ruins --}}
-            <img src="{{ asset('images/IMG_2620 2.jpg') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[320px]">
+            <img src="{{ cms_image('home.jos_image_2') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[320px]">
             {{-- bottom-right forest --}}
-            <img src="{{ asset('images/IMG_2627 2.jpg') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[320px]">
+            <img src="{{ cms_image('home.jos_image_3') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[320px]">
         </x-layouts.container>
     </section>
 
@@ -223,12 +219,12 @@
         <x-layouts.container class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {{-- Left: wellness lifestyle tall image card --}}
             <div class="relative min-h-[480px] overflow-hidden rounded-2xl lg:min-h-[760px]">
-                <img src="{{ asset('images/image 14.jpg') }}" alt="Wellness lifestyle"
+                <img src="{{ cms_image('home.wellness_image') }}" alt="Wellness lifestyle"
                      class="absolute inset-0 h-full w-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 <div class="absolute inset-x-0 bottom-0 flex flex-col gap-[29px] p-8 lg:p-[60px]">
                     <h2 class="max-w-[420px] text-3xl font-medium leading-tight tracking-tight text-white sm:text-4xl lg:text-display lg:leading-[58px]">
-                        Explore our wellness lifestyle
+                        {{ cms('home.wellness_title') }}
                     </h2>
                     <button type="button"
                             class="flex h-[64px] w-[220px] items-center justify-center rounded-[10px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
@@ -241,13 +237,13 @@
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col gap-[24px]">
                     <h2 class="text-3xl font-medium leading-tight tracking-tight text-white sm:text-5xl lg:text-display lg:leading-[60px]">
-                        Train. Recover. Recharge.
+                        {{ cms('home.train_title') }}
                     </h2>
                     <p class="text-base leading-relaxed tracking-tight text-white/90 lg:text-body-lg">
-                        Stay active and restore your balance in a space designed for movement, wellness, and recovery. Whether you’re maintaining your routine, starting your day with energy, or unwinding after a long one, our fitness and wellness experience is designed to help you feel refreshed, focused, and recharged throughout your stay.
+                        {{ cms('home.train_text') }}
                     </p>
                 </div>
-                <img src="{{ asset('images/image 13.jpg') }}" alt="Wellness"
+                <img src="{{ cms_image('home.train_image') }}" alt="Wellness"
                      class="h-[300px] w-full flex-1 rounded-2xl object-cover lg:h-auto lg:min-h-[480px]">
             </div>
         </x-layouts.container>
