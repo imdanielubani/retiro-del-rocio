@@ -9,17 +9,21 @@ class Booking extends Model
     protected $fillable = [
         'reference', 'room_id', 'room_name', 'guests', 'check_in', 'check_out', 'nights',
         'amount', 'customer_name', 'customer_email', 'customer_phone',
-        'pickup_vehicle', 'pickup_price', 'status', 'payment_method', 'paid_at',
+        'pickup_vehicle', 'pickup_price', 'pickup_passengers', 'pickup_location',
+        'pickup_arrival_date', 'pickup_time', 'pickup_flight_number',
+        'status', 'payment_method', 'paid_at',
         'refund_amount', 'refund_method', 'refund_status', 'room_unit_id',
     ];
 
     protected $casts = [
         'check_in' => 'date',
         'check_out' => 'date',
+        'pickup_arrival_date' => 'date',
         'paid_at' => 'datetime',
         'amount' => 'integer',
         'nights' => 'integer',
         'guests' => 'integer',
+        'pickup_passengers' => 'integer',
         'refund_amount' => 'integer',
     ];
 
@@ -36,6 +40,71 @@ class Booking extends Model
     public function amountLabel(): string
     {
         return '₦'.number_format($this->amount);
+    }
+
+    /* ---------------- Airport pick-up (transport) ---------------- */
+
+    public function isPickup(): bool
+    {
+        return ! empty($this->pickup_vehicle);
+    }
+
+    // Transport booking reference shown on the Airport Pickup module, e.g. TR-1041.
+    public function transportCode(): string
+    {
+        return 'TR-'.(1000 + $this->id);
+    }
+
+    public function pickupAmount(): int
+    {
+        return (int) preg_replace('/[^0-9]/', '', (string) $this->pickup_price);
+    }
+
+    public function pickupAmountLabel(): string
+    {
+        return '₦'.number_format($this->pickupAmount());
+    }
+
+    public function pickupPassengers(): int
+    {
+        return (int) ($this->pickup_passengers ?: $this->guests ?: 1);
+    }
+
+    public function pickupPassengersLabel(): string
+    {
+        $n = $this->pickupPassengers();
+
+        return $n.' '.($n === 1 ? 'passenger' : 'passengers');
+    }
+
+    // Pick-up always runs from the airport to the hotel.
+    public function pickupFrom(): string
+    {
+        return $this->pickup_location ?: 'Yakubu Gowon Airport (JOS)';
+    }
+
+    public function pickupTo(): string
+    {
+        return 'Hotel Del Retiro';
+    }
+
+    public function pickupInitials(): string
+    {
+        $parts = preg_split('/\s+/', trim((string) $this->customer_name)) ?: [];
+        $a = mb_substr($parts[0] ?? '', 0, 1);
+        $b = count($parts) > 1 ? mb_substr(end($parts), 0, 1) : '';
+
+        return strtoupper($a.$b) ?: 'G';
+    }
+
+    // Payment line shown on the transport detail modal.
+    public function pickupPaymentLabel(): string
+    {
+        return match ($this->status) {
+            'paid', 'checked_in', 'checked_out' => 'Payment Received',
+            'cancelled' => $this->refund_status === 'completed' ? 'Refund Processed' : 'Payment Cancelled',
+            default => 'Payment Pending',
+        };
     }
 
     // Transaction reference shown in the Payment module, e.g. TXN-8841.

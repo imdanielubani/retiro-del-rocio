@@ -62,4 +62,12 @@ class User extends Authenticatable
         return $this->status === 'active'
             && $this->hasAnyRole(['super-admin', 'admin', 'manager']);
     }
+
+    /**
+     * Active staff who should receive admin notifications.
+     */
+    public function scopeAdmins($query)
+    {
+        return $query->where('status', 'active')->role(['super-admin', 'admin', 'manager']);
+    }
 }

@@ -71,14 +71,28 @@
                 airportModal: false,
                 vehicleModal: false,
                 guests: 2,
-                checkIn: '2026-05-23',
-                checkOut: '2026-05-25',
-                location: 'Yakubu Gowon Airport (IATA)',
+                checkIn: '',
+                checkOut: '',
+                today: new Date().toISOString().split('T')[0],
+                get datesValid() { return !!(this.checkIn && this.checkOut && this.checkOut > this.checkIn); },
+                location: 'Yakubu Gowon Airport (IATA)', {{-- permanent pick-up point --}}
                 passengers: 2,
-                arrivalDate: '2026-05-23',
-                pickupTime: '11:30',
-                flightNumber: 'LOS3782923',
+                arrivalDate: '',
+                pickupTime: '',
+                flightNumber: '',
                 pickup: null,
+                searched: false,
+                searchError: '',
+                doSearch() {
+                    if (!this.arrivalDate || !this.pickupTime || !this.flightNumber) {
+                        this.searchError = 'Please enter your arrival date, pick-up time and flight number to see available vehicles.';
+                        this.searched = false;
+                        return false;
+                    }
+                    this.searchError = '';
+                    this.searched = true;
+                    return true;
+                },
                 availUrl: @js(route('rooms.availability', $room)),
                 checking: false, availChecked: false, available: true, availCount: null,
                 selectVehicle(v) { this.pickup = v; this.vehicleModal = false; },
@@ -110,7 +124,8 @@
             </div>
 
             {{-- Booking row (functional) --}}
-            <form method="POST" action="{{ route('checkout.start') }}" class="flex flex-col gap-[3px] sm:flex-row sm:flex-wrap">
+            <form method="POST" action="{{ route('checkout.start') }}" class="flex flex-col gap-[3px] sm:flex-row sm:flex-wrap"
+                  @submit="if (!datesValid || (availChecked && !available)) $event.preventDefault()">
                 @csrf
                 <input type="hidden" name="room" value="{{ $room->name }}">
                 <input type="hidden" name="room_slug" value="{{ $room->slug }}">
@@ -129,7 +144,9 @@
                     <div class="flex items-center justify-between">
                         <select name="guests" x-model.number="guests"
                                 class="w-full appearance-none bg-transparent text-body-lg font-bold text-black focus:outline-none">
-                            <template x-for="n in 10" :key="n"><option :value="n" x-text="n"></option></template>
+                            @for ($n = 1; $n <= 10; $n++)
+                                <option value="{{ $n }}">{{ $n }}</option>
+                            @endfor
                         </select>
                         <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
                     </div>
@@ -138,7 +155,7 @@
                     <label class="text-body-sm font-medium tracking-tight text-black">Check-in Date</label>
                     <div class="flex items-center gap-[5px]">
                         <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
-                        <input type="date" name="check_in" x-model="checkIn"
+                        <input type="date" name="check_in" x-model="checkIn" :min="today"
                                @click="$event.target.showPicker && $event.target.showPicker()"
                                class="w-full bg-transparent text-body-lg font-bold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
                     </div>
@@ -147,24 +164,30 @@
                     <label class="text-body-sm font-medium tracking-tight text-black">Check-out Date</label>
                     <div class="flex items-center gap-[7px]">
                         <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
-                        <input type="date" name="check_out" x-model="checkOut"
+                        <input type="date" name="check_out" x-model="checkOut" :min="checkIn || today"
                                @click="$event.target.showPicker && $event.target.showPicker()"
                                class="w-full bg-transparent text-body-lg font-bold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
                     </div>
                 </div>
-                <button type="submit" :disabled="availChecked && !available"
+                <button type="submit" :disabled="!datesValid || (availChecked && !available)"
                         class="flex min-h-[78px] min-w-[200px] items-center justify-center rounded-[6px] bg-[#ba6d04] px-6 text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] sm:min-w-[279px]"
-                        :class="(availChecked && !available) ? 'opacity-50 cursor-not-allowed hover:bg-[#ba6d04]' : ''">
-                    <span x-show="!(availChecked && !available)">Make reservation</span>
-                    <span x-show="availChecked && !available" x-cloak>Unavailable</span>
+                        :class="(!datesValid || (availChecked && !available)) ? 'opacity-50 cursor-not-allowed hover:bg-[#ba6d04]' : ''">
+                    <span x-show="!datesValid">Select dates</span>
+                    <span x-show="datesValid && !(availChecked && !available)" x-cloak>Make reservation</span>
+                    <span x-show="datesValid && availChecked && !available" x-cloak>Unavailable</span>
                 </button>
             </form>
 
-            {{-- Live date-range availability --}}
-            <p x-show="availChecked" x-cloak class="-mt-2 text-body-sm tracking-tight">
-                <span x-show="available && availCount !== null" class="font-semibold text-[#7ee0a1]" x-text="availCount + (availCount === 1 ? ' room' : ' rooms') + ' available for these dates'"></span>
-                <span x-show="available && availCount === null" class="text-white/60">Available for these dates</span>
-                <span x-show="!available" class="font-semibold text-[#ff8a8a]">Fully booked for these dates — please choose different dates.</span>
+            {{-- Live date-range availability / validation --}}
+            <p x-show="(checkIn && checkOut && !datesValid) || availChecked" x-cloak class="-mt-2 text-body-sm tracking-tight">
+                <span x-show="checkIn && checkOut && !datesValid" class="font-semibold text-[#ff8a8a]">Check-out date must be after the check-in date.</span>
+                <template x-if="datesValid">
+                    <span>
+                        <span x-show="availChecked && available && availCount !== null" class="font-semibold text-[#7ee0a1]" x-text="availCount + (availCount === 1 ? ' room' : ' rooms') + ' available for these dates'"></span>
+                        <span x-show="availChecked && available && availCount === null" class="text-white/60">Available for these dates</span>
+                        <span x-show="availChecked && !available" class="font-semibold text-[#ff8a8a]">Fully booked for these dates — please choose different dates.</span>
+                    </span>
+                </template>
             </p>
 
             {{-- Airport pickup trigger (shown until a vehicle is selected) --}}
@@ -182,7 +205,7 @@
                 </button>
                 <span class="flex items-center gap-2 text-body font-medium lg:text-body-lg">
                     Car Type:
-                    <img :src="pickup ? pickup.img : ''" alt="" class="h-[21px] w-[32px] shrink-0 object-contain">
+                    <img x-show="pickup && pickup.img" :src="pickup ? pickup.img : ''" alt="" class="h-[21px] w-[32px] shrink-0 object-contain">
                     <span x-text="pickup ? pickup.name : ''"></span>
                 </span>
                 <span class="text-body font-medium lg:text-body-lg">Arrival Date: <span x-text="fmtDate(arrivalDate)"></span></span>
@@ -213,7 +236,7 @@
 
             {{-- Panel --}}
             <div class="relative z-10 w-full max-w-[1440px] overflow-hidden rounded-2xl p-6 sm:p-8 lg:p-10"
-                 style="background-image: linear-gradient(180deg, #110f06 22%, #222a1f 74%, #1e1e1e 90%);"
+                 style="background-image: linear-gradient(180deg, #131210 0%, #1b1b18 60%, #1e1e1e 100%);"
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
 
@@ -226,63 +249,8 @@
                     </button>
                 </div>
 
-                {{-- Search / booking bar (compact, centered fields like the design) --}}
-                <div class="mt-6 rounded-[19px] bg-[#d9d9d9] px-5 py-7 lg:px-[55px]">
-                    <div class="flex flex-wrap items-stretch justify-center gap-[9px]">
-                        {{-- Location --}}
-                        <div class="flex h-[73px] w-full shrink-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[17px] sm:w-[330px]">
-                            <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Location</p>
-                            <div class="flex items-center gap-[7px]">
-                                <svg class="icon-md shrink-0 text-[#202020]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-                                <input type="text" x-model="location" placeholder="Pick-up location"
-                                       class="w-full truncate bg-transparent text-body-sm font-bold text-[#202020] placeholder:font-medium placeholder:text-[#7a7a7a] focus:outline-none">
-                            </div>
-                        </div>
-                        {{-- Passengers --}}
-                        <div class="flex h-[73px] w-full shrink-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[18px] sm:w-[160px]">
-                            <p class="text-label font-medium tracking-tight text-[#3c3c3c]">No. of Passengers</p>
-                            <div class="flex items-center gap-[5px]">
-                                <svg class="icon-md shrink-0 text-[#202020]" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v4H5v-4zM9 4a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM16 11h2a2 2 0 0 1 2 2v7h-4v-9z"/></svg>
-                                <select x-model.number="passengers"
-                                        class="w-full appearance-none bg-transparent text-body-sm font-bold tracking-tight text-[#202020] focus:outline-none">
-                                    <template x-for="n in 10" :key="n"><option :value="n" x-text="n"></option></template>
-                                </select>
-                            </div>
-                        </div>
-                        {{-- Arrival Date --}}
-                        <div class="flex h-[73px] w-full shrink-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[19px] sm:w-[189px]">
-                            <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Arrival Date</p>
-                            <div class="flex items-center gap-[5px]">
-                                <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
-                                <input type="date" x-model="arrivalDate"
-                                       @click="$event.target.showPicker && $event.target.showPicker()"
-                                       class="w-full bg-transparent text-body-sm font-semibold tracking-tight text-[#202020] focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
-                            </div>
-                        </div>
-                        {{-- Pick-up Time --}}
-                        <div class="flex h-[73px] w-full shrink-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[19px] sm:w-[172px]">
-                            <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Pick-up Time</p>
-                            <div class="flex items-center gap-[7px]">
-                                <svg class="icon-md shrink-0 text-[#202020]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                <input type="time" x-model="pickupTime"
-                                       @click="$event.target.showPicker && $event.target.showPicker()"
-                                       class="w-full bg-transparent text-body-sm font-semibold tracking-tight text-[#202020] focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
-                            </div>
-                        </div>
-                        {{-- Flight Number --}}
-                        <div class="flex h-[73px] w-full shrink-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[19px] sm:w-[172px]">
-                            <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Flight Number</p>
-                            <input type="text" x-model="flightNumber" placeholder="Flight number"
-                                   class="w-full bg-transparent text-body-sm font-semibold tracking-tight text-[#383838] placeholder:font-medium placeholder:text-[#7a7a7a] focus:outline-none">
-                        </div>
-                        {{-- Book --}}
-                        <button type="button" @click="airportModal = false; vehicleModal = true"
-                                class="flex h-[73px] w-full shrink-0 items-center justify-center gap-[2px] rounded-[14px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] sm:w-[125px]">
-                            Book
-                            <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 10 4 15l5 5"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>
-                        </button>
-                    </div>
-                </div>
+                {{-- Search / booking bar (Figma node 85:1991) --}}
+                <x-airport-search-bar :book-action="'if (doSearch()) { airportModal = false; vehicleModal = true }'" />
 
                 {{-- Content: car image (left) + heading/text + chauffeur image (right) --}}
                 <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -305,13 +273,15 @@
 
         {{-- ===================== VEHICLE SELECTION (after "Book") ===================== --}}
         @php
-            $vehicles = [
-                ['name' => 'Standard Ride', 'image' => 'Standard Ride.png', 'price' => '₦37,500', 'seats' => '4', 'suitcases' => '3'],
-                ['name' => 'Mini Bus', 'image' => 'Mini Bus.png', 'price' => '₦77,500', 'seats' => '4', 'suitcases' => '3'],
-                ['name' => 'Bus', 'image' => 'Bus.png', 'price' => '₦150,500', 'seats' => '14', 'suitcases' => '10'],
-                ['name' => 'Executive SUV', 'image' => 'Executive SUV.png', 'price' => '₦211,500', 'seats' => '4', 'suitcases' => '3'],
-                ['name' => 'Luxury Ride', 'image' => 'Luxury Ride.png', 'price' => '₦307,500', 'seats' => '2', 'suitcases' => '3'],
-            ];
+            // Fleet is managed in the admin (Airport Pickups → Vehicles). Out-of-service
+            // vehicles are excluded via the bookable() scope.
+            $vehicles = \App\Models\Vehicle::query()->bookable()->ordered()->get()->map(fn ($v) => [
+                'name' => $v->name,
+                'price' => $v->priceLabel(),
+                'seats' => $v->seats,
+                'suitcases' => $v->suitcases,
+                'img' => $v->imageUrl(),
+            ])->all();
         @endphp
         <div x-show="vehicleModal" x-cloak
              x-transition:enter="transition ease-out duration-200"
@@ -325,7 +295,7 @@
 
             {{-- Panel --}}
             <div class="relative z-10 w-full max-w-[1440px] overflow-hidden rounded-2xl p-6 sm:p-8 lg:p-10"
-                 style="background-image: linear-gradient(180deg, #110f06 22%, #222a1f 74%, #1e1e1e 90%);"
+                 style="background-image: linear-gradient(180deg, #131210 0%, #1b1b18 60%, #1e1e1e 100%);"
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
 
@@ -338,102 +308,65 @@
                     </button>
                 </div>
 
-                {{-- Search / booking bar --}}
-                <div class="mt-6 rounded-[19px] bg-[#d9d9d9] px-5 py-7 lg:px-[55px]">
-                    <div class="flex flex-wrap items-stretch justify-center gap-[9px]">
-                        {{-- Location --}}
-                        <div class="flex h-[73px] w-full shrink-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[17px] sm:w-[330px]">
-                            <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Location</p>
-                            <div class="flex items-center gap-[7px]">
-                                <svg class="icon-md shrink-0 text-[#202020]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-                                <input type="text" x-model="location" placeholder="Pick-up location"
-                                       class="w-full truncate bg-transparent text-body-sm font-bold text-[#202020] placeholder:font-medium placeholder:text-[#7a7a7a] focus:outline-none">
-                            </div>
-                        </div>
-                        {{-- Passengers --}}
-                        <div class="flex h-[73px] w-full shrink-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[18px] sm:w-[160px]">
-                            <p class="text-label font-medium tracking-tight text-[#3c3c3c]">No. of Passengers</p>
-                            <div class="flex items-center gap-[5px]">
-                                <svg class="icon-md shrink-0 text-[#202020]" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v4H5v-4zM9 4a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM16 11h2a2 2 0 0 1 2 2v7h-4v-9z"/></svg>
-                                <select x-model.number="passengers"
-                                        class="w-full appearance-none bg-transparent text-body-sm font-bold tracking-tight text-[#202020] focus:outline-none">
-                                    <template x-for="n in 10" :key="n"><option :value="n" x-text="n"></option></template>
-                                </select>
-                            </div>
-                        </div>
-                        {{-- Arrival Date --}}
-                        <div class="flex h-[73px] w-full shrink-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[19px] sm:w-[189px]">
-                            <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Arrival Date</p>
-                            <div class="flex items-center gap-[5px]">
-                                <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
-                                <input type="date" x-model="arrivalDate"
-                                       @click="$event.target.showPicker && $event.target.showPicker()"
-                                       class="w-full bg-transparent text-body-sm font-semibold tracking-tight text-[#202020] focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
-                            </div>
-                        </div>
-                        {{-- Pick-up Time --}}
-                        <div class="flex h-[73px] w-full shrink-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[19px] sm:w-[172px]">
-                            <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Pick-up Time</p>
-                            <div class="flex items-center gap-[7px]">
-                                <svg class="icon-md shrink-0 text-[#202020]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                <input type="time" x-model="pickupTime"
-                                       @click="$event.target.showPicker && $event.target.showPicker()"
-                                       class="w-full bg-transparent text-body-sm font-semibold tracking-tight text-[#202020] focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
-                            </div>
-                        </div>
-                        {{-- Flight Number --}}
-                        <div class="flex h-[73px] w-full shrink-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[19px] sm:w-[172px]">
-                            <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Flight Number</p>
-                            <input type="text" x-model="flightNumber" placeholder="Flight number"
-                                   class="w-full bg-transparent text-body-sm font-semibold tracking-tight text-[#383838] placeholder:font-medium placeholder:text-[#7a7a7a] focus:outline-none">
-                        </div>
-                        {{-- Book --}}
-                        <button type="button"
-                                class="flex h-[73px] w-full shrink-0 items-center justify-center gap-[2px] rounded-[14px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] sm:w-[125px]">
-                            Book
-                            <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 10 4 15l5 5"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>
-                        </button>
-                    </div>
+                {{-- Search / booking bar (Figma node 85:1991) --}}
+                <x-airport-search-bar :book-action="'doSearch()'" />
+
+                {{-- Prompt shown before the guest searches --}}
+                <div x-show="!searched" x-cloak class="mt-6 flex flex-col items-center gap-2 rounded-[10px] bg-[#d2d2d2] px-6 py-14 text-center">
+                    <svg class="h-10 w-10 text-[#7a7a7a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                    <p class="text-title font-semibold text-[#191919]">Search for available vehicles</p>
+                    <p class="text-body text-[#5a5a5a]">Enter your arrival date, pick-up time and flight number above, then tap <span class="font-semibold">Book</span> to see available vehicles.</p>
                 </div>
 
-                {{-- Vehicle option cards --}}
-                <div class="mt-6 flex flex-col gap-4">
-                    @foreach ($vehicles as $v)
-                        <div class="flex flex-col items-center gap-6 rounded-[10px] bg-[#d2d2d2] p-6 sm:flex-row sm:gap-10 lg:px-[60px]">
+                {{-- Vehicle option cards (Figma node 85:1941 — managed in admin → Airport Pickups → Vehicles) --}}
+                <div x-show="searched" x-cloak class="mt-6 flex flex-col gap-4">
+                    @forelse ($vehicles as $v)
+                        <div class="flex flex-col items-center gap-5 rounded-[14px] bg-[#dcdcd9] px-6 py-5 sm:flex-row sm:gap-8 lg:px-[55px] lg:py-7">
                             {{-- Vehicle image --}}
-                            <img src="{{ str_replace(' ', '%20', asset('images/'.$v['image'])) }}" alt="{{ $v['name'] }}"
-                                 class="h-[110px] w-[230px] shrink-0 object-contain sm:h-[130px] sm:w-[260px]">
+                            @if ($v['img'])
+                                <img src="{{ $v['img'] }}" alt="{{ $v['name'] }}"
+                                     class="h-[110px] w-[230px] shrink-0 object-contain sm:h-[120px] sm:w-[250px]">
+                            @else
+                                <span class="flex h-[110px] w-[230px] shrink-0 items-center justify-center text-[#8a8a8a] sm:h-[120px] sm:w-[250px]">
+                                    <svg class="h-16 w-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h2l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13h2M5 13v4h2M17 17h2v-4M5 17h14"/><circle cx="8" cy="17" r="1.4"/><circle cx="16" cy="17" r="1.4"/></svg>
+                                </span>
+                            @endif
 
-                            {{-- Details --}}
-                            <div class="flex flex-1 flex-col gap-3">
-                                <p class="text-h3 font-bold tracking-tight text-black sm:text-h2 lg:text-h1">{{ $v['name'] }}</p>
-                                <div class="flex flex-wrap items-center gap-x-10 gap-y-3 text-body-lg font-medium tracking-tight text-black sm:text-title lg:text-h3">
-                                    <span class="flex items-end gap-2.5">
-                                        <svg class="icon-lg shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8" stroke-linecap="round"/></svg>
-                                        Free cancellation
+                            {{-- Name + spec meta --}}
+                            <div class="flex flex-1 flex-col gap-3 text-center sm:text-left">
+                                <p class="text-h3 font-bold tracking-tight text-[#1e1e1e] sm:text-h2">{{ $v['name'] }}</p>
+                                <div class="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-body font-medium tracking-tight text-[#1e1e1e] sm:justify-start sm:text-body-lg">
+                                    <span class="flex items-center gap-2">
+                                        <svg class="icon-lg shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12" stroke-linecap="round"/></svg>
+                                        <span class="leading-tight">Free<br class="hidden sm:block">&nbsp;cancellation</span>
                                     </span>
-                                    <span class="flex items-end gap-2.5">
-                                        <svg class="icon-lg shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M4 18v-5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5h-2v-2H6v2H4zm3-9V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2a3 3 0 0 0-3 3H10a3 3 0 0 0-3-3z"/></svg>
-                                        <span><span class="font-bold">{{ $v['seats'] }} S</span>eats</span>
+                                    <span class="flex items-center gap-2">
+                                        <svg class="icon-lg shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M5 11a2 2 0 0 1 2-2h.5a2 2 0 0 1 2 1.6l.3 1.4h4.4l.3-1.4a2 2 0 0 1 2-1.6H19a2 2 0 0 1 2 2v6h-2v-3H7v3H5v-6zm2 7h2v2H7v-2zm8 0h2v2h-2v-2z"/></svg>
+                                        <span><span class="font-semibold">{{ $v['seats'] }}</span> Seats</span>
                                     </span>
-                                    <span class="flex items-end gap-2.5">
-                                        <svg class="icon-lg shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="7" width="12" height="14" rx="2"/><path d="M9 7V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3M10 11v6M14 11v6" stroke-linecap="round"/></svg>
-                                        <span><span class="font-bold">{{ $v['suitcases'] }} </span>Suitcases</span>
+                                    <span class="flex items-center gap-2">
+                                        <svg class="icon-lg shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="6" y="7" width="12" height="14" rx="2"/><path d="M9 7V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3M10 11v6M14 11v6" stroke-linecap="round"/></svg>
+                                        <span><span class="font-semibold">{{ $v['suitcases'] }}</span> Suitcases</span>
                                     </span>
                                 </div>
                             </div>
 
                             {{-- Price + select --}}
-                            <div class="flex w-full flex-col items-center gap-4 sm:w-[246px] sm:items-start">
-                                <p class="text-h2 font-semibold tracking-tight text-[#191919] sm:text-h1">{{ $v['price'] }}</p>
+                            <div class="flex w-full shrink-0 flex-col items-center gap-3 sm:w-[230px]">
+                                <p class="text-h2 font-semibold tracking-tight text-[#1e1e1e]">{{ $v['price'] }}</p>
                                 <button type="button"
-                                        @click="selectVehicle({ name: '{{ $v['name'] }}', price: '{{ $v['price'] }}', img: '{{ str_replace(' ', '%20', asset('images/'.$v['image'])) }}' })"
-                                        class="flex h-[73px] w-full items-center justify-center rounded-[10px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
+                                        @click="selectVehicle({ name: '{{ $v['name'] }}', price: '{{ $v['price'] }}', img: '{{ $v['img'] }}' })"
+                                        class="flex h-[60px] w-full items-center justify-center rounded-[10px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
                                     Select
                                 </button>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <div class="flex flex-col items-center gap-2 rounded-[14px] bg-[#dcdcd9] px-6 py-12 text-center">
+                            <p class="text-title font-semibold text-[#191919]">No vehicles available right now</p>
+                            <p class="text-body text-[#5a5a5a]">Airport pick-up is temporarily unavailable. Please check back soon.</p>
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </div>

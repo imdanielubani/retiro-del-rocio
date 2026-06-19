@@ -13,6 +13,10 @@ use App\Mail\ContactEnquiry;
 use App\Models\Booking;
 use App\Models\ContactMessage;
 use App\Models\Room;
+use App\Models\User;
+use App\Notifications\BookingReceived;
+use App\Notifications\MessageReceived;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -202,7 +206,7 @@ Route::get('checkout/callback', function () {
             ->orWhere('name', $order['room'] ?? null)
             ->first();
 
-        Booking::updateOrCreate(
+        $booking = Booking::updateOrCreate(
             ['reference' => $reference],
             [
                 'room_id' => $room?->id,
@@ -217,11 +221,21 @@ Route::get('checkout/callback', function () {
                 'customer_phone' => $order['customer_phone'] ?? null,
                 'pickup_vehicle' => $order['pickup_vehicle'] ?? null,
                 'pickup_price' => $order['pickup_price'] ?? null,
+                'pickup_passengers' => ! empty($order['passengers']) ? (int) $order['passengers'] : null,
+                'pickup_location' => $order['location'] ?? null,
+                'pickup_arrival_date' => ! empty($order['arrival_date']) ? $order['arrival_date'] : null,
+                'pickup_time' => $order['pickup_time'] ?? null,
+                'pickup_flight_number' => $order['flight_number'] ?? null,
                 'status' => 'paid',
                 'payment_method' => data_get($body, 'data.channel'),
                 'paid_at' => $order['paid_at'] ?? now(),
             ]
         );
+
+        // Notify the admin bell of a brand-new booking (skip callback retries).
+        if ($booking->wasRecentlyCreated) {
+            Notification::send(User::admins()->get(), new BookingReceived($booking));
+        }
     } catch (Throwable $e) {
         report($e);
     }
@@ -284,9 +298,11 @@ Route::post('contact-us', function () {
         'message' => ['nullable', 'string', 'max:5000'],
     ]);
 
-    // Persist the enquiry so it appears in Admin → Website CMS → Messages.
+    // Persist the enquiry so it appears in Admin → Website CMS → Messages,
+    // and notify the admin bell.
     try {
-        ContactMessage::create($data + ['status' => 'new']);
+        $message = ContactMessage::create($data + ['status' => 'new']);
+        Notification::send(User::admins()->get(), new MessageReceived($message));
     } catch (Throwable $e) {
         report($e);
     }
@@ -333,6 +349,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Website CMS — editable content + contact messages
         Route::get('website-cms', App\Livewire\Admin\Cms\Edit::class)->name('cms.edit');
         Route::get('website-cms/messages', App\Livewire\Admin\Messages\Index::class)->name('messages.index');
+
+        // Airport Pickups — Vehicles (fleet shown on the website pick-up popup)
+        Route::get('airport-pickups/vehicles', App\Livewire\Admin\Vehicles\Index::class)->name('vehicles.index');
+        Route::get('airport-pickups/bookings', App\Livewire\Admin\Vehicles\Bookings::class)->name('vehicles.bookings');
 
         // Payment — transactions captured from checkout
         Route::get('payment', App\Livewire\Admin\Payment\Index::class)->name('payment.index');

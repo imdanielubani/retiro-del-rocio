@@ -2,6 +2,7 @@
     description="Experience stillness at Retiro Del Rocio, a luxury retreat in Jos, Plateau State. Book rooms and apartments, wellness and spa experiences, fine dining, and curated escapes across Jos City.">
     @php
         $rooms = \App\Models\Room::published()->ordered()->get();
+        $roomTypes = $rooms->pluck('type')->filter()->unique()->values();
 
         $values = [
             ['title' => 'WELLNESS', 'text' => 'Nurturing mind, body and soul.'],
@@ -16,16 +17,16 @@
 
     {{-- ============================ HERO + SEARCH ============================ --}}
     <section class="w-full">
-        <x-layouts.container>
-            <div class="relative">
-                {{-- Hero image --}}
-                <div class="overflow-hidden rounded-[19px]">
-                    <img src="{{ cms_image('home.hero_image') }}" alt="Retiro Del Rocio"
-                         class="h-[380px] w-full object-cover sm:h-[520px] lg:h-[660px]">
-                </div>
+        {{-- Full-width hero image (Figma 85:143 — spans the viewport edge to edge) --}}
+        <div class="w-full overflow-hidden">
+            <img src="{{ cms_image('home.hero_image') }}" alt="Retiro Del Rocio"
+                 class="h-[380px] w-full object-cover sm:h-[520px] lg:h-[660px]">
+        </div>
 
-                {{-- Search panel (#d9d9d9) overlapping the hero bottom --}}
-                <div class="relative z-10 mx-auto -mt-[100px] w-full rounded-[19px] bg-[#d9d9d9] px-4 py-5 shadow-2xl sm:-mt-[120px] sm:px-6 lg:-mt-[130px] lg:px-[26px] lg:py-[20px]">
+        {{-- Search panel (#d9d9d9) overlapping the hero bottom, inset to the container — Figma node 92:112 --}}
+        <x-layouts.container>
+            <div class="relative z-10 mx-auto -mt-[100px] w-full rounded-[19px] bg-[#d9d9d9] px-4 py-5 shadow-2xl sm:-mt-[120px] sm:px-6 lg:-mt-[130px] lg:px-[26px] lg:py-[20px]"
+                 x-data="{ today: new Date().toISOString().split('T')[0], checkIn: '', checkOut: '' }">
                     {{-- Category tabs --}}
                     <div class="flex flex-wrap items-center gap-x-6 gap-y-3 px-1 sm:gap-x-10 lg:gap-x-12">
                         <div class="flex flex-col items-start gap-2">
@@ -46,51 +47,75 @@
                     </div>
                     <hr class="my-4 border-black/10">
 
-                    {{-- Search fields (translucent cards on the gray panel) --}}
-                    <div class="grid grid-cols-1 gap-[9px] sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-wrap lg:items-stretch">
-                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[26px] py-[13px] lg:min-w-[240px] lg:flex-1">
-                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Room Type</p>
+                    {{-- Functional search → navigates to the rooms listing filtered by type --}}
+                    <form method="GET" action="{{ route('rooms') }}"
+                          class="grid grid-cols-1 gap-[9px] sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-wrap lg:items-stretch">
+                        {{-- Room Type --}}
+                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-[26px] py-[13px] lg:min-w-[220px] lg:flex-1">
+                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Room Type</p>
                             <div class="flex items-center justify-between gap-2">
-                                <p class="text-body font-bold text-black sm:text-body-lg">Deluxe (1 Bedroom)</p>
-                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="icon-md shrink-0 object-contain">
+                                <select name="category" class="w-full cursor-pointer appearance-none bg-transparent text-body font-bold text-black focus:outline-none sm:text-body-lg">
+                                    <option value="all">Any room type</option>
+                                    @foreach ($roomTypes as $type)
+                                        <option value="{{ $type }}">{{ $type }}</option>
+                                    @endforeach
+                                </select>
+                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
                             </div>
                         </div>
-                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[23px] py-[14px] lg:min-w-[150px] lg:flex-1">
-                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Number of Guest</p>
+                        {{-- Number of Guest --}}
+                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-[23px] py-[14px] lg:min-w-[150px] lg:flex-1">
+                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Number of Guest</p>
                             <div class="flex items-center justify-between gap-2">
-                                <p class="text-body font-bold text-black sm:text-body-lg">2</p>
-                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="icon-md shrink-0 object-contain">
+                                <select name="guests" class="w-full cursor-pointer appearance-none bg-transparent text-body font-bold text-black focus:outline-none sm:text-body-lg">
+                                    @for ($n = 1; $n <= 10; $n++)
+                                        <option value="{{ $n }}" @selected($n === 2)>{{ $n }}</option>
+                                    @endfor
+                                </select>
+                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
                             </div>
                         </div>
-                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
-                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Check-in Date</p>
+                        {{-- Check-in Date --}}
+                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
+                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Check-in Date</p>
                             <div class="flex items-center gap-[6px]">
                                 <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
-                                <p class="text-body font-bold text-black sm:text-body-lg">23/05/2026</p>
+                                <input type="date" name="check_in" x-model="checkIn" :min="today"
+                                       @click="$event.target.showPicker && $event.target.showPicker()"
+                                       class="w-full cursor-pointer bg-transparent text-body font-bold text-black focus:outline-none sm:text-body-lg [&::-webkit-calendar-picker-indicator]:hidden">
                             </div>
                         </div>
-                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
-                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Check-out Date</p>
+                        {{-- Check-out Date --}}
+                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
+                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Check-out Date</p>
                             <div class="flex items-center gap-[7px]">
                                 <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
-                                <p class="text-body font-bold text-black sm:text-body-lg">25/05/2026</p>
+                                <input type="date" name="check_out" x-model="checkOut" :min="checkIn || today"
+                                       @click="$event.target.showPicker && $event.target.showPicker()"
+                                       class="w-full cursor-pointer bg-transparent text-body font-bold text-black focus:outline-none sm:text-body-lg [&::-webkit-calendar-picker-indicator]:hidden">
                             </div>
                         </div>
-                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6]/75 px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
-                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c] sm:text-body-sm">Amenities &amp; Services</p>
+                        {{-- Amenities & Services --}}
+                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
+                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Amenities &amp; Services</p>
                             <div class="flex items-center justify-between gap-2">
-                                <p class="text-body font-semibold tracking-tight text-[#8c8c8c] sm:text-body-lg">Select</p>
-                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="icon-md shrink-0 object-contain">
+                                <select name="amenity" class="w-full cursor-pointer appearance-none bg-transparent text-body font-semibold tracking-tight text-[#5a5a5a] focus:outline-none sm:text-body-lg">
+                                    <option value="">Select</option>
+                                    @foreach (['Fitness Lounge', 'Wifi', 'Pool', 'Restaurant', 'Parking', 'Complimentary Breakfast'] as $amenity)
+                                        <option value="{{ $amenity }}">{{ $amenity }}</option>
+                                    @endforeach
+                                </select>
+                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
                             </div>
                         </div>
-                        <button type="button"
+                        {{-- Search --}}
+                        <button type="submit"
                                 class="flex min-h-[73px] items-center justify-center gap-[10px] rounded-[14px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] lg:min-w-[180px] lg:flex-1">
                             Search
                             <img src="{{ asset('images/search-line.png') }}" alt="" class="icon-md object-contain [filter:brightness(0)_invert(1)]">
                         </button>
-                    </div>
+                    </form>
                 </div>
-            </div>
         </x-layouts.container>
     </section>
 

@@ -21,9 +21,9 @@
             ['label' => 'Menus', 'href' => '#'],
             ['label' => 'Reservations', 'href' => '#'],
         ]],
-        ['key' => 'car-rentals', 'label' => 'Car Rentals', 'icon' => 'car.png', 'children' => [
-            ['label' => 'Vehicles', 'href' => '#'],
-            ['label' => 'Bookings', 'href' => '#'],
+        ['key' => 'car-rentals', 'label' => 'Airport Pickups', 'svg' => 'airport', 'children' => [
+            ['label' => 'Vehicles', 'href' => route('admin.vehicles.index'), 'active' => request()->routeIs('admin.vehicles.index')],
+            ['label' => 'Bookings', 'href' => route('admin.vehicles.bookings'), 'active' => request()->routeIs('admin.vehicles.bookings')],
         ]],
         ['key' => 'spa', 'label' => 'Spa & Wellness', 'icon' => 'spa&wellness.png', 'children' => [
             ['label' => 'Services', 'href' => '#'],
@@ -125,7 +125,12 @@
                                 ])
                                 :class="mini ? 'justify-center' : ''"
                                 x-bind:title="mini ? '{{ $item['label'] }}' : ''">
-                            <img src="{{ asset('images/'.$item['icon']) }}" alt="" class="size-5 shrink-0">
+                            @if (($item['svg'] ?? null) === 'airport')
+                                {{-- Registered website "Airport pick-up" icon --}}
+                                <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M2 19h20v2H2zM4 17h16l-1-6h-3l-2-7-2 .5 1.5 6.5H8l-1.5-3H5l1 3H4z"/></svg>
+                            @else
+                                <img src="{{ asset('images/'.$item['icon']) }}" alt="" class="size-5 shrink-0">
+                            @endif
                             <span x-show="!mini" x-cloak class="flex-1 text-left">{{ $item['label'] }}</span>
                             <svg x-show="!mini" x-cloak class="size-4 shrink-0 transition-transform duration-200"
                                  :class="open === '{{ $item['key'] }}' ? '-rotate-180' : ''"

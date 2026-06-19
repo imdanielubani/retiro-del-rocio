@@ -11,7 +11,7 @@
     @endphp
 
     <div x-data="{
-        category: 'all',
+        category: @js($types->contains(request('category')) ? request('category') : 'all'),
         rooms: @js($rooms->map(fn ($r) => ['name' => $r->name, 'type' => (string) $r->type])->values()),
         matches(type) {
             return this.category === 'all' || type === this.category;
