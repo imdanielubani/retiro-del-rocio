@@ -97,7 +97,7 @@
                             </div>
                         </div>
                         {{-- Amenities & Services --}}
-                        <div class="flex min-w-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-4 py-[11px] xl:min-w-0 xl:flex-[1.2]">
+                        <!-- <div class="flex min-w-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-4 py-[11px] xl:min-w-0 xl:flex-[1.2]">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Amenities &amp; Services</p>
                             <div class="flex items-center gap-1.5">
                                 <select name="amenity" class="w-full min-w-0 cursor-pointer truncate appearance-none bg-transparent text-body font-semibold tracking-tight text-[#5a5a5a] focus:outline-none">
@@ -108,7 +108,7 @@
                                 </select>
                                 <img loading="lazy" src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-sm shrink-0 object-contain">
                             </div>
-                        </div>
+                        </div> -->
                         {{-- Search --}}
                         <button type="submit"
                                 class="flex min-h-[64px] shrink-0 items-center justify-center gap-[10px] rounded-[14px] bg-[#ba6d04] px-6 text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] sm:col-span-2 md:col-span-1 xl:min-w-[130px] xl:flex-1">
