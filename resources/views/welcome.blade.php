@@ -55,7 +55,7 @@
                         <div class="flex min-w-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-4 py-[13px] xl:min-w-0 xl:flex-[1.4]">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Room Type</p>
                             <div class="flex items-center gap-1.5">
-                                <select name="category" class="w-full min-w-0 cursor-pointer truncate appearance-none bg-transparent text-body font-bold text-black focus:outline-none">
+                                <select name="category" class="w-full min-w-0 cursor-pointer truncate appearance-none bg-transparent text-body font-semibold text-black focus:outline-none">
                                     <option value="all">Any room type</option>
                                     @foreach ($roomTypes as $type)
                                         <option value="{{ $type }}">{{ $type }}</option>
@@ -68,7 +68,7 @@
                         <div class="flex min-w-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-4 py-[14px] xl:min-w-0 xl:flex-1">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Number of Guest</p>
                             <div class="flex items-center gap-1.5">
-                                <select name="guests" class="w-full min-w-0 cursor-pointer appearance-none bg-transparent text-body font-bold text-black focus:outline-none">
+                                <select name="guests" class="w-full min-w-0 cursor-pointer appearance-none bg-transparent text-body font-semibold text-black focus:outline-none">
                                     @for ($n = 1; $n <= 10; $n++)
                                         <option value="{{ $n }}" @selected($n === 2)>{{ $n }}</option>
                                     @endfor
@@ -80,20 +80,20 @@
                         <div class="flex min-w-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-4 py-[11px] xl:min-w-0 xl:flex-1">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Check-in Date</p>
                             <div class="flex items-center gap-1.5">
-                                <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-md shrink-0 object-contain">
+                                <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-sm shrink-0 object-contain">
                                 <input type="date" name="check_in" x-model="checkIn" :min="today"
                                        @click="$event.target.showPicker && $event.target.showPicker()"
-                                       class="w-full min-w-0 cursor-pointer bg-transparent text-body font-bold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
+                                       class="w-full min-w-0 cursor-pointer bg-transparent text-body-sm font-semibold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
                             </div>
                         </div>
                         {{-- Check-out Date --}}
                         <div class="flex min-w-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-4 py-[11px] xl:min-w-0 xl:flex-1">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Check-out Date</p>
                             <div class="flex items-center gap-1.5">
-                                <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-md shrink-0 object-contain">
+                                <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-sm shrink-0 object-contain">
                                 <input type="date" name="check_out" x-model="checkOut" :min="checkIn || today"
                                        @click="$event.target.showPicker && $event.target.showPicker()"
-                                       class="w-full min-w-0 cursor-pointer bg-transparent text-body font-bold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
+                                       class="w-full min-w-0 cursor-pointer bg-transparent text-body-sm font-semibold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
                             </div>
                         </div>
                         {{-- Amenities & Services --}}

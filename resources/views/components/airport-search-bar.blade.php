@@ -38,10 +38,10 @@
         <div class="flex h-[73px] flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6] px-[19px] lg:min-w-0 lg:flex-1">
             <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Arrival Date</p>
             <div class="flex items-center gap-[5px]">
-                <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
+                <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-sm shrink-0 object-contain">
                 <input type="date" x-model="arrivalDate"
                        @click="$event.target.showPicker && $event.target.showPicker()"
-                       class="w-full cursor-pointer bg-transparent text-body-sm font-semibold tracking-tight text-[#202020] focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
+                       class="w-full min-w-0 cursor-pointer bg-transparent text-body-sm font-semibold tracking-tight text-[#202020] focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
             </div>
         </div>
 
@@ -49,10 +49,10 @@
         <div class="flex h-[73px] flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6] px-[19px] lg:min-w-0 lg:flex-1">
             <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Pick-up Time</p>
             <div class="flex items-center gap-[7px]">
-                <svg class="icon-md shrink-0 text-[#202020]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg class="icon-sm shrink-0 text-[#202020]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <input type="time" x-model="pickupTime"
                        @click="$event.target.showPicker && $event.target.showPicker()"
-                       class="w-full cursor-pointer bg-transparent text-body-sm font-semibold tracking-tight text-[#202020] focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
+                       class="w-full min-w-0 cursor-pointer bg-transparent text-body-sm font-semibold tracking-tight text-[#202020] focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
             </div>
         </div>
 

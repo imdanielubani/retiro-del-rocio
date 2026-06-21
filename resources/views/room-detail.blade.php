@@ -154,19 +154,19 @@
                 <div class="flex min-w-[200px] flex-1 flex-col justify-center rounded-[6px] border-[0.5px] border-black/20 bg-[#f6f6f6]/[0.87] px-[25px] py-[11px]">
                     <label class="text-body-sm font-medium tracking-tight text-black">Check-in Date</label>
                     <div class="flex items-center gap-[5px]">
-                        <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
+                        <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-sm shrink-0 object-contain">
                         <input type="date" name="check_in" x-model="checkIn" :min="today"
                                @click="$event.target.showPicker && $event.target.showPicker()"
-                               class="w-full bg-transparent text-body-lg font-bold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
+                               class="w-full min-w-0 bg-transparent text-body-sm font-semibold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
                     </div>
                 </div>
                 <div class="flex min-w-[200px] flex-1 flex-col justify-center rounded-[6px] border-[0.5px] border-black/20 bg-[#f6f6f6]/[0.87] px-[25px] py-[11px]">
                     <label class="text-body-sm font-medium tracking-tight text-black">Check-out Date</label>
                     <div class="flex items-center gap-[7px]">
-                        <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
+                        <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-sm shrink-0 object-contain">
                         <input type="date" name="check_out" x-model="checkOut" :min="checkIn || today"
                                @click="$event.target.showPicker && $event.target.showPicker()"
-                               class="w-full bg-transparent text-body-lg font-bold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
+                               class="w-full min-w-0 bg-transparent text-body-sm font-semibold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
                     </div>
                 </div>
                 <button type="submit" :disabled="!datesValid || (availChecked && !available)"
