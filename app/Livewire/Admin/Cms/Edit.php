@@ -10,7 +10,7 @@ class Edit extends Component
 {
     use WithFileUploads;
 
-    public string $tab = 'homepage';
+    public string $page = '';
 
     /** @var array<string,string|null> binding-name => text value / existing image path */
     public array $values = [];
@@ -18,14 +18,17 @@ class Edit extends Component
     /** @var array<string,mixed> binding-name => TemporaryUploadedFile (image fields) */
     public array $uploads = [];
 
-    /** @var array<int,array{q:string,a:string}> the contact FAQ repeater */
-    public array $faqs = [];
+    /** @var array<string,array<int,array<string,string>>> binding-name => repeater rows */
+    public array $repeaters = [];
 
-    public function mount(): void
+    public function mount(string $page = 'landing'): void
     {
-        foreach ($this->fieldList() as $field) {
+        abort_unless(array_key_exists($page, config('cms.pages')), 404);
+        $this->page = $page;
+
+        foreach ($this->fields() as $field) {
             if ($field['type'] === 'repeater') {
-                $this->faqs = array_values(cms_array($field['key']));
+                $this->repeaters[$field['name']] = array_values(cms_array($field['key']));
 
                 continue;
             }
@@ -34,21 +37,30 @@ class Edit extends Component
         }
     }
 
-    /** Flattened list of every field across all sections. */
-    protected function fieldList(): array
+    /** Fields for the current page. */
+    protected function fields(): array
     {
-        return collect(config('cms.sections'))
-            ->flatMap(fn ($section) => $section['fields'])
-            ->all();
+        return config("cms.pages.{$this->page}.fields", []);
+    }
+
+    /** Locate a repeater field config by its binding name. */
+    protected function repeaterField(string $name): ?array
+    {
+        foreach ($this->fields() as $field) {
+            if (($field['type'] ?? null) === 'repeater' && $field['name'] === $name) {
+                return $field;
+            }
+        }
+
+        return null;
     }
 
     public function rules(): array
     {
         return [
             'uploads.*' => ['nullable', 'image', 'max:5120'],
-            'faqs' => ['array'],
-            'faqs.*.q' => ['nullable', 'string', 'max:255'],
-            'faqs.*.a' => ['nullable', 'string', 'max:2000'],
+            'values.*' => ['nullable', 'string', 'max:5000'],
+            'repeaters' => ['array'],
         ];
     }
 
@@ -58,30 +70,42 @@ class Edit extends Component
         unset($this->uploads[$name]);
     }
 
-    public function addFaq(): void
+    public function addRow(string $name): void
     {
-        $this->faqs[] = ['q' => '', 'a' => ''];
+        $field = $this->repeaterField($name);
+        if (! $field) {
+            return;
+        }
+
+        $row = [];
+        foreach (array_keys($field['item']) as $col) {
+            $row[$col] = '';
+        }
+        $this->repeaters[$name][] = $row;
     }
 
-    public function removeFaq(int $i): void
+    public function removeRow(string $name, int $i): void
     {
-        unset($this->faqs[$i]);
-        $this->faqs = array_values($this->faqs);
+        if (! isset($this->repeaters[$name][$i])) {
+            return;
+        }
+        unset($this->repeaters[$name][$i]);
+        $this->repeaters[$name] = array_values($this->repeaters[$name]);
     }
 
     public function save(): void
     {
         $this->validate();
 
-        foreach ($this->fieldList() as $field) {
+        foreach ($this->fields() as $field) {
             $key = $field['key'];
-            $name = $field['name'] ?? null;
+            $name = $field['name'];
 
             if ($field['type'] === 'repeater') {
-                // Drop fully-empty rows, then store as JSON.
+                $cols = array_keys($field['item']);
                 $rows = array_values(array_filter(
-                    $this->faqs,
-                    fn ($row) => trim((string) ($row['q'] ?? '')) !== '' || trim((string) ($row['a'] ?? '')) !== ''
+                    $this->repeaters[$name] ?? [],
+                    fn ($row) => collect($cols)->contains(fn ($c) => trim((string) ($row[$c] ?? '')) !== '')
                 ));
                 SiteContent::put($key, json_encode($rows, JSON_UNESCAPED_UNICODE));
 
@@ -106,16 +130,18 @@ class Edit extends Component
 
         $this->uploads = [];
 
-        $this->dispatch('toast', type: 'success', message: 'Website content updated.');
+        $this->dispatch('toast', type: 'success', message: config("cms.pages.{$this->page}.label").' content updated.');
     }
 
     public function render()
     {
         return view('admin.cms.edit', [
-            'sections' => config('cms.sections'),
+            'fields' => $this->fields(),
+            'pageLabel' => config("cms.pages.{$this->page}.label"),
+            'pageChips' => config("cms.pages.{$this->page}.chips", []),
         ])->layout('components.admin.app', [
-            'title' => 'Website CMS',
-            'subtitle' => 'Edit the homepage and contact page content & images',
+            'title' => config("cms.pages.{$this->page}.label"),
+            'subtitle' => 'Edit this page’s content & images',
         ]);
     }
 }

@@ -73,9 +73,9 @@
                     {{-- Summary --}}
                     <div class="flex flex-col gap-8 rounded-[10px] bg-[#373d35]/[0.34] p-6 sm:p-8 lg:p-10">
                         <div class="flex items-center justify-between gap-4">
-                            <h2 class="text-3xl font-semibold tracking-tight text-white lg:text-h2">Summary</h2>
+                            <h2 class="text-3xl font-semibold tracking-tight text-white lg:text-h2">{{ cms('checkout.summary_title') }}</h2>
                             <a href="{{ ! empty($booking['room_slug']) ? route('rooms.show', $booking['room_slug']) : route('rooms') }}" wire:navigate class="flex shrink-0 items-center gap-2 text-body font-semibold tracking-tight text-white transition hover:text-[#f38c00] lg:text-body-lg">
-                                Edit selection
+                                {{ cms('checkout.edit_label') }}
                                 <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                             </a>
                         </div>
@@ -156,7 +156,7 @@
                 <div class="flex flex-col gap-[21px]">
                     {{-- Who's checking in --}}
                     <div class="rounded-[10px] bg-[#373d35] p-6 sm:p-8">
-                        <h2 class="text-h3 font-semibold tracking-tight text-white">Who's Checking in?</h2>
+                        <h2 class="text-h3 font-semibold tracking-tight text-white">{{ cms('checkout.guest_title') }}</h2>
                         <div class="mt-6 flex flex-col gap-5">
                             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                                 <label class="flex flex-col gap-1.5 border-b border-white/30 pb-2">
@@ -249,7 +249,7 @@
                             </div>
                             <p class="flex items-center gap-2 text-label text-white/60">
                                 <svg class="icon-xs shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/></svg>
-                                Card details are entered securely in the Paystack window.
+                                {{ cms('checkout.secure_note') }}
                             </p>
                         </div>
 
@@ -257,7 +257,7 @@
                         <div class="mt-9 flex flex-wrap items-center gap-7">
                             <button type="button" @click="pay()"
                                     class="flex h-[75px] min-w-[240px] flex-1 items-center justify-center rounded-[6px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] sm:flex-none sm:w-[279px]">
-                                Make reservation
+                                {{ cms('checkout.pay_label') }}
                             </button>
                             <div class="flex flex-col text-white">
                                 <span class="text-body-lg font-semibold tracking-tight">Total</span>

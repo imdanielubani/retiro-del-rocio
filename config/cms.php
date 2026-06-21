@@ -2,21 +2,25 @@
 
 /*
 |--------------------------------------------------------------------------
-| Website CMS field schema
+| Website CMS — page & field schema
 |--------------------------------------------------------------------------
-| Single source of truth for the editable homepage + contact content.
-| The admin editor (Admin\Cms\Edit) renders fields from here, and the
-| public blades read values via cms()/cms_image()/cms_array() using the
-| `default` defined below — so unset keys fall back to the original copy.
+| Single source of truth for every editable area of the public website.
+| Content is grouped into "pages" (the cards on Admin → Website CMS). Each
+| page has a category (core | system), section "chips", and a flat list of
+| fields. The per-page editor (Admin\Cms\Edit) renders fields from here, and
+| the public blades read values via cms()/cms_image()/cms_array() using the
+| `default` below — so unset keys fall back to the original copy.
 |
 | Field types: text | textarea | image | repeater
-| Each field key is dotted ("home.hero_image"); a dot-safe binding `name`
-| is derived automatically for Livewire wire:model.
+| A dot-safe binding `name` is derived for each field automatically.
 */
 
-$sections = [
-    'homepage' => [
-        'label' => 'Homepage',
+$pages = [
+    'landing' => [
+        'label' => 'Landing Page',
+        'category' => 'core',
+        'chips' => ['Hero', 'Stillness', 'Offers', 'Member', 'Explore Jos', 'Wellness'],
+        'preview' => '/',
         'fields' => [
             ['key' => 'home.hero_image', 'label' => 'Hero image', 'type' => 'image', 'default' => 'images/image 1.jpg'],
 
@@ -32,6 +36,10 @@ $sections = [
             ['key' => 'home.member_title', 'label' => '“Member” heading', 'type' => 'text', 'default' => 'Become a member of Retiro Del Rocio'],
             ['key' => 'home.member_text', 'label' => '“Member” paragraph', 'type' => 'textarea', 'default' => 'Get exclusive discounts on services, experiences, and curated destinations across Jos and beyond. Enjoy member-only perks designed to help you explore more for less.'],
             ['key' => 'home.member_image', 'label' => '“Member” image', 'type' => 'image', 'default' => 'images/image 47.jpg'],
+            ['key' => 'home.member_cta_label', 'label' => '“Member” button text', 'type' => 'text', 'default' => 'Subscribe'],
+            ['key' => 'home.member_cta_url', 'label' => '“Member” button link', 'type' => 'text', 'default' => '#'],
+            ['key' => 'home.member_link_label', 'label' => '“Member” secondary link text', 'type' => 'text', 'default' => 'Contact Us'],
+            ['key' => 'home.member_link_url', 'label' => '“Member” secondary link', 'type' => 'text', 'default' => '/contact-us'],
 
             ['key' => 'home.jos_title', 'label' => '“Explore Jos” heading', 'type' => 'text', 'default' => 'Beyond the stay Explore Jos City'],
             ['key' => 'home.jos_text', 'label' => '“Explore Jos” paragraph', 'type' => 'textarea', 'default' => 'Experience the beauty and calm that make Jos truly unforgettable. From breathtaking rock landscapes and cool weather to peaceful nature trails and rich local culture, every moment invites discovery. Whether you seek adventure, relaxation, or quiet reflection, Jos offers a refreshing escape where nature, serenity, and memorable experiences come together beautifully.'],
@@ -41,6 +49,8 @@ $sections = [
 
             ['key' => 'home.wellness_title', 'label' => '“Wellness lifestyle” heading', 'type' => 'text', 'default' => 'Explore our wellness lifestyle'],
             ['key' => 'home.wellness_image', 'label' => '“Wellness lifestyle” image', 'type' => 'image', 'default' => 'images/image 14.jpg'],
+            ['key' => 'home.wellness_cta_label', 'label' => '“Wellness” button text', 'type' => 'text', 'default' => 'Explore'],
+            ['key' => 'home.wellness_cta_url', 'label' => '“Wellness” button link', 'type' => 'text', 'default' => '#'],
 
             ['key' => 'home.train_title', 'label' => '“Train. Recover.” heading', 'type' => 'text', 'default' => 'Train. Recover. Recharge.'],
             ['key' => 'home.train_text', 'label' => '“Train. Recover.” paragraph', 'type' => 'textarea', 'default' => 'Stay active and restore your balance in a space designed for movement, wellness, and recovery. Whether you’re maintaining your routine, starting your day with energy, or unwinding after a long one, our fitness and wellness experience is designed to help you feel refreshed, focused, and recharged throughout your stay.'],
@@ -48,8 +58,64 @@ $sections = [
         ],
     ],
 
+    'navigation' => [
+        'label' => 'Navigation Menu',
+        'category' => 'system',
+        'chips' => ['Desktop Nav', 'Mobile Nav', 'Links'],
+        'preview' => '/',
+        'fields' => [
+            ['key' => 'nav.links', 'label' => 'Menu links', 'type' => 'repeater', 'item' => ['label' => 'Label', 'url' => 'Link (URL)'], 'default' => [
+                ['label' => 'Home', 'url' => '/'],
+                ['label' => 'Rooms & Apartment', 'url' => '/rooms-apartment'],
+                ['label' => 'Gym', 'url' => '#'],
+                ['label' => 'Cinema', 'url' => '#'],
+                ['label' => 'Restaurant', 'url' => '#'],
+                ['label' => 'Spa/Wellness', 'url' => '#'],
+            ]],
+            ['key' => 'nav.cta_label', 'label' => 'Button text', 'type' => 'text', 'default' => 'Get in touch'],
+            ['key' => 'nav.cta_url', 'label' => 'Button link', 'type' => 'text', 'default' => '/contact-us'],
+        ],
+    ],
+
+    'footer' => [
+        'label' => 'Footer Editor',
+        'category' => 'system',
+        'chips' => ['Brand', 'Links', 'Contact'],
+        'preview' => '/',
+        'fields' => [
+            ['key' => 'footer.logo', 'label' => 'Footer logo', 'type' => 'image', 'default' => 'images/Logo footer.png'],
+            ['key' => 'footer.brand_text', 'label' => 'Brand description', 'type' => 'textarea', 'default' => 'Experience the elegance of stay at Retiro Del Rocio, where luxury meets world-class comfort in every detail.'],
+            ['key' => 'footer.links', 'label' => 'Helpful links', 'type' => 'repeater', 'item' => ['label' => 'Label', 'url' => 'Link (URL)'], 'default' => [
+                ['label' => 'Home', 'url' => '/'],
+                ['label' => 'About Us', 'url' => '#'],
+                ['label' => 'Rooms & Apartments', 'url' => '/rooms-apartment'],
+            ]],
+            ['key' => 'footer.email', 'label' => 'Contact email', 'type' => 'text', 'default' => 'hello@retirodelrocio.com'],
+            ['key' => 'footer.address', 'label' => 'Address', 'type' => 'textarea', 'default' => 'No. 1, Off Liberty Boulevard, Millionaire Quarters, Jos, Plateau State'],
+            ['key' => 'footer.phone', 'label' => 'Phone number', 'type' => 'text', 'default' => '(+234) 7012623680'],
+            ['key' => 'footer.copyright', 'label' => 'Copyright line', 'type' => 'text', 'default' => '2026 Retiro Del Rocio. All Rights Reserved.'],
+        ],
+    ],
+
+    'checkout' => [
+        'label' => 'Checkout',
+        'category' => 'core',
+        'chips' => ['Booking Summary', 'Payment', 'Confirmation'],
+        'preview' => '/rooms-apartment',
+        'fields' => [
+            ['key' => 'checkout.summary_title', 'label' => 'Summary heading', 'type' => 'text', 'default' => 'Summary'],
+            ['key' => 'checkout.edit_label', 'label' => '“Edit selection” link text', 'type' => 'text', 'default' => 'Edit selection'],
+            ['key' => 'checkout.guest_title', 'label' => 'Guest section heading', 'type' => 'text', 'default' => "Who's Checking in?"],
+            ['key' => 'checkout.secure_note', 'label' => 'Secure-payment note', 'type' => 'textarea', 'default' => 'Card details are entered securely in the Paystack window.'],
+            ['key' => 'checkout.pay_label', 'label' => 'Pay button text', 'type' => 'text', 'default' => 'Make reservation'],
+        ],
+    ],
+
     'contact' => [
         'label' => 'Contact Page',
+        'category' => 'core',
+        'chips' => ['Form', 'Enquiries', 'FAQs'],
+        'preview' => '/contact-us',
         'fields' => [
             ['key' => 'contact.form_title', 'label' => 'Form heading', 'type' => 'text', 'default' => 'Get in Touch'],
             ['key' => 'contact.form_subtitle', 'label' => 'Form subheading', 'type' => 'text', 'default' => 'You can reach us anytime'],
@@ -82,16 +148,16 @@ $sections = [
 
 // Derive a dot-safe binding name for each field + a flat defaults map.
 $defaults = [];
-foreach ($sections as $sectionKey => &$section) {
-    foreach ($section['fields'] as &$field) {
+foreach ($pages as $pageKey => &$page) {
+    foreach ($page['fields'] as &$field) {
         $field['name'] = str_replace('.', '__', $field['key']);
         $defaults[$field['key']] = $field['default'] ?? null;
     }
     unset($field);
 }
-unset($section);
+unset($page);
 
 return [
-    'sections' => $sections,
+    'pages' => $pages,
     'defaults' => $defaults,
 ];

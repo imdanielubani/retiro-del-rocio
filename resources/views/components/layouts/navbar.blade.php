@@ -1,12 +1,17 @@
 @php
-    $links = [
-        ['label' => 'Home', 'href' => route('home'), 'active' => request()->routeIs('home')],
-        ['label' => 'Rooms & Apartment', 'href' => route('rooms'), 'active' => request()->routeIs('rooms')],
-        ['label' => 'Gym', 'href' => '#', 'active' => false],
-        ['label' => 'Cinema', 'href' => '#', 'active' => false],
-        ['label' => 'Restaurant', 'href' => '#', 'active' => false],
-        ['label' => 'Spa/Wellness', 'href' => '#', 'active' => false],
-    ];
+    // Editable in Admin → Website CMS → Navigation Menu.
+    $curr = trim(request()->path(), '/'); // '' for home
+    $links = collect(cms_array('nav.links'))->map(function ($l) use ($curr) {
+        $href = $l['url'] ?? '#';
+        $path = trim((string) parse_url($href, PHP_URL_PATH), '/');
+        return [
+            'label' => $l['label'] ?? '',
+            'href' => $href,
+            'active' => $href !== '#' && $href !== '' && $path === $curr,
+        ];
+    })->all();
+    $navCtaLabel = cms('nav.cta_label');
+    $navCtaUrl = cms('nav.cta_url') ?: '#';
 @endphp
 
 <nav x-data="{ open: false }" class="relative z-50 w-full bg-[#232d22]">
@@ -26,9 +31,9 @@
                 </a>
             @endforeach
 
-            <a href="{{ route('contact') }}" wire:navigate
+            <a href="{{ $navCtaUrl }}" @if ($navCtaUrl !== '#') wire:navigate @endif
                class="flex h-[50px] w-[156px] items-center justify-center rounded-[13px] border border-[#c8c8c8] bg-[#ba6d04] text-body font-medium text-white transition hover:bg-[#a35f03]">
-                Get in touch
+                {{ $navCtaLabel }}
             </a>
         </div>
 
@@ -55,9 +60,9 @@
                 </a>
             @endforeach
 
-            <a href="{{ route('contact') }}" wire:navigate
+            <a href="{{ $navCtaUrl }}" @if ($navCtaUrl !== '#') wire:navigate @endif
                class="mt-2 flex h-[50px] items-center justify-center rounded-[13px] border border-[#c8c8c8] bg-[#ba6d04] text-body font-medium text-white transition hover:bg-[#a35f03]">
-                Get in touch
+                {{ $navCtaLabel }}
             </a>
         </div>
     </div>

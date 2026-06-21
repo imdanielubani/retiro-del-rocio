@@ -30,7 +30,7 @@
             ['label' => 'Appointments', 'href' => '#'],
         ]],
         ['key' => 'website-cms', 'label' => 'Website CMS', 'icon' => 'websitecms.png', 'children' => [
-            ['label' => 'Content', 'href' => route('admin.cms.edit'), 'active' => request()->routeIs('admin.cms.*')],
+            ['label' => 'Content', 'href' => route('admin.cms.index'), 'active' => request()->routeIs('admin.cms.*')],
             ['label' => 'Messages', 'href' => route('admin.messages.index'), 'active' => request()->routeIs('admin.messages.*')],
         ]],
         ['label' => 'Gym', 'icon' => 'gym.png', 'href' => '#'],

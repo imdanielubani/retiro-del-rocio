@@ -373,8 +373,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('apartments/bookings', App\Livewire\Admin\Bookings\Index::class)->name('bookings.index');
         Route::get('apartments/bookings/{booking}', App\Livewire\Admin\Bookings\Show::class)->name('bookings.show');
 
-        // Website CMS — editable content + contact messages
-        Route::get('website-cms', App\Livewire\Admin\Cms\Edit::class)->name('cms.edit');
+        // Website CMS — page hub + per-page editor + contact messages
+        Route::get('website-cms', App\Livewire\Admin\Cms\Index::class)->name('cms.index');
+        Route::get('website-cms/page/{page}', App\Livewire\Admin\Cms\Edit::class)->name('cms.edit');
         Route::get('website-cms/messages', App\Livewire\Admin\Messages\Index::class)->name('messages.index');
 
         // Airport Pickups — Vehicles (fleet shown on the website pick-up popup)

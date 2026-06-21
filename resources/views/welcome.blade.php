@@ -203,15 +203,15 @@
                         </p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <button type="button"
-                                class="flex items-center justify-center rounded-[6px] bg-[#ba6d04] px-6 py-4 text-body-lg font-semibold text-white transition hover:bg-[#a35f03]">
-                            Subscribe
-                        </button>
-                        <button type="button"
-                                class="flex items-center justify-center gap-3 rounded-[6px] px-6 py-4 text-body-lg font-semibold text-[#343a40] transition hover:text-[#ba6d04]">
-                            Contact Us
+                        <a href="{{ cms('home.member_cta_url') ?: '#' }}"
+                           class="flex items-center justify-center rounded-[6px] bg-[#ba6d04] px-6 py-4 text-body-lg font-semibold text-white transition hover:bg-[#a35f03]">
+                            {{ cms('home.member_cta_label') }}
+                        </a>
+                        <a href="{{ cms('home.member_link_url') ?: '#' }}"
+                           class="flex items-center justify-center gap-3 rounded-[6px] px-6 py-4 text-body-lg font-semibold text-[#343a40] transition hover:text-[#ba6d04]">
+                            {{ cms('home.member_link_label') }}
                             <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="m10 8 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -254,10 +254,10 @@
                     <h2 class="max-w-[420px] text-3xl font-medium leading-tight tracking-tight text-white sm:text-4xl lg:text-display lg:leading-[58px]">
                         {{ cms('home.wellness_title') }}
                     </h2>
-                    <button type="button"
-                            class="flex h-[64px] w-[220px] items-center justify-center rounded-[10px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
-                        Explore
-                    </button>
+                    <a href="{{ cms('home.wellness_cta_url') ?: '#' }}"
+                       class="flex h-[64px] w-[220px] items-center justify-center rounded-[10px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
+                        {{ cms('home.wellness_cta_label') }}
+                    </a>
                 </div>
             </div>
 
