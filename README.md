@@ -24,7 +24,7 @@ room numbers, vehicles, payments, website CMS, notifications).
 
 ### 0. Prerequisites
 - A Hostinger VPS with **Dokploy** installed (dashboard at `http://<vps-ip>:3000`).
-- Your domain **`retirodelrocio.ng`** DNS **A record** pointing to the VPS IP (so Dokploy can issue HTTPS).
+- Your website domain **`retirodelrocio.com`** DNS **A record** pointing to the VPS IP (so Dokploy can issue HTTPS). *(Mail is sent from the separate `retirodelrocio.ng` domain — see Mail below.)*
 - The GitHub repo connected to Dokploy (GitHub provider or a deploy key).
 
 ### 1. Create the database (Dokploy → Databases)
@@ -50,7 +50,7 @@ APP_NAME="Retiro Del Rocio"
 APP_ENV=production
 APP_KEY=                      # base64:... (php artisan key:generate --show)
 APP_DEBUG=false
-APP_URL=https://retirodelrocio.ng
+APP_URL=https://retirodelrocio.com
 
 LOG_CHANNEL=stack
 LOG_LEVEL=error
@@ -98,7 +98,7 @@ Uploaded images (room/vehicle photos) live in `storage/app/public`. Without a vo
 (The app lives at `/var/www/html`.) Logs in `/var/www/html/storage/logs` are ephemeral, which is fine.
 
 ### 5. Domain + HTTPS (Dokploy → Application → Domains)
-1. **Add Domain:** `retirodelrocio.ng` (add `www.retirodelrocio.ng` too if you want it).
+1. **Add Domain:** `retirodelrocio.com` (add `www.retirodelrocio.com` too if you want it).
 2. **HTTPS:** On — Dokploy issues a Let's Encrypt certificate via Traefik automatically.
 3. Container **port:** `8080`.
 
@@ -139,7 +139,7 @@ manually only if you add new seed data you want applied.)
   **no separate queue worker is required** today. If you later dispatch queued jobs, add a Dokploy
   worker running `php artisan queue:work --tries=3`.
 - **Paystack:** set the **callback URL** in your Paystack dashboard to
-  `https://retirodelrocio.ng/checkout/callback`, and use **live** keys in production.
+  `https://retirodelrocio.com/checkout/callback`, and use **live** keys in production.
 - **Email deliverability:** `retirodelrocio.ng` has SPF, DKIM, DMARC and PTR configured. Mail is sent
   from `Retiro Del Rocio <no-reply@retirodelrocio.ng>`; guest enquiries and booking alerts go to
   `support@retirodelrocio.com`.
