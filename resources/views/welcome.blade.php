@@ -26,7 +26,7 @@
         {{-- Search panel (#d9d9d9) overlapping the hero bottom, inset to the container — Figma node 92:112 --}}
         <x-layouts.container>
             <div class="relative z-10 mx-auto -mt-[100px] w-full rounded-[19px] bg-[#d9d9d9] px-4 py-5 shadow-2xl sm:-mt-[120px] sm:px-6 lg:-mt-[130px] lg:px-[26px] lg:py-[20px]"
-                 x-data="{ today: new Date().toISOString().split('T')[0], checkIn: '', checkOut: '' }">
+                 x-data="{ today: new Date().toISOString().split('T')[0], checkIn: '', checkOut: '', roomSlug: '', roomsBase: '{{ url('rooms-apartment') }}', listUrl: '{{ route('rooms') }}' }">
                     {{-- Category tabs --}}
                     <div class="flex flex-wrap items-center gap-x-6 gap-y-3 px-1 sm:gap-x-10 lg:gap-x-12">
                         <div class="flex flex-col items-start gap-2">
@@ -47,18 +47,20 @@
                     </div>
                     <hr class="my-4 border-black/10">
 
-                    {{-- Functional search → navigates to the rooms listing filtered by type.
-                         Wraps to a 2/3-col grid on small screens & laptops; single row from xl (1280px). --}}
-                    <form method="GET" action="{{ route('rooms') }}"
+                    {{-- Functional search → goes straight to the chosen room's detail page
+                         (carrying guests + dates so the guest doesn't re-enter them); if no
+                         room is picked it falls back to the full rooms listing.
+                         Wraps to a 2/3-col grid on small screens & laptops; single row from xl. --}}
+                    <form method="GET" :action="roomSlug ? roomsBase + '/' + roomSlug : listUrl"
                           class="grid grid-cols-1 gap-[9px] sm:grid-cols-2 md:grid-cols-3 xl:flex xl:flex-nowrap xl:items-stretch">
-                        {{-- Room Type --}}
+                        {{-- Room (available rooms, not categories) --}}
                         <div class="flex min-w-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-4 py-[13px] xl:min-w-0 xl:flex-[1.4]">
-                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Room Type</p>
+                            <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Room</p>
                             <div class="flex items-center gap-1.5">
-                                <select name="category" class="w-full min-w-0 cursor-pointer truncate appearance-none bg-transparent text-body font-semibold text-black focus:outline-none">
-                                    <option value="all">Any room type</option>
-                                    @foreach ($roomTypes as $type)
-                                        <option value="{{ $type }}">{{ $type }}</option>
+                                <select x-model="roomSlug" class="w-full min-w-0 cursor-pointer truncate appearance-none bg-transparent text-body font-semibold text-black focus:outline-none">
+                                    <option value="">Browse all rooms</option>
+                                    @foreach ($rooms as $r)
+                                        <option value="{{ $r->slug }}">{{ $r->name }}</option>
                                     @endforeach
                                 </select>
                                 <img loading="lazy" src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-sm shrink-0 object-contain">

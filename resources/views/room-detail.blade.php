@@ -70,9 +70,10 @@
     <section x-data="{
                 airportModal: false,
                 vehicleModal: false,
-                guests: 2,
-                checkIn: '',
-                checkOut: '',
+                {{-- Pre-filled from the homepage search so the guest doesn't re-enter it. --}}
+                guests: {{ (int) (request('guests') ?: 2) }},
+                checkIn: @js(request('check_in', '')),
+                checkOut: @js(request('check_out', '')),
                 today: new Date().toISOString().split('T')[0],
                 get datesValid() { return !!(this.checkIn && this.checkOut && this.checkOut > this.checkIn); },
                 location: 'Yakubu Gowon Airport (IATA)', {{-- permanent pick-up point --}}
