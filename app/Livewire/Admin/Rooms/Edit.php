@@ -23,6 +23,14 @@ class Edit extends Component
         'breakfast' => 'Complimentary Breakfast',
     ];
 
+    /** "Additional" feature list (icon keys match the public room views). */
+    public const ADDITIONAL = [
+        'self_checkin' => 'Self-check-in',
+        'airport' => 'Airport pick-up',
+        'chef' => 'Private chef',
+        'housekeeping' => '24/7 House-keeping',
+    ];
+
     public ?int $roomId = null;
 
     public string $name = '';
@@ -43,10 +51,15 @@ class Edit extends Component
 
     public string $description = '';
 
+    public string $cancellation_policy = '';
+
     public bool $is_published = true;
 
     /** @var array<int,string> selected amenity icon keys */
     public array $amenities = [];
+
+    /** @var array<int,string> selected "additional" icon keys */
+    public array $additional = [];
 
     // Featured image
     public $featured;                 // new upload (TemporaryUploadedFile)
@@ -78,8 +91,10 @@ class Edit extends Component
             $this->bathrooms = (int) $room->bathrooms;
             $this->short_description = (string) $room->short_description;
             $this->description = (string) $room->description;
+            $this->cancellation_policy = (string) $room->cancellation_policy;
             $this->is_published = (bool) $room->is_published;
             $this->amenities = collect($room->amenities ?? [])->pluck('icon')->all();
+            $this->additional = collect($room->additional ?? [])->pluck('icon')->all();
             $this->existingFeatured = $room->featured_image;
             $this->existingGallery = $room->gallery ?? [];
         }
@@ -97,7 +112,9 @@ class Edit extends Component
             'bathrooms' => ['required', 'integer', 'min:0', 'max:50'],
             'short_description' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'cancellation_policy' => ['nullable', 'string', 'max:2000'],
             'amenities' => ['array'],
+            'additional' => ['array'],
             'featured' => ['nullable', 'image', 'max:5120'],
             'newGallery.*' => ['nullable', 'image', 'max:5120'],
         ];
@@ -211,6 +228,14 @@ class Edit extends Component
             }
         }
 
+        // Additional features → [{label, icon}] preserving the master order
+        $additional = [];
+        foreach (self::ADDITIONAL as $icon => $label) {
+            if (in_array($icon, $this->additional, true)) {
+                $additional[] = ['label' => $label, 'icon' => $icon];
+            }
+        }
+
         $room->fill([
             'name' => $this->name,
             'slug' => $room->slug ?: Str::slug($this->name).'-'.Str::lower(Str::random(4)),
@@ -222,7 +247,9 @@ class Edit extends Component
             'bathrooms' => $this->bathrooms,
             'short_description' => $this->short_description,
             'description' => $this->description,
+            'cancellation_policy' => $this->cancellation_policy,
             'amenities' => $amenities,
+            'additional' => $additional,
             'featured_image' => $featuredPath,
             'gallery' => array_values($gallery),
             'is_published' => $this->is_published,
@@ -259,6 +286,7 @@ class Edit extends Component
 
         return view('admin.rooms.edit', [
             'amenityOptions' => self::AMENITIES,
+            'additionalOptions' => self::ADDITIONAL,
             'categoryOptions' => $categoryOptions,
             'units' => $units,
         ])->layout('components.admin.app', [

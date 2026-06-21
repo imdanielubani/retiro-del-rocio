@@ -10,12 +10,13 @@ class Room extends Model
 {
     protected $fillable = [
         'name', 'slug', 'type', 'price', 'beds', 'guests', 'sqft', 'bathrooms',
-        'short_description', 'description', 'amenities', 'featured_image', 'gallery',
-        'is_published', 'sort_order',
+        'short_description', 'description', 'cancellation_policy', 'amenities', 'additional',
+        'featured_image', 'gallery', 'is_published', 'sort_order',
     ];
 
     protected $casts = [
         'amenities' => 'array',
+        'additional' => 'array',
         'gallery' => 'array',
         'is_published' => 'boolean',
         'price' => 'integer',

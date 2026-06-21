@@ -423,42 +423,60 @@
     </section>
 
     {{-- =========================== ADDITIONAL =========================== --}}
-    <section class="w-full pb-10">
-        <x-layouts.container class="flex flex-col gap-[15px]">
-            <h2 class="text-h3 font-semibold tracking-tight text-white">Additional</h2>
-            <div class="flex flex-wrap items-center gap-x-[15px] gap-y-3 text-body-lg font-semibold tracking-tight text-white">
-                <span class="flex items-center gap-1.5">
-                    <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
-                    Self-check-in
-                </span>
-                <span class="hidden h-5 w-px bg-white/30 sm:block"></span>
-                <span class="flex items-center gap-1.5">
-                    <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M2 19h20v2H2zM4 17h16l-1-6h-3l-2-7-2 .5 1.5 6.5H8l-1.5-3H5l1 3H4z"/></svg>
-                    Airport pick-up
-                </span>
-                <span class="hidden h-5 w-px bg-white/30 sm:block"></span>
-                <span class="flex items-center gap-1.5">
-                    <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a6 6 0 0 0-6 6c0 .35.03.69.08 1.02A3.5 3.5 0 0 0 7 17h10a3.5 3.5 0 0 0 .92-6.98c.05-.33.08-.67.08-1.02a6 6 0 0 0-6-6zM7 19h10v2H7z"/></svg>
-                    Private chef
-                </span>
-                <span class="hidden h-5 w-px bg-white/30 sm:block"></span>
-                <span class="flex items-center gap-1.5">
-                    <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10l9-7 9 7v11M9 21v-6h6v6"/></svg>
-                    24/7 House-keeping
-                </span>
-            </div>
-        </x-layouts.container>
-    </section>
+    @php
+        // Admin-managed "Additional" features. Old rooms (null) fall back to the
+        // default set; an explicit empty array hides the section.
+        $additionalItems = is_null($room->additional) ? [
+            ['label' => 'Self-check-in', 'icon' => 'self_checkin'],
+            ['label' => 'Airport pick-up', 'icon' => 'airport'],
+            ['label' => 'Private chef', 'icon' => 'chef'],
+            ['label' => '24/7 House-keeping', 'icon' => 'housekeeping'],
+        ] : $room->additional;
+    @endphp
+    @if (! empty($additionalItems))
+        <section class="w-full pb-10">
+            <x-layouts.container class="flex flex-col gap-[15px]">
+                <h2 class="text-h3 font-semibold tracking-tight text-white">Additional</h2>
+                <div class="flex flex-wrap items-center gap-x-[15px] gap-y-3 text-body-lg font-semibold tracking-tight text-white">
+                    @foreach ($additionalItems as $item)
+                        <span class="flex items-center gap-1.5">
+                            @switch($item['icon'] ?? '')
+                                @case('self_checkin')
+                                    <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+                                    @break
+                                @case('airport')
+                                    <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M2 19h20v2H2zM4 17h16l-1-6h-3l-2-7-2 .5 1.5 6.5H8l-1.5-3H5l1 3H4z"/></svg>
+                                    @break
+                                @case('chef')
+                                    <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a6 6 0 0 0-6 6c0 .35.03.69.08 1.02A3.5 3.5 0 0 0 7 17h10a3.5 3.5 0 0 0 .92-6.98c.05-.33.08-.67.08-1.02a6 6 0 0 0-6-6zM7 19h10v2H7z"/></svg>
+                                    @break
+                                @case('housekeeping')
+                                    <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10l9-7 9 7v11M9 21v-6h6v6"/></svg>
+                                    @break
+                                @default
+                                    <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                            @endswitch
+                            {{ $item['label'] ?? '' }}
+                        </span>
+                        @if (! $loop->last)
+                            <span class="hidden h-5 w-px bg-white/30 sm:block"></span>
+                        @endif
+                    @endforeach
+                </div>
+            </x-layouts.container>
+        </section>
+    @endif
 
     {{-- ======================= CANCELLATION POLICY ======================= --}}
+    @php
+        $cancellationPolicy = trim((string) $room->cancellation_policy)
+            ?: 'Free cancellation up to 48 hours before check-in. Cancellations made within 48 hours of arrival, or no-shows, are charged the first night. Refunds are processed to your original payment method within 5–7 business days.';
+    @endphp
     <section class="w-full pb-12 lg:pb-16">
         <x-layouts.container>
             <div class="rounded-[10px] bg-[rgba(113,113,113,0.27)] px-6 py-7 lg:px-10 lg:py-9">
                 <p class="text-title font-semibold tracking-tight text-white lg:text-h3">Cancellation Policy</p>
-                <p class="mt-5 text-lg leading-snug tracking-tight text-[#dadbda] lg:text-body-lg">
-                    Set in a beautifully restored colonial building, sofitel Legend Santa offers luxurious blend of modern amenities blend of modern amenities blend of modern amenities blend of modern amenities
-                </p>
-                <a href="#" class="mt-1 inline-block text-body-lg text-[#368aff] hover:underline">Read more</a>
+                <p class="mt-5 whitespace-pre-line text-lg leading-snug tracking-tight text-[#dadbda] lg:text-body-lg">{{ $cancellationPolicy }}</p>
             </div>
         </x-layouts.container>
     </section>

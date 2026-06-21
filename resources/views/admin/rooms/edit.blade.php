@@ -94,6 +94,12 @@
                         <textarea wire:model="description" rows="5"
                                   class="w-full rounded-xl border border-[#e5e7eb] p-3.5 text-[14px] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15"></textarea>
                     </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1.5 block text-[13px] font-medium text-[#374151]">Cancellation policy</label>
+                        <textarea wire:model="cancellation_policy" rows="4" placeholder="Describe the cancellation / refund terms shown on the room page…"
+                                  class="w-full rounded-xl border border-[#e5e7eb] p-3.5 text-[14px] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15"></textarea>
+                        @error('cancellation_policy') <span class="mt-1 block text-[12px] text-[#dc2626]">{{ $message }}</span> @enderror
+                    </div>
                 </div>
             </div>
 
@@ -104,6 +110,20 @@
                     @foreach ($amenityOptions as $icon => $label)
                         <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-[#e5e7eb] px-3.5 py-2.5 transition hover:bg-[#f9fafb] has-[:checked]:border-[#f38c00] has-[:checked]:bg-[#fff7ec]">
                             <input type="checkbox" wire:model="amenities" value="{{ $icon }}" class="size-4 accent-[#f38c00]">
+                            <span class="text-[14px] text-[#374151]">{{ $label }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Additional --}}
+            <div class="rounded-2xl border border-[#e5e7eb] bg-white p-5 sm:p-6">
+                <h2 class="text-[15px] font-bold text-[#1e1e1e]">Additional</h2>
+                <p class="mt-1 text-[12px] text-[#6b7280]">Extra services shown under "Additional" on the room page.</p>
+                <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    @foreach ($additionalOptions as $icon => $label)
+                        <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-[#e5e7eb] px-3.5 py-2.5 transition hover:bg-[#f9fafb] has-[:checked]:border-[#f38c00] has-[:checked]:bg-[#fff7ec]">
+                            <input type="checkbox" wire:model="additional" value="{{ $icon }}" class="size-4 accent-[#f38c00]">
                             <span class="text-[14px] text-[#374151]">{{ $label }}</span>
                         </label>
                     @endforeach
