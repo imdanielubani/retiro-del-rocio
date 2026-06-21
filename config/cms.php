@@ -61,9 +61,10 @@ $pages = [
     'navigation' => [
         'label' => 'Navigation Menu',
         'category' => 'system',
-        'chips' => ['Desktop Nav', 'Mobile Nav', 'Links'],
+        'chips' => ['Logo', 'Desktop Nav', 'Mobile Nav', 'Links'],
         'preview' => '/',
         'fields' => [
+            ['key' => 'nav.logo', 'label' => 'Navbar logo', 'type' => 'image', 'default' => 'images/Hotel Logo 1.png'],
             ['key' => 'nav.links', 'label' => 'Menu links', 'type' => 'repeater', 'item' => ['label' => 'Label', 'url' => 'Link (URL)'], 'default' => [
                 ['label' => 'Home', 'url' => '/'],
                 ['label' => 'Rooms & Apartment', 'url' => '/rooms-apartment'],
