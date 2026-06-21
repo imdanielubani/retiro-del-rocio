@@ -47,70 +47,71 @@
                     </div>
                     <hr class="my-4 border-black/10">
 
-                    {{-- Functional search → navigates to the rooms listing filtered by type --}}
+                    {{-- Functional search → navigates to the rooms listing filtered by type.
+                         Wraps to a 2/3-col grid on small screens & laptops; single row from xl (1280px). --}}
                     <form method="GET" action="{{ route('rooms') }}"
-                          class="grid grid-cols-1 gap-[9px] sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-wrap lg:items-stretch">
+                          class="grid grid-cols-1 gap-[9px] sm:grid-cols-2 md:grid-cols-3 xl:flex xl:flex-nowrap xl:items-stretch">
                         {{-- Room Type --}}
-                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-[26px] py-[13px] lg:min-w-[220px] lg:flex-1">
+                        <div class="flex min-w-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-4 py-[13px] xl:min-w-0 xl:flex-[1.4]">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Room Type</p>
-                            <div class="flex items-center justify-between gap-2">
-                                <select name="category" class="w-full cursor-pointer appearance-none bg-transparent text-body font-bold text-black focus:outline-none sm:text-body-lg">
+                            <div class="flex items-center gap-1.5">
+                                <select name="category" class="w-full min-w-0 cursor-pointer truncate appearance-none bg-transparent text-body font-bold text-black focus:outline-none">
                                     <option value="all">Any room type</option>
                                     @foreach ($roomTypes as $type)
                                         <option value="{{ $type }}">{{ $type }}</option>
                                     @endforeach
                                 </select>
-                                <img loading="lazy" src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
+                                <img loading="lazy" src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-sm shrink-0 object-contain">
                             </div>
                         </div>
                         {{-- Number of Guest --}}
-                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-[23px] py-[14px] lg:min-w-[150px] lg:flex-1">
+                        <div class="flex min-w-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-4 py-[14px] xl:min-w-0 xl:flex-1">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Number of Guest</p>
-                            <div class="flex items-center justify-between gap-2">
-                                <select name="guests" class="w-full cursor-pointer appearance-none bg-transparent text-body font-bold text-black focus:outline-none sm:text-body-lg">
+                            <div class="flex items-center gap-1.5">
+                                <select name="guests" class="w-full min-w-0 cursor-pointer appearance-none bg-transparent text-body font-bold text-black focus:outline-none">
                                     @for ($n = 1; $n <= 10; $n++)
                                         <option value="{{ $n }}" @selected($n === 2)>{{ $n }}</option>
                                     @endfor
                                 </select>
-                                <img loading="lazy" src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
+                                <img loading="lazy" src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-sm shrink-0 object-contain">
                             </div>
                         </div>
                         {{-- Check-in Date --}}
-                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
+                        <div class="flex min-w-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-4 py-[11px] xl:min-w-0 xl:flex-1">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Check-in Date</p>
-                            <div class="flex items-center gap-[6px]">
-                                <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
+                            <div class="flex items-center gap-1.5">
+                                <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-md shrink-0 object-contain">
                                 <input type="date" name="check_in" x-model="checkIn" :min="today"
                                        @click="$event.target.showPicker && $event.target.showPicker()"
-                                       class="w-full cursor-pointer bg-transparent text-body font-bold text-black focus:outline-none sm:text-body-lg [&::-webkit-calendar-picker-indicator]:hidden">
+                                       class="w-full min-w-0 cursor-pointer bg-transparent text-body font-bold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
                             </div>
                         </div>
                         {{-- Check-out Date --}}
-                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
+                        <div class="flex min-w-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-4 py-[11px] xl:min-w-0 xl:flex-1">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Check-out Date</p>
-                            <div class="flex items-center gap-[7px]">
-                                <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
+                            <div class="flex items-center gap-1.5">
+                                <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-md shrink-0 object-contain">
                                 <input type="date" name="check_out" x-model="checkOut" :min="checkIn || today"
                                        @click="$event.target.showPicker && $event.target.showPicker()"
-                                       class="w-full cursor-pointer bg-transparent text-body font-bold text-black focus:outline-none sm:text-body-lg [&::-webkit-calendar-picker-indicator]:hidden">
+                                       class="w-full min-w-0 cursor-pointer bg-transparent text-body font-bold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
                             </div>
                         </div>
                         {{-- Amenities & Services --}}
-                        <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
+                        <div class="flex min-w-0 flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-4 py-[11px] xl:min-w-0 xl:flex-[1.2]">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Amenities &amp; Services</p>
-                            <div class="flex items-center justify-between gap-2">
-                                <select name="amenity" class="w-full cursor-pointer appearance-none bg-transparent text-body font-semibold tracking-tight text-[#5a5a5a] focus:outline-none sm:text-body-lg">
+                            <div class="flex items-center gap-1.5">
+                                <select name="amenity" class="w-full min-w-0 cursor-pointer truncate appearance-none bg-transparent text-body font-semibold tracking-tight text-[#5a5a5a] focus:outline-none">
                                     <option value="">Select</option>
                                     @foreach (['Fitness Lounge', 'Wifi', 'Pool', 'Restaurant', 'Parking', 'Complimentary Breakfast'] as $amenity)
                                         <option value="{{ $amenity }}">{{ $amenity }}</option>
                                     @endforeach
                                 </select>
-                                <img loading="lazy" src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
+                                <img loading="lazy" src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-sm shrink-0 object-contain">
                             </div>
                         </div>
                         {{-- Search --}}
                         <button type="submit"
-                                class="flex min-h-[73px] items-center justify-center gap-[10px] rounded-[14px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] lg:min-w-[180px] lg:flex-1">
+                                class="flex min-h-[64px] shrink-0 items-center justify-center gap-[10px] rounded-[14px] bg-[#ba6d04] px-6 text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] sm:col-span-2 md:col-span-1 xl:min-w-[130px] xl:flex-1">
                             Search
                             <img loading="lazy" src="{{ asset('images/search-line.png') }}" alt="" class="icon-md object-contain [filter:brightness(0)_invert(1)]">
                         </button>
