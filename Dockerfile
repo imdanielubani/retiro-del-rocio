@@ -49,8 +49,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction \
 COPY docker/entrypoint.d/10-laravel.sh /etc/entrypoint.d/10-laravel.sh
 RUN chmod +x /etc/entrypoint.d/10-laravel.sh
 
-# Ensure runtime-writable paths are owned by the web user.
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# The app is copied in as root; hand ownership to the web user so the runtime
+# (entrypoint + terminal) can create the storage symlink and write to storage/cache.
+RUN chown -R www-data:www-data /var/www/html
 
 # Drop back to the unprivileged runtime user.
 USER www-data
