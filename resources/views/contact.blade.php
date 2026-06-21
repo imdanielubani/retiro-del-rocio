@@ -90,7 +90,7 @@
                 <div class="flex flex-col gap-4">
                     <p class="text-title font-semibold tracking-tight text-[#d3d3d3]">Chat with us</p>
                     <a href="mailto:{{ cms('contact.email') }}" class="flex items-center gap-2 transition hover:text-[#f38c00]">
-                        <img src="{{ asset('images/mdi_email-open.png') }}" alt="" class="icon-md shrink-0 object-contain">
+                        <img loading="lazy" src="{{ asset('images/mdi_email-open.png') }}" alt="" class="icon-md shrink-0 object-contain">
                         <span class="break-all text-body-lg font-medium tracking-tight text-white">{{ cms('contact.email') }}</span>
                     </a>
                 </div>

@@ -6,7 +6,7 @@
                 {{-- ============ LEFT: image + order details ============ --}}
                 <div class="flex flex-col gap-6">
                     <div class="relative overflow-hidden rounded-[6px]">
-                        <img src="{{ str_replace(' ', '%20', asset('images/image 7.jpg')) }}" alt="{{ $order['room'] }}"
+                        <img loading="lazy" src="{{ str_replace(' ', '%20', asset('images/image 7.jpg')) }}" alt="{{ $order['room'] }}"
                              class="h-[320px] w-full object-cover sm:h-[480px] lg:h-[560px]">
                         <div class="absolute inset-0 bg-gradient-to-b from-black/75 via-transparent to-black/30"></div>
                     </div>
@@ -60,7 +60,7 @@
                     <div class="flex flex-col gap-[35px]">
                         <div class="flex flex-col gap-[29px]">
                             {{-- Check circle --}}
-                            <img src="{{ asset('images/checkcircle.png') }}" alt="Success"
+                            <img loading="lazy" src="{{ asset('images/checkcircle.png') }}" alt="Success"
                                  class="size-[120px] shrink-0 object-contain lg:size-[167px]">
                             <div class="flex flex-col gap-1">
                                 <h1 class="text-h3 font-bold tracking-tight text-[#f38c00] lg:text-h2">Reservation Successful!</h1>

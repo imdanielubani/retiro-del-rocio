@@ -20,7 +20,7 @@
                     @php($cardHref = $isModel ? route('rooms.show', $room) : '#')
                     <a href="{{ $cardHref }}" @if ($isModel) wire:navigate @endif data-card
                        class="group relative block w-[686px] max-w-[88%] shrink-0 snap-start overflow-hidden rounded-2xl bg-[#1e1e1e]">
-                        <img src="{{ $cardImage }}" alt="{{ $cardName }}"
+                        <img loading="lazy" src="{{ $cardImage }}" alt="{{ $cardName }}"
                              class="h-[420px] w-full object-cover transition duration-500 group-hover:scale-105 lg:h-[541px]">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent"></div>
 
@@ -41,7 +41,7 @@
                                     45 Sq ft
                                 </span>
                                 <span class="flex items-center gap-1.5">
-                                    <img src="{{ asset('images/fluent_bed-24-regular.png') }}" alt="" class="icon-sm shrink-0 object-contain [filter:brightness(0)_invert(1)]">
+                                    <img loading="lazy" src="{{ asset('images/fluent_bed-24-regular.png') }}" alt="" class="icon-sm shrink-0 object-contain [filter:brightness(0)_invert(1)]">
                                     Twin Bed
                                 </span>
                                 <span class="flex items-center gap-1.5">

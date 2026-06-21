@@ -26,7 +26,7 @@
 
 <a href="{{ $href }}" wire:navigate class="group relative block overflow-hidden rounded-2xl bg-[#1e1e1e]">
     @if ($imageUrl)
-        <img src="{{ $imageUrl }}" alt="{{ $name }}"
+        <img loading="lazy" src="{{ $imageUrl }}" alt="{{ $name }}"
              class="h-[320px] w-full object-cover transition duration-500 group-hover:scale-105 sm:h-[400px] lg:h-[500px]">
     @else
         <div class="h-[320px] w-full sm:h-[400px] lg:h-[500px]"></div>
@@ -50,7 +50,7 @@
                 {{ $sqft }} Sq ft
             </span>
             <span class="flex items-center gap-1.5">
-                <img src="{{ asset('images/fluent_bed-24-regular.png') }}" alt="" class="icon-sm shrink-0 object-contain [filter:brightness(0)_invert(1)]">
+                <img loading="lazy" src="{{ asset('images/fluent_bed-24-regular.png') }}" alt="" class="icon-sm shrink-0 object-contain [filter:brightness(0)_invert(1)]">
                 {{ $beds }} {{ \Illuminate\Support\Str::plural('Bed', $beds) }}
             </span>
             <span class="flex items-center gap-1.5">

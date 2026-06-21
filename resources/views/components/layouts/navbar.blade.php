@@ -13,7 +13,7 @@
     <x-layouts.container class="flex h-[80px] items-center justify-between lg:h-[114px]">
         {{-- Logo --}}
         <a href="{{ url('/') }}" class="flex shrink-0 items-center" wire:navigate>
-            <img src="{{ asset('images/Hotel Logo 1.png') }}" alt="Retiro Del Rocio"
+            <img loading="lazy" src="{{ asset('images/Hotel Logo 1.png') }}" alt="Retiro Del Rocio"
                  class="h-[56px] w-auto object-contain lg:h-[89px]">
         </a>
 

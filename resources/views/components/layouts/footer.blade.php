@@ -13,7 +13,7 @@
             {{-- Brand --}}
             <div class="flex max-w-[421px] flex-col gap-[11px]">
                 <div class="flex flex-col gap-[6px]">
-                    <img src="{{ asset('images/Logo footer.png') }}" alt="Retiro Del Rocio"
+                    <img loading="lazy" src="{{ asset('images/Logo footer.png') }}" alt="Retiro Del Rocio"
                          class="h-auto w-[170px] object-contain">
                 </div>
                 <p class="text-body font-medium leading-snug tracking-tight">

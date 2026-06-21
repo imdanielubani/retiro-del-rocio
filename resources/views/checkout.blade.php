@@ -65,7 +65,7 @@
                 <div class="flex flex-col gap-1.5">
                     {{-- Room image --}}
                     <div class="relative overflow-hidden rounded-[10px]">
-                        <img src="{{ str_replace(' ', '%20', asset('images/image 7.jpg')) }}" alt="{{ $booking['room'] }}"
+                        <img loading="lazy" src="{{ str_replace(' ', '%20', asset('images/image 7.jpg')) }}" alt="{{ $booking['room'] }}"
                              class="h-[320px] w-full object-cover sm:h-[440px] lg:h-[560px]">
                         <div class="absolute inset-0 bg-gradient-to-b from-black/75 via-transparent to-black/30"></div>
                     </div>
@@ -179,7 +179,7 @@
                                 <span class="text-label font-medium tracking-tight text-[#a5a5a5]">Phone Number</span>
                                 <div class="flex items-center gap-2">
                                     <span class="flex shrink-0 items-center gap-1 text-body-lg text-white">
-                                        <img src="{{ str_replace(' ', '%20', asset('images/Hotel Logo 1.png')) }}" alt="" class="hidden">
+                                        <img loading="lazy" src="{{ str_replace(' ', '%20', asset('images/Hotel Logo 1.png')) }}" alt="" class="hidden">
                                         🇳🇬 +234
                                     </span>
                                     <input type="tel" x-model="phone" placeholder="8143432903" inputmode="numeric"

@@ -19,7 +19,7 @@
     <section class="w-full">
         {{-- Full-width hero image (Figma 85:143 — spans the viewport edge to edge) --}}
         <div class="w-full overflow-hidden">
-            <img src="{{ cms_image('home.hero_image') }}" alt="Retiro Del Rocio"
+            <img loading="eager" fetchpriority="high" src="{{ cms_image('home.hero_image') }}" alt="Retiro Del Rocio"
                  class="h-[380px] w-full object-cover sm:h-[520px] lg:h-[660px]">
         </div>
 
@@ -31,17 +31,17 @@
                     <div class="flex flex-wrap items-center gap-x-6 gap-y-3 px-1 sm:gap-x-10 lg:gap-x-12">
                         <div class="flex flex-col items-start gap-2">
                             <span class="flex items-center gap-2 text-body font-semibold tracking-tight text-[#ba6d04] sm:text-body-lg">
-                                <img src="{{ asset('images/fluent_bed-24-regular.png') }}" alt="" class="icon-md object-contain [filter:brightness(0)_saturate(100%)_invert(48%)_sepia(72%)_saturate(1100%)_hue-rotate(2deg)]">
+                                <img loading="lazy" src="{{ asset('images/fluent_bed-24-regular.png') }}" alt="" class="icon-md object-contain [filter:brightness(0)_saturate(100%)_invert(48%)_sepia(72%)_saturate(1100%)_hue-rotate(2deg)]">
                                 Rooms &amp; Apartment
                             </span>
                             <span class="h-[3px] w-[207px] max-w-full rounded-full bg-[#ba6d04]"></span>
                         </div>
                         <span class="flex items-center gap-2 text-body font-semibold tracking-tight text-[#6c6c6c] sm:text-body-lg">
-                            <img src="{{ asset('images/Airport.png') }}" alt="" class="icon-lg object-contain [filter:brightness(0)_opacity(45%)]">
+                            <img loading="lazy" src="{{ asset('images/Airport.png') }}" alt="" class="icon-lg object-contain [filter:brightness(0)_opacity(45%)]">
                             Airport Pickup
                         </span>
                         <span class="flex items-center gap-2 text-body font-semibold tracking-tight text-[#6c6c6c] sm:text-body-lg">
-                            <img src="{{ asset('images/travel.png') }}" alt="" class="icon-lg object-contain [filter:brightness(0)_opacity(45%)]">
+                            <img loading="lazy" src="{{ asset('images/travel.png') }}" alt="" class="icon-lg object-contain [filter:brightness(0)_opacity(45%)]">
                             Experience
                         </span>
                     </div>
@@ -60,7 +60,7 @@
                                         <option value="{{ $type }}">{{ $type }}</option>
                                     @endforeach
                                 </select>
-                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
+                                <img loading="lazy" src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
                             </div>
                         </div>
                         {{-- Number of Guest --}}
@@ -72,14 +72,14 @@
                                         <option value="{{ $n }}" @selected($n === 2)>{{ $n }}</option>
                                     @endfor
                                 </select>
-                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
+                                <img loading="lazy" src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
                             </div>
                         </div>
                         {{-- Check-in Date --}}
                         <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Check-in Date</p>
                             <div class="flex items-center gap-[6px]">
-                                <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
+                                <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
                                 <input type="date" name="check_in" x-model="checkIn" :min="today"
                                        @click="$event.target.showPicker && $event.target.showPicker()"
                                        class="w-full cursor-pointer bg-transparent text-body font-bold text-black focus:outline-none sm:text-body-lg [&::-webkit-calendar-picker-indicator]:hidden">
@@ -89,7 +89,7 @@
                         <div class="flex flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-white px-[25px] py-[11px] lg:min-w-[170px] lg:flex-1">
                             <p class="text-body-sm font-medium tracking-tight text-[#3c3c3c]">Check-out Date</p>
                             <div class="flex items-center gap-[7px]">
-                                <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
+                                <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
                                 <input type="date" name="check_out" x-model="checkOut" :min="checkIn || today"
                                        @click="$event.target.showPicker && $event.target.showPicker()"
                                        class="w-full cursor-pointer bg-transparent text-body font-bold text-black focus:outline-none sm:text-body-lg [&::-webkit-calendar-picker-indicator]:hidden">
@@ -105,14 +105,14 @@
                                         <option value="{{ $amenity }}">{{ $amenity }}</option>
                                     @endforeach
                                 </select>
-                                <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
+                                <img loading="lazy" src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
                             </div>
                         </div>
                         {{-- Search --}}
                         <button type="submit"
                                 class="flex min-h-[73px] items-center justify-center gap-[10px] rounded-[14px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] lg:min-w-[180px] lg:flex-1">
                             Search
-                            <img src="{{ asset('images/search-line.png') }}" alt="" class="icon-md object-contain [filter:brightness(0)_invert(1)]">
+                            <img loading="lazy" src="{{ asset('images/search-line.png') }}" alt="" class="icon-md object-contain [filter:brightness(0)_invert(1)]">
                         </button>
                     </form>
                 </div>
@@ -125,7 +125,7 @@
             {{-- Heading with the del.png wordmark sitting behind + below it (like the design) --}}
             <div class="relative">
                 {{-- Watermark: flush left, anchored just under the heading's first line, extending down --}}
-                <img src="{{ asset('images/del.png') }}" alt="" aria-hidden="true"
+                <img loading="lazy" src="{{ asset('images/del.png') }}" alt="" aria-hidden="true"
                      class="pointer-events-none absolute left-0 top-[78px] z-0 hidden w-full max-w-none select-none opacity-[10] lg:block">
 
                 <div class="relative z-10 grid grid-cols-1 items-start gap-6 px-4 sm:px-8 lg:grid-cols-2 lg:gap-16 lg:px-[60px]">
@@ -139,7 +139,7 @@
             </div>
 
             {{-- Mobile: del.png wordmark shown below the text in a clear band (not behind text) --}}
-            <img src="{{ asset('images/del.png') }}" alt="" aria-hidden="true"
+            <img loading="lazy" src="{{ asset('images/del.png') }}" alt="" aria-hidden="true"
                  class="pointer-events-none mt-10 h-[62px] w-full max-w-none select-none object-contain object-left opacity-90 lg:hidden">
         </x-layouts.container>
 
@@ -148,7 +148,7 @@
     
         {{-- Values strip (roll.jpg) — full-bleed, full viewport width --}}
         <div class="no-scrollbar mt-10 w-full overflow-x-auto lg:mt-14">
-            <img src="{{ asset('images/roll.jpg') }}"
+            <img loading="lazy" src="{{ asset('images/roll.jpg') }}"
                  alt="Wellness · Pureness · Tranquility · Luxury · Harmony"
                  class="h-auto w-full min-w-[760px]">
         </div>
@@ -164,7 +164,7 @@
     <section class="w-full py-12 lg:py-16">
         <x-layouts.container>
             <div class="relative overflow-hidden rounded-2xl">
-                <img src="{{ cms_image('home.destination_image') }}" alt="More than a destination"
+                <img loading="lazy" src="{{ cms_image('home.destination_image') }}" alt="More than a destination"
                      class="h-[440px] w-full object-cover sm:h-[600px] lg:h-[780px]">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
 
@@ -188,7 +188,7 @@
     <section class="w-full py-12 lg:py-16">
         <x-layouts.container>
             <div class="grid grid-cols-1 overflow-hidden rounded-[6px] lg:grid-cols-[57%_43%]">
-                <img src="{{ cms_image('home.member_image') }}" alt=""
+                <img loading="lazy" src="{{ cms_image('home.member_image') }}" alt=""
                      class="h-[260px] w-full object-cover lg:h-full lg:min-h-[508px]">
                 <div class="flex flex-col justify-center gap-[27px] bg-[#e8e6e1] px-8 py-12 lg:px-[51px] lg:py-[80px]">
                     <div class="flex flex-col gap-[12px] text-[#343a40]">
@@ -222,7 +222,7 @@
     <section class="w-full py-16 lg:py-24">
         <x-layouts.container class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {{-- top-left landscape --}}
-            <img src="{{ cms_image('home.jos_image_1') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[300px]">
+            <img loading="lazy" src="{{ cms_image('home.jos_image_1') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[300px]">
             {{-- top-right text --}}
             <div class="flex flex-col justify-center gap-[24px]">
                 <h2 class="text-4xl font-medium leading-tight tracking-tight text-white sm:text-5xl lg:text-display lg:leading-[60px]">
@@ -233,9 +233,9 @@
                 </p>
             </div>
             {{-- bottom-left ruins --}}
-            <img src="{{ cms_image('home.jos_image_2') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[320px]">
+            <img loading="lazy" src="{{ cms_image('home.jos_image_2') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[320px]">
             {{-- bottom-right forest --}}
-            <img src="{{ cms_image('home.jos_image_3') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[320px]">
+            <img loading="lazy" src="{{ cms_image('home.jos_image_3') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[320px]">
         </x-layouts.container>
     </section>
 
@@ -244,7 +244,7 @@
         <x-layouts.container class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {{-- Left: wellness lifestyle tall image card --}}
             <div class="relative min-h-[480px] overflow-hidden rounded-2xl lg:min-h-[760px]">
-                <img src="{{ cms_image('home.wellness_image') }}" alt="Wellness lifestyle"
+                <img loading="lazy" src="{{ cms_image('home.wellness_image') }}" alt="Wellness lifestyle"
                      class="absolute inset-0 h-full w-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 <div class="absolute inset-x-0 bottom-0 flex flex-col gap-[29px] p-8 lg:p-[60px]">
@@ -268,7 +268,7 @@
                         {{ cms('home.train_text') }}
                     </p>
                 </div>
-                <img src="{{ cms_image('home.train_image') }}" alt="Wellness"
+                <img loading="lazy" src="{{ cms_image('home.train_image') }}" alt="Wellness"
                      class="h-[300px] w-full flex-1 rounded-2xl object-cover lg:h-auto lg:min-h-[480px]">
             </div>
         </x-layouts.container>

@@ -13,7 +13,7 @@
     <section x-data="{ urls: @js($galleryUrls), i: 0, prev() { this.i = (this.i - 1 + this.urls.length) % this.urls.length }, next() { this.i = (this.i + 1) % this.urls.length } }">
         {{-- Main image --}}
         <div class="relative w-full overflow-hidden">
-            <img :src="urls[i]" alt="{{ $room->name }}"
+            <img loading="eager" fetchpriority="high" :src="urls[i]" alt="{{ $room->name }}"
                  class="h-[380px] w-full object-cover sm:h-[560px] lg:h-[720px]">
             <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/75 via-transparent to-black/20"></div>
 
@@ -58,7 +58,7 @@
         <div class="no-scrollbar flex gap-[2px] overflow-x-auto bg-[#4e3a31]">
             <template x-for="(u, idx) in urls.slice(1)" :key="idx">
                 <button type="button" @click="i = idx + 1" class="shrink-0">
-                    <img :src="u" alt="" class="h-[140px] w-[220px] object-cover transition lg:h-[235px] lg:w-[352px]"
+                    <img loading="lazy" :src="u" alt="" class="h-[140px] w-[220px] object-cover transition lg:h-[235px] lg:w-[352px]"
                          :class="i === idx + 1 ? 'opacity-100 ring-2 ring-[#f38c00]' : 'opacity-90 hover:opacity-100'">
                 </button>
             </template>
@@ -148,13 +148,13 @@
                                 <option value="{{ $n }}">{{ $n }}</option>
                             @endfor
                         </select>
-                        <img src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
+                        <img loading="lazy" src="{{ asset('images/keyboard_arrow_down.png') }}" alt="" class="pointer-events-none icon-md shrink-0 object-contain">
                     </div>
                 </div>
                 <div class="flex min-w-[200px] flex-1 flex-col justify-center rounded-[6px] border-[0.5px] border-black/20 bg-[#f6f6f6]/[0.87] px-[25px] py-[11px]">
                     <label class="text-body-sm font-medium tracking-tight text-black">Check-in Date</label>
                     <div class="flex items-center gap-[5px]">
-                        <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
+                        <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
                         <input type="date" name="check_in" x-model="checkIn" :min="today"
                                @click="$event.target.showPicker && $event.target.showPicker()"
                                class="w-full bg-transparent text-body-lg font-bold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
@@ -163,7 +163,7 @@
                 <div class="flex min-w-[200px] flex-1 flex-col justify-center rounded-[6px] border-[0.5px] border-black/20 bg-[#f6f6f6]/[0.87] px-[25px] py-[11px]">
                     <label class="text-body-sm font-medium tracking-tight text-black">Check-out Date</label>
                     <div class="flex items-center gap-[7px]">
-                        <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
+                        <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
                         <input type="date" name="check_out" x-model="checkOut" :min="checkIn || today"
                                @click="$event.target.showPicker && $event.target.showPicker()"
                                class="w-full bg-transparent text-body-lg font-bold text-black focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
@@ -205,7 +205,7 @@
                 </button>
                 <span class="flex items-center gap-2 text-body font-medium lg:text-body-lg">
                     Car Type:
-                    <img x-show="pickup && pickup.img" :src="pickup ? pickup.img : ''" alt="" class="h-[21px] w-[32px] shrink-0 object-contain">
+                    <img loading="lazy" x-show="pickup && pickup.img" :src="pickup ? pickup.img : ''" alt="" class="h-[21px] w-[32px] shrink-0 object-contain">
                     <span x-text="pickup ? pickup.name : ''"></span>
                 </span>
                 <span class="text-body font-medium lg:text-body-lg">Arrival Date: <span x-text="fmtDate(arrivalDate)"></span></span>
@@ -254,7 +254,7 @@
 
                 {{-- Content: car image (left) + heading/text + chauffeur image (right) --}}
                 <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <img src="{{ asset('images/airportpickup image popup1.jpg') }}" alt="Premium chauffeur car"
+                    <img loading="lazy" src="{{ asset('images/airportpickup image popup1.jpg') }}" alt="Premium chauffeur car"
                          class="h-[300px] w-full rounded-xl object-cover lg:h-full lg:min-h-[620px]">
 
                     <div class="flex flex-col gap-[29px]">
@@ -264,7 +264,7 @@
                         <p class="text-lg leading-relaxed tracking-tight text-white/90 lg:text-body-lg">
                             Combine luxury accommodation with premium transportation services and enjoy special packages designed to enhance your stay from the moment you arrive.
                         </p>
-                        <img src="{{ asset('images/airportpickup image popup2.jpg') }}" alt="Chauffeur assisting guest"
+                        <img loading="lazy" src="{{ asset('images/airportpickup image popup2.jpg') }}" alt="Chauffeur assisting guest"
                              class="h-[280px] w-full rounded-xl object-cover lg:h-auto lg:flex-1">
                     </div>
                 </div>
@@ -325,7 +325,7 @@
                         <div class="flex flex-col items-center gap-5 rounded-[14px] bg-[#dcdcd9] px-6 py-5 sm:flex-row sm:gap-8 lg:px-[55px] lg:py-7">
                             {{-- Vehicle image --}}
                             @if ($v['img'])
-                                <img src="{{ $v['img'] }}" alt="{{ $v['name'] }}"
+                                <img loading="lazy" src="{{ $v['img'] }}" alt="{{ $v['name'] }}"
                                      class="h-[110px] w-[230px] shrink-0 object-contain sm:h-[120px] sm:w-[250px]">
                             @else
                                 <span class="flex h-[110px] w-[230px] shrink-0 items-center justify-center text-[#8a8a8a] sm:h-[120px] sm:w-[250px]">

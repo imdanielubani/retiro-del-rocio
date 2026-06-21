@@ -38,7 +38,7 @@
         <div class="flex h-[73px] flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6] px-[19px] lg:min-w-0 lg:flex-1">
             <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Arrival Date</p>
             <div class="flex items-center gap-[5px]">
-                <img src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
+                <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-lg shrink-0 object-contain">
                 <input type="date" x-model="arrivalDate"
                        @click="$event.target.showPicker && $event.target.showPicker()"
                        class="w-full cursor-pointer bg-transparent text-body-sm font-semibold tracking-tight text-[#202020] focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
@@ -67,7 +67,7 @@
         <button type="button" @if($bookAction) @click="{{ $bookAction }}" @endif
                 class="flex h-[73px] shrink-0 items-center justify-center gap-[2px] rounded-[14px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] lg:min-w-[110px] lg:max-w-[140px] lg:flex-[0.7]">
             Book
-            <img src="{{ asset('images/bookicon.png') }}" alt="" class="icon-md shrink-0 object-contain">
+            <img loading="lazy" src="{{ asset('images/bookicon.png') }}" alt="" class="icon-md shrink-0 object-contain">
         </button>
     </div>
 
