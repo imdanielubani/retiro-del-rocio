@@ -18,7 +18,7 @@
                     <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">{!! $statusIcon[$stat['icon']] !!}</svg>
                 </span>
                 <p class="text-[11px] font-medium uppercase tracking-[0.5px] text-[#6b7280]">{{ $stat['label'] }}</p>
-                <p class="text-[28px] font-semibold leading-tight text-[#1e1e1e]">{{ $stat['value'] }}</p>
+                <p class="text-[clamp(22px,2vw,28px)] font-semibold leading-tight text-[#1e1e1e]">{{ $stat['value'] }}</p>
                 <p class="text-[11px] font-medium" style="color: {{ $stat['accent'] }}">{{ $stat['sub'] }}</p>
             </div>
         @endforeach

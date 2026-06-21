@@ -17,7 +17,7 @@
 
         {{-- Heading --}}
         <div class="flex w-full flex-col gap-[10px]">
-            <h1 class="text-[26px] font-bold leading-none text-[#1e1e1e]">Forgot password?</h1>
+            <h1 class="text-[clamp(21px,1.9vw,26px)] font-bold leading-none text-[#1e1e1e]">Forgot password?</h1>
             <p class="text-[14px] leading-snug text-[#6b7280]">
                 Enter the email address linked to your admin account. We'll send a 6-digit verification code.
             </p>

@@ -14,7 +14,7 @@
 
         {{-- Heading --}}
         <div class="flex w-full flex-col gap-[6px]">
-            <h1 class="text-[26px] font-bold leading-none text-[#1e1e1e]">Enter verification Code</h1>
+            <h1 class="text-[clamp(21px,1.9vw,26px)] font-bold leading-none text-[#1e1e1e]">Enter verification Code</h1>
             <p class="text-[14px] leading-snug text-[#6b7280]">
                 Your identity has been verified. Create a strong new password for your admin account.
             </p>

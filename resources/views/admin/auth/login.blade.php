@@ -1,5 +1,5 @@
 <div class="rounded-2xl border border-[#e5e7eb] bg-white p-10 shadow-sm">
-    <h1 class="text-[28px] font-bold leading-tight text-[#1e1e1e]">Welcome back</h1>
+    <h1 class="text-[clamp(22px,2vw,28px)] font-bold leading-tight text-[#1e1e1e]">Welcome back</h1>
     <p class="mt-2 text-sm text-[#6b7280]">Sign in to your admin account to continue</p>
     <span class="mt-4 block h-[3px] w-14 rounded-full bg-[#f38c00]"></span>
 

@@ -14,7 +14,7 @@
                     <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h2l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13h2M5 13v5h2v-2h10v2h2v-5M7 16h.01M17 16h.01"/></svg>
                 </span>
                 <p class="text-[11px] font-medium uppercase tracking-[0.5px] text-[#6b7280]">{{ $stat['label'] }}</p>
-                <p class="text-[28px] font-semibold leading-tight text-[#1e1e1e]">{{ $stat['value'] }}</p>
+                <p class="text-[clamp(22px,2vw,28px)] font-semibold leading-tight text-[#1e1e1e]">{{ $stat['value'] }}</p>
                 <p class="text-[11px] font-medium" style="color: {{ $stat['accent'] }}">{{ $stat['sub'] }}</p>
             </div>
         @endforeach

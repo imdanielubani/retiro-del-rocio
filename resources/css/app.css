@@ -25,14 +25,17 @@
        Decorative/script + main-hero sizes (58/72/92px) intentionally stay
        as one-off arbitrary values.
        ---------------------------------------------------------------------- */
-    --text-display: 60px;   /* big section / hero-secondary headings */
-    --text-h1: 48px;        /* page titles                          */
-    --text-h2: 36px;        /* major section headings               */
-    --text-h3: 28px;        /* sub-section headings                 */
-    --text-title: 24px;     /* card titles / emphasis               */
-    --text-body-lg: 20px;   /* lead body / list text                */
-    --text-body: 18px;      /* base body                            */
-    --text-body-sm: 16px;   /* secondary body                       */
+    /* Fluid scale: shrinks on smaller laptops, caps at the full design size at
+       ~1440px+, never smaller than the mobile floor. Keeps the site professional
+       on 13"/14" laptops instead of rendering the 1440 sizes everywhere. */
+    --text-display: clamp(36px, 4.16vw, 60px);  /* big section / hero-secondary headings */
+    --text-h1: clamp(30px, 3.33vw, 48px);       /* page titles                          */
+    --text-h2: clamp(26px, 2.5vw, 36px);        /* major section headings               */
+    --text-h3: clamp(22px, 1.95vw, 28px);       /* sub-section headings                 */
+    --text-title: clamp(19px, 1.67vw, 24px);    /* card titles / emphasis               */
+    --text-body-lg: clamp(17px, 1.39vw, 20px);  /* lead body / list text                */
+    --text-body: clamp(16px, 1.25vw, 18px);     /* base body                            */
+    --text-body-sm: clamp(14px, 1.11vw, 16px);  /* secondary body                       */
     --text-label: 14px;     /* field labels / chips                 */
     --text-caption: 12px;   /* fine print                           */
 }

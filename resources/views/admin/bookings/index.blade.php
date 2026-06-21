@@ -45,7 +45,7 @@
                             <svg class="size-4 text-[#9ca3af]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
                         @endif
                     </div>
-                    <p class="text-[28px] font-medium leading-tight text-[#1e1e1e]">{{ $stat['value'] }}</p>
+                    <p class="text-[clamp(22px,2vw,28px)] font-medium leading-tight text-[#1e1e1e]">{{ $stat['value'] }}</p>
                     <p class="text-[11px]" style="color: {{ $stat['accent'] }}">{{ $stat['sub'] }}</p>
                 </div>
             @endforeach
@@ -162,7 +162,7 @@
                 <div class="flex flex-col gap-2 rounded-xl border border-[#e5e7eb] border-l-4 bg-white px-6 py-5"
                      style="border-left-color: {{ $stat['accent'] }}">
                     <p class="text-[11px] uppercase tracking-[0.5px] text-[#6b7280]">{{ $stat['label'] }}</p>
-                    <p class="text-[28px] font-medium leading-tight text-[#1e1e1e]">{{ $stat['value'] }}</p>
+                    <p class="text-[clamp(22px,2vw,28px)] font-medium leading-tight text-[#1e1e1e]">{{ $stat['value'] }}</p>
                     <p class="text-[11px]" style="color: {{ $stat['accent'] }}">{{ $stat['sub'] }}</p>
                 </div>
             @endforeach
@@ -346,7 +346,7 @@
             <div class="flex flex-col gap-2 rounded-xl border border-[#e5e7eb] border-l-4 bg-white px-6 py-5"
                  style="border-left-color: {{ $stat['accent'] }}">
                 <p class="text-[11px] uppercase tracking-[0.5px] text-[#6b7280]">{{ $stat['label'] }}</p>
-                <p class="text-[28px] font-medium leading-tight text-[#1e1e1e]">{{ $stat['value'] }}</p>
+                <p class="text-[clamp(22px,2vw,28px)] font-medium leading-tight text-[#1e1e1e]">{{ $stat['value'] }}</p>
                 <p class="text-[11px]" style="color: {{ $stat['accent'] }}">{{ $stat['sub'] }}</p>
             </div>
         @endforeach

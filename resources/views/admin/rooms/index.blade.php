@@ -5,7 +5,7 @@
             <div class="flex flex-col gap-2 rounded-xl border border-[#e5e7eb] border-l-4 bg-white px-6 py-5"
                  style="border-left-color: {{ $stat['accent'] }}">
                 <p class="text-[11px] uppercase tracking-[0.5px] text-[#6b7280]">{{ $stat['label'] }}</p>
-                <p class="text-[28px] font-medium leading-tight text-[#1e1e1e]">{{ $stat['value'] }}</p>
+                <p class="text-[clamp(22px,2vw,28px)] font-medium leading-tight text-[#1e1e1e]">{{ $stat['value'] }}</p>
                 <p class="text-[11px]" style="color: {{ $stat['accent'] }}">{{ $stat['sub'] }}</p>
             </div>
         @endforeach

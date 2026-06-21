@@ -7,9 +7,9 @@
 @endphp
 
 <footer class="w-full bg-[#1e1e1e] text-white">
-    <x-layouts.container class="pt-[38px] pb-6">
-        {{-- Top content --}}
-        <div class="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:flex lg:flex-wrap lg:justify-between lg:gap-[63px]">
+    <x-layouts.container class="pt-[38px] pb-8 lg:pb-10">
+        {{-- Top content: even, responsive columns (no uneven flex-wrap on laptops) --}}
+        <div class="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8 xl:gap-12">
             {{-- Brand --}}
             <div class="flex max-w-[421px] flex-col gap-[11px]">
                 <div class="flex flex-col gap-[6px]">
