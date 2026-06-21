@@ -19,14 +19,17 @@ RUN npm run build
 
 
 # ---------- Stage 2: PHP runtime (Nginx + PHP-FPM) ----------
-FROM serversideup/php:8.3-fpm-nginx AS app
+# PHP 8.4 — required by the locked deps (Symfony 8.x, spatie/laravel-activitylog 5).
+FROM serversideup/php:8.4-fpm-nginx AS app
 
 # The serversideup image serves /var/www/html/public on port 8080 as www-data,
-# with Nginx + PHP-FPM managed by s6. It already bundles the extensions Laravel
-# needs (pdo_mysql, mbstring, gd, intl, bcmath, zip, exif, opcache, pcntl, …).
+# with Nginx + PHP-FPM managed by s6.
 
 USER root
 WORKDIR /var/www/html
+
+# Add the exif extension (required by spatie/image + medialibrary).
+RUN install-php-extensions exif
 
 # Install PHP dependencies in two steps for better layer caching.
 COPY composer.json composer.lock ./
