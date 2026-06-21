@@ -42,6 +42,47 @@ class Booking extends Model
         return '₦'.number_format($this->amount);
     }
 
+    /**
+     * Auto-allocate an available physical room number for this booking's dates.
+     * Date-aware: a unit is only unavailable when another active booking overlaps
+     * the same dates, so numbers are reused across non-overlapping stays.
+     * Returns the assigned RoomUnit, or null when none are configured / free.
+     */
+    public function autoAssignRoomUnit(): ?RoomUnit
+    {
+        if (! $this->room_id || $this->room_unit_id) {
+            return $this->roomUnit; // nothing to do / already assigned
+        }
+
+        $room = $this->room ?: Room::find($this->room_id);
+        if (! $room) {
+            return null;
+        }
+
+        $in = optional($this->check_in)->toDateString();
+        $out = optional($this->check_out)->toDateString();
+
+        foreach ($room->units()->get() as $unit) {
+            $clashes = self::query()
+                ->where('room_unit_id', $unit->id)
+                ->where('id', '!=', $this->id ?? 0)
+                ->whereIn('status', ['paid', 'checked_in'])
+                ->when($in && $out, fn ($q) => $q
+                    ->whereDate('check_in', '<', $out)
+                    ->whereDate('check_out', '>', $in))
+                ->exists();
+
+            if (! $clashes) {
+                $this->room_unit_id = $unit->id;
+                $this->save();
+
+                return $unit;
+            }
+        }
+
+        return null; // fully allocated for these dates — admin can assign manually
+    }
+
     /* ---------------- Airport pick-up (transport) ---------------- */
 
     public function isPickup(): bool

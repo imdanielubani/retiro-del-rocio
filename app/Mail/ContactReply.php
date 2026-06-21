@@ -29,6 +29,7 @@ class ContactReply extends Mailable
     {
         return new Content(
             view: 'emails.contact-reply',
+            text: 'emails.contact-reply-text',
             with: [
                 // NOTE: `$message` is reserved inside mail views (the Mail\Message
                 // instance), so the enquiry is passed as `$contact`.

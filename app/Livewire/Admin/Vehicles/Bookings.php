@@ -14,7 +14,7 @@ class Bookings extends Component
     public string $search = '';
 
     // Quick date range: '' (all) | today | 7d | 30d | month | last_month
-    public string $range = 'month';
+    public string $range = '';
 
     public bool $showFilters = false;
 

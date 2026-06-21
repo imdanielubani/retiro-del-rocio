@@ -180,7 +180,7 @@
 
     {{-- ===== Detail modal ===== --}}
     @if ($selected)
-        <div class="fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto bg-black/50 px-4 py-8"
+        <div class="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-black/50 px-4 py-8"
              x-data x-on:keydown.escape.window="$wire.closeModal()">
             <div class="absolute inset-0" wire:click="closeModal"></div>
 

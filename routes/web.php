@@ -9,7 +9,10 @@ use App\Livewire\Admin\Auth\VerifyCode;
 use App\Livewire\Admin\Rooms\Edit;
 use App\Livewire\Admin\Rooms\Index;
 use App\Mail\BookingRequest;
+use App\Mail\BookingReservation;
+use App\Mail\ContactAcknowledgement;
 use App\Mail\ContactEnquiry;
+use App\Mail\PickupConfirmation;
 use App\Models\Booking;
 use App\Models\ContactMessage;
 use App\Models\Room;
@@ -232,9 +235,30 @@ Route::get('checkout/callback', function () {
             ]
         );
 
-        // Notify the admin bell of a brand-new booking (skip callback retries).
         if ($booking->wasRecentlyCreated) {
+            // Auto-allocate an available physical room number for the booked dates.
+            try {
+                $booking->autoAssignRoomUnit();
+            } catch (Throwable $e) {
+                report($e);
+            }
+
+            // Notify the admin bell of a brand-new booking.
             Notification::send(User::admins()->get(), new BookingReceived($booking));
+
+            // Email the guest their reservation confirmation (with the room number),
+            // plus a dedicated airport pick-up confirmation when one was booked.
+            if ($booking->customer_email) {
+                try {
+                    Mail::to($booking->customer_email)->send(new BookingReservation($booking));
+
+                    if ($booking->isPickup()) {
+                        Mail::to($booking->customer_email)->send(new PickupConfirmation($booking));
+                    }
+                } catch (Throwable $e) {
+                    report($e);
+                }
+            }
         }
     } catch (Throwable $e) {
         report($e);
@@ -310,6 +334,9 @@ Route::post('contact-us', function () {
     try {
         $recipient = config('mail.contact_to', config('mail.from.address'));
         Mail::to($recipient)->send(new ContactEnquiry($data));
+
+        // Automated acknowledgement to the guest.
+        Mail::to($data['email'])->send(new ContactAcknowledgement($data));
     } catch (Throwable $e) {
         report($e);
         // The message is already saved; surface a soft notice but don't lose it.

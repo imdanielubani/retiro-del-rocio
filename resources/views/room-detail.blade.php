@@ -281,6 +281,7 @@
                 'seats' => $v->seats,
                 'suitcases' => $v->suitcases,
                 'img' => $v->imageUrl(),
+                'free_cancellation' => $v->free_cancellation,
             ])->all();
         @endphp
         <div x-show="vehicleModal" x-cloak
@@ -336,10 +337,12 @@
                             <div class="flex flex-1 flex-col gap-3 text-center sm:text-left">
                                 <p class="text-h3 font-bold tracking-tight text-[#1e1e1e] sm:text-h2">{{ $v['name'] }}</p>
                                 <div class="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-body font-medium tracking-tight text-[#1e1e1e] sm:justify-start sm:text-body-lg">
-                                    <span class="flex items-center gap-2">
-                                        <svg class="icon-lg shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12" stroke-linecap="round"/></svg>
-                                        <span class="leading-tight">Free<br class="hidden sm:block">&nbsp;cancellation</span>
-                                    </span>
+                                    @if ($v['free_cancellation'])
+                                        <span class="flex items-center gap-2">
+                                            <svg class="icon-lg shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12" stroke-linecap="round"/></svg>
+                                            <span class="leading-tight">Free<br class="hidden sm:block">&nbsp;cancellation</span>
+                                        </span>
+                                    @endif
                                     <span class="flex items-center gap-2">
                                         <svg class="icon-lg shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M5 11a2 2 0 0 1 2-2h.5a2 2 0 0 1 2 1.6l.3 1.4h4.4l.3-1.4a2 2 0 0 1 2-1.6H19a2 2 0 0 1 2 2v6h-2v-3H7v3H5v-6zm2 7h2v2H7v-2zm8 0h2v2h-2v-2z"/></svg>
                                         <span><span class="font-semibold">{{ $v['seats'] }}</span> Seats</span>

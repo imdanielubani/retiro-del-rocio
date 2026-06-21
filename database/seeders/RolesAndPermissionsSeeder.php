@@ -67,7 +67,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Default super-admin account for first login (temporary credentials).
         $user = User::updateOrCreate(
-            ['email' => 'kendansoft@gmail.com'],
+            ['email' => 'admin@retirodelrocio.ng'],
             [
                 'name' => 'Super Admin',
                 'password' => Hash::make('Admin12345'),

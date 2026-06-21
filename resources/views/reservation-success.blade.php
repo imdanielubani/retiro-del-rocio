@@ -60,9 +60,8 @@
                     <div class="flex flex-col gap-[35px]">
                         <div class="flex flex-col gap-[29px]">
                             {{-- Check circle --}}
-                            <div class="flex size-[120px] items-center justify-center rounded-full bg-[#ba6d04] lg:size-[167px]">
-                                <svg class="size-[60px] lg:size-[84px]" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
-                            </div>
+                            <img src="{{ asset('images/checkcircle.png') }}" alt="Success"
+                                 class="size-[120px] shrink-0 object-contain lg:size-[167px]">
                             <div class="flex flex-col gap-1">
                                 <h1 class="text-h3 font-bold tracking-tight text-[#f38c00] lg:text-h2">Reservation Successful!</h1>
                                 <p class="text-body text-white">Your reservation is successful.</p>
