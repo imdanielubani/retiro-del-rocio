@@ -85,7 +85,7 @@
                 'lg:w-[88px]': mini,
                 'lg:w-[280px]': !mini,
             }"
-            class="fixed inset-y-0 left-0 z-50 flex w-[280px] shrink-0 flex-col overflow-hidden bg-[#222a1f] px-4 py-6 transition-transform duration-300 ease-in-out max-lg:-translate-x-full lg:static lg:z-auto lg:translate-x-0 lg:bg-transparent lg:transition-[width]"
+            class="fixed inset-y-0 left-0 z-50 flex w-[280px] shrink-0 flex-col overflow-hidden bg-[#222a1f] px-4 py-4 transition-transform duration-300 ease-in-out max-lg:-translate-x-full lg:static lg:z-auto lg:translate-x-0 lg:bg-transparent lg:transition-[width]"
         >
             {{-- Logo (static) --}}
             <div class="flex shrink-0 items-center justify-center py-1">
@@ -96,12 +96,12 @@
             {{-- Demarcation line above the navigation --}}
             <div class="my-2 h-px w-full shrink-0 bg-white/20"></div>
 
-            {{-- Nav (scrollable) --}}
-            <nav class="no-scrollbar mt-6 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
+            {{-- Nav (compact; scrolls only if the viewport is too short to fit everything) --}}
+            <nav class="no-scrollbar mt-3 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
                 {{-- Dashboard --}}
                 <a href="{{ $dashboard['href'] }}" wire:navigate @click="mobileOpen = false"
                    @class([
-                       'group flex items-center gap-3 rounded-xl px-3 py-3 text-[14px] font-medium transition',
+                       'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium transition',
                        'bg-[#3a4631] text-white' => $dashboard['active'],
                        'text-[#c7cfc0] hover:bg-white/5 hover:text-white' => ! $dashboard['active'],
                    ])
@@ -112,14 +112,14 @@
                 </a>
 
                 {{-- Operations label --}}
-                <p x-show="!mini" x-cloak class="mt-5 mb-1 px-3 text-[12px] text-[#7d8a72]">Operations</p>
+                <p x-show="!mini" x-cloak class="mt-3 mb-0.5 px-3 text-[12px] text-[#7d8a72]">Operations</p>
 
                 @foreach ($operations as $item)
                     @if (! empty($item['children']))
                         {{-- Expandable item --}}
                         <button type="button" @click="toggleMenu('{{ $item['key'] }}')"
                                 @class([
-                                    'group flex items-center gap-3 rounded-xl px-3 py-3 text-[14px] font-medium transition',
+                                    'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium transition',
                                     'bg-[#3a4631] text-white' => $activeMenu === $item['key'],
                                     'text-[#c7cfc0] hover:bg-white/5 hover:text-white' => $activeMenu !== $item['key'],
                                 ])
@@ -156,7 +156,7 @@
                         {{-- Direct link --}}
                         <a href="{{ $item['href'] }}" @if(($item['href'] ?? '#') !== '#') wire:navigate @endif @click="mobileOpen = false"
                            @class([
-                               'group flex items-center gap-3 rounded-xl px-3 py-3 text-[14px] font-medium transition',
+                               'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium transition',
                                'bg-[#3a4631] text-white' => $item['active'] ?? false,
                                'text-[#c7cfc0] hover:bg-white/5 hover:text-white' => ! ($item['active'] ?? false),
                            ])
@@ -170,9 +170,9 @@
             </nav>
 
             {{-- Footer (static) --}}
-            <div class="mt-6 flex shrink-0 flex-col gap-2">
+            <div class="mt-3 flex shrink-0 flex-col gap-1.5">
                 <a href="#" @click="mobileOpen = false"
-                   class="flex items-center gap-3 rounded-xl px-3 py-3 text-[14px] font-medium text-[#c7cfc0] transition hover:bg-white/5 hover:text-white"
+                   class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-[#c7cfc0] transition hover:bg-white/5 hover:text-white"
                    :class="mini ? 'justify-center' : ''"
                    x-bind:title="mini ? 'Settings' : ''">
                     <img src="{{ asset('images/settings.png') }}" alt="" class="size-5 shrink-0">
@@ -182,7 +182,7 @@
                 <form method="POST" action="{{ route('admin.logout') }}">
                     @csrf
                     <button type="submit"
-                            class="flex w-full items-center gap-3 rounded-xl bg-[#f38c00] px-3 py-3 text-[14px] font-bold text-white transition hover:bg-[#dd7f00]"
+                            class="flex w-full items-center gap-3 rounded-xl bg-[#f38c00] px-3 py-2.5 text-[14px] font-bold text-white transition hover:bg-[#dd7f00]"
                             :class="mini ? 'justify-center' : ''"
                             x-bind:title="mini ? 'Logout' : ''">
                         <img src="{{ asset('images/logout.png') }}" alt="" class="size-5 shrink-0">
