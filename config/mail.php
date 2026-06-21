@@ -112,7 +112,12 @@ return [
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
+        // Fall back to APP_NAME when MAIL_FROM_NAME is empty OR still holds an
+        // un-expanded "${APP_NAME}" placeholder (happens when env is injected by a
+        // PaaS like Dokploy rather than read from a .env file, which doesn't interpolate).
+        'name' => (! env('MAIL_FROM_NAME') || str_contains((string) env('MAIL_FROM_NAME'), '${'))
+            ? env('APP_NAME', 'Laravel')
+            : env('MAIL_FROM_NAME'),
     ],
 
     /*
