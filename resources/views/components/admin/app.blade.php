@@ -27,7 +27,7 @@
         ]],
         ['key' => 'spa', 'label' => 'Spa & Wellness', 'icon' => 'spa&wellness.png', 'children' => [
             ['label' => 'Services', 'href' => '#'],
-            ['label' => 'Appointments', 'href' => '#'],
+            ['label' => 'Bookings', 'href' => '#'],
         ]],
         ['key' => 'website-cms', 'label' => 'Website CMS', 'icon' => 'websitecms.png', 'children' => [
             ['label' => 'Content', 'href' => route('admin.cms.index'), 'active' => request()->routeIs('admin.cms.*')],
