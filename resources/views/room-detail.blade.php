@@ -255,7 +255,7 @@
 
                 {{-- Content: car image (left) + heading/text + chauffeur image (right) --}}
                 <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <img loading="lazy" src="{{ asset('images/airportpickup image popup1.jpg') }}" alt="Premium chauffeur car"
+                    <img loading="lazy" src="{{ cms_image('pickup.image_1') }}" alt="Premium chauffeur car"
                          class="h-[300px] w-full rounded-xl object-cover lg:h-full lg:min-h-[620px]">
 
                     <div class="flex flex-col gap-[29px]">
@@ -265,7 +265,7 @@
                         <p class="text-lg leading-relaxed tracking-tight text-white/90 lg:text-body-lg">
                             {{ cms('pickup.text') }}
                         </p>
-                        <img loading="lazy" src="{{ asset('images/airportpickup image popup2.jpg') }}" alt="Chauffeur assisting guest"
+                        <img loading="lazy" src="{{ cms_image('pickup.image_2') }}" alt="Chauffeur assisting guest"
                              class="h-[280px] w-full rounded-xl object-cover lg:h-auto lg:flex-1">
                     </div>
                 </div>
