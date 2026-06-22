@@ -43,7 +43,8 @@
     </section>
 
     {{-- ===================== EXPLORE OUR SPA SERVICES ===================== --}}
-    <section class="w-full py-16 lg:py-24">
+    <section class="w-full bg-[#1a1a1a] bg-cover bg-top bg-no-repeat py-16 lg:py-24"
+             style="background-image: url('{{ asset('images/spabg.png') }}');">
         <x-layouts.container class="flex flex-col gap-10 lg:gap-14">
             <div class="mx-auto flex max-w-[920px] flex-col gap-4 text-center">
                 <h2 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-h1">{{ cms('spa.services_title') }}</h2>
