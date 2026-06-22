@@ -115,6 +115,7 @@ class Edit extends Component
             if ($field['type'] === 'image') {
                 if (! empty($this->uploads[$name])) {
                     $path = $this->uploads[$name]->store('cms', 'public');
+                    \App\Support\ImageOptimizer::optimize($path);
                     SiteContent::put($key, $path);
                     $this->values[$name] = $path;
                 } else {

@@ -108,6 +108,7 @@ class Index extends Component
         $imagePath = $this->existingImage;
         if ($this->fImage) {
             $imagePath = $this->fImage->store('vehicles', 'public');
+            \App\Support\ImageOptimizer::optimize($imagePath);
 
             // Remove the previously uploaded file (never the seeded /public/images assets).
             if ($this->existingImage

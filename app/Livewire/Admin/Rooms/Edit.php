@@ -212,12 +212,15 @@ class Edit extends Component
         $featuredPath = $this->existingFeatured;
         if ($this->featured) {
             $featuredPath = $this->featured->store('rooms', 'public');
+            \App\Support\ImageOptimizer::optimize($featuredPath);
         }
 
         // Gallery: keep retained existing + append new uploads
         $gallery = $this->existingGallery;
         foreach ($this->newGallery as $file) {
-            $gallery[] = $file->store('rooms', 'public');
+            $path = $file->store('rooms', 'public');
+            \App\Support\ImageOptimizer::optimize($path);
+            $gallery[] = $path;
         }
 
         // Amenities → [{label, icon}] preserving the master order

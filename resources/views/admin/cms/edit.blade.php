@@ -82,11 +82,11 @@
                                     <svg class="size-6 text-[#cbd5e1]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
                                 @endif
                             </span>
-                            <div class="flex flex-col items-start gap-1.5">
+                            <div class="flex flex-col items-start gap-1.5" x-data="cmsImageUpload('uploads.{{ $name }}')">
                                 <label class="cursor-pointer rounded-xl border border-[#e5e7eb] bg-white px-4 py-2 text-[13px] font-semibold text-[#374151] transition hover:bg-[#f9fafb]">
-                                    <span wire:loading.remove wire:target="uploads.{{ $name }}">{{ $preview ? 'Change image' : 'Upload image' }}</span>
-                                    <span wire:loading wire:target="uploads.{{ $name }}">Uploading…</span>
-                                    <input type="file" wire:model="uploads.{{ $name }}" accept="image/*" class="hidden">
+                                    <span x-show="!uploading">{{ $preview ? 'Change image' : 'Upload image' }}</span>
+                                    <span x-show="uploading" x-cloak>Uploading… <span x-text="progress + '%'"></span></span>
+                                    <input type="file" accept="image/*" class="hidden" @change="handle($event)">
                                 </label>
                                 @if ($preview)
                                     <button type="button" wire:click="removeImage('{{ $name }}')" class="text-[12px] text-[#dc2626] hover:underline">Remove</button>
