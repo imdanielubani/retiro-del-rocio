@@ -64,7 +64,7 @@ $pages = [
         'chips' => ['Hero', 'Services', 'Discover', 'Why Us'],
         'preview' => '/spa-wellness',
         'fields' => [
-            ['key' => 'spa.hero_image', 'label' => 'Hero image', 'type' => 'image', 'default' => 'images/image 14.jpg'],
+            ['key' => 'spa.hero_image', 'label' => 'Hero image', 'type' => 'image', 'default' => 'images/spabg.jpg'],
             ['key' => 'spa.hero_title', 'label' => 'Hero heading', 'type' => 'text', 'default' => 'Rejuvenate Mind, Body & Soul'],
             ['key' => 'spa.hero_text', 'label' => 'Hero subtext', 'type' => 'textarea', 'default' => 'Escape the demands of everyday life and immerse yourself in a world of relaxation.'],
             ['key' => 'spa.hero_cta_label', 'label' => 'Hero button text', 'type' => 'text', 'default' => 'Book Session'],
@@ -73,13 +73,13 @@ $pages = [
             ['key' => 'spa.services_title', 'label' => 'Services heading', 'type' => 'text', 'default' => 'Explore our Spa Services'],
             ['key' => 'spa.services_text', 'label' => 'Services subtext', 'type' => 'textarea', 'default' => 'From therapeutic massages to revitalizing skincare treatments, our wellness experiences are tailored to help you unwind, recharge, and feel your absolute best.'],
 
-            ['key' => 'spa.service_1_image', 'label' => 'Service 1 image', 'type' => 'image', 'default' => 'images/image 13.jpg'],
+            ['key' => 'spa.service_1_image', 'label' => 'Service 1 image', 'type' => 'image', 'default' => 'images/skincare.png'],
             ['key' => 'spa.service_1_title', 'label' => 'Service 1 title', 'type' => 'text', 'default' => 'Skin Care'],
-            ['key' => 'spa.service_2_image', 'label' => 'Service 2 image', 'type' => 'image', 'default' => 'images/image 47.jpg'],
+            ['key' => 'spa.service_2_image', 'label' => 'Service 2 image', 'type' => 'image', 'default' => 'images/manicure.png'],
             ['key' => 'spa.service_2_title', 'label' => 'Service 2 title', 'type' => 'text', 'default' => 'Manicure & Pedicure'],
-            ['key' => 'spa.service_3_image', 'label' => 'Service 3 image', 'type' => 'image', 'default' => 'images/image 5.png'],
+            ['key' => 'spa.service_3_image', 'label' => 'Service 3 image', 'type' => 'image', 'default' => 'images/sauna.jpg'],
             ['key' => 'spa.service_3_title', 'label' => 'Service 3 title', 'type' => 'text', 'default' => 'Sauna Baths'],
-            ['key' => 'spa.service_4_image', 'label' => 'Service 4 image', 'type' => 'image', 'default' => 'images/image 7bg.jpg'],
+            ['key' => 'spa.service_4_image', 'label' => 'Service 4 image', 'type' => 'image', 'default' => 'images/massage.png'],
             ['key' => 'spa.service_4_title', 'label' => 'Service 4 title', 'type' => 'text', 'default' => 'Massage'],
 
             ['key' => 'spa.discover_image', 'label' => 'Discover band image', 'type' => 'image', 'default' => 'images/image 1.jpg'],

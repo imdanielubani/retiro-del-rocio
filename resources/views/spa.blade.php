@@ -11,12 +11,12 @@
         $features = cms_array('spa.features');
         $heroCtaUrl = cms('spa.hero_cta_url') ?: '#';
 
-        // Icons cycled across the "Why us" features.
+        // Decorative icons for the "Why us" features (match the Figma, by position).
         $featureIcons = [
-            '<path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6l-8-4z"/>',
-            '<path d="M12 2a5 5 0 0 0-5 5 5 5 0 0 0 2 4v3h6v-3a5 5 0 0 0 2-4 5 5 0 0 0-5-5z"/><path d="M9 19h6M10 22h4" stroke-linecap="round"/>',
-            '<path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"/>',
-            '<path d="M12 2C8 6 8 10 12 14c4-4 4-8 0-12zM5 14c2 2 5 2 7 0M12 14c2 2 5 2 7 0M12 14v8" stroke-linecap="round"/>',
+            asset('images/products.png'),
+            asset('images/temaki_spa.png'),
+            asset('images/treatments.png'),
+            asset('images/ic_twotone-spa.png'),
         ];
     @endphp
 
@@ -88,17 +88,23 @@
     </section>
 
     {{-- ========================= WHY RETIRO DEL ROCIO ========================= --}}
-    <section class="w-full bg-[#f3f1ec] py-16 text-[#1e1e1e] lg:py-24">
-        <x-layouts.container class="flex flex-col gap-12 lg:gap-16">
-            <h2 class="text-center text-2xl font-semibold uppercase tracking-[2px] text-[#1e1e1e] sm:text-3xl lg:text-h2">{{ cms('spa.why_title') }}</h2>
-            <div class="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+    <section class="relative w-full overflow-hidden py-16 text-black lg:py-20"
+             style="background-image: linear-gradient(95deg, #feefe4 2%, #fafaee 27%, #fafaee 68%, #f6d7c3 99%);">
+        {{-- Faint spa background image overlay --}}
+        <img loading="lazy" src="{{ asset('images/spa/why-bg.jpg') }}" alt=""
+             class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.09]">
+
+        <x-layouts.container class="relative flex flex-col items-center gap-10 lg:gap-12">
+            <h2 class="text-center text-[clamp(28px,4vw,41px)] font-light tracking-tight text-black">{{ cms('spa.why_title') }}</h2>
+
+            <div class="grid w-full grid-cols-1 gap-x-7 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach ($features as $i => $feature)
-                    <div class="flex flex-col gap-3">
-                        <span class="flex size-12 items-center justify-center rounded-xl bg-[#ba6d04]/10 text-[#ba6d04]">
-                            <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">{!! $featureIcons[$i % count($featureIcons)] !!}</svg>
+                    <div class="flex flex-col items-center gap-2 text-center">
+                        <span class="flex h-[88px] items-end justify-center">
+                            <img loading="lazy" src="{{ $featureIcons[$i % count($featureIcons)] }}" alt="" class="max-h-[88px] w-auto object-contain">
                         </span>
-                        <h3 class="text-title font-bold tracking-tight lg:text-h3">{{ $feature['title'] ?? '' }}</h3>
-                        <p class="text-body leading-relaxed tracking-tight text-[#5a5a5a]">{{ $feature['text'] ?? '' }}</p>
+                        <h3 class="text-2xl font-semibold tracking-tight text-black lg:text-[30px]">{{ $feature['title'] ?? '' }}</h3>
+                        <p class="max-w-[340px] text-base leading-snug tracking-tight text-black lg:text-[19px]">{{ $feature['text'] ?? '' }}</p>
                     </div>
                 @endforeach
             </div>
