@@ -81,7 +81,7 @@ $pages = [
     'footer' => [
         'label' => 'Footer Editor',
         'category' => 'system',
-        'chips' => ['Brand', 'Links', 'Contact'],
+        'chips' => ['Brand', 'Links', 'Contact', 'Legal'],
         'preview' => '/',
         'fields' => [
             ['key' => 'footer.logo', 'label' => 'Footer logo', 'type' => 'image', 'default' => 'images/Logo footer.png'],
@@ -95,6 +95,11 @@ $pages = [
             ['key' => 'footer.address', 'label' => 'Address', 'type' => 'textarea', 'default' => 'No. 1, Off Liberty Boulevard, Millionaire Quarters, Jos, Plateau State'],
             ['key' => 'footer.phone', 'label' => 'Phone number', 'type' => 'text', 'default' => '(+234) 7012623680'],
             ['key' => 'footer.copyright', 'label' => 'Copyright line', 'type' => 'text', 'default' => '2026 Retiro Del Rocio. All Rights Reserved.'],
+            ['key' => 'footer.policy_links', 'label' => 'Policy links (bottom bar)', 'type' => 'repeater', 'item' => ['label' => 'Label', 'url' => 'Link (URL)'], 'default' => [
+                ['label' => 'Privacy Policy', 'url' => '#'],
+                ['label' => 'Terms of Service', 'url' => '#'],
+                ['label' => 'Booking Policy', 'url' => '#'],
+            ]],
         ],
     ],
 

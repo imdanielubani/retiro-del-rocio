@@ -76,12 +76,23 @@
         {{-- Divider --}}
         <hr class="mt-12 border-white/15 lg:mt-[60px]">
 
-        {{-- Copyright --}}
-        <div class="flex items-center justify-center gap-2 pt-[38px] text-center">
-            <svg class="icon-sm shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M14.83 9.17a4 4 0 1 0 0 5.66" stroke-linecap="round"/></svg>
-            <p class="text-body-sm font-medium tracking-tight sm:text-body">
-                {{ cms('footer.copyright') }}
-            </p>
+        {{-- Copyright + policy links --}}
+        @php $policyLinks = cms_array('footer.policy_links'); @endphp
+        <div class="flex flex-col items-center gap-4 pt-[38px] sm:flex-row sm:justify-between">
+            <div class="flex items-center gap-2">
+                <svg class="icon-sm shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M14.83 9.17a4 4 0 1 0 0 5.66" stroke-linecap="round"/></svg>
+                <p class="text-body-sm font-medium tracking-tight sm:text-body">{{ cms('footer.copyright') }}</p>
+            </div>
+            @if (! empty($policyLinks))
+                <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+                    @foreach ($policyLinks as $pl)
+                        <a href="{{ $pl['url'] ?? '#' }}" class="text-body-sm font-medium tracking-tight transition hover:text-[#ba6d04]">{{ $pl['label'] ?? '' }}</a>
+                        @if (! $loop->last)
+                            <span class="h-4 w-px bg-white/25"></span>
+                        @endif
+                    @endforeach
+                </div>
+            @endif
         </div>
     </x-layouts.container>
 </footer>
