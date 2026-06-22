@@ -21,7 +21,7 @@
             ['label' => 'Menus', 'href' => '#'],
             ['label' => 'Reservations', 'href' => '#'],
         ]],
-        ['key' => 'car-rentals', 'label' => 'Airport Pickups', 'svg' => 'airport', 'children' => [
+        ['key' => 'car-rentals', 'label' => 'Vehicle Pickups', 'svg' => 'airport', 'children' => [
             ['label' => 'Vehicles', 'href' => route('admin.vehicles.index'), 'active' => request()->routeIs('admin.vehicles.index')],
             ['label' => 'Bookings', 'href' => route('admin.vehicles.bookings'), 'active' => request()->routeIs('admin.vehicles.bookings')],
         ]],

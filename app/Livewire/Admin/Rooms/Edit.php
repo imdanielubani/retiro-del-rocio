@@ -26,7 +26,7 @@ class Edit extends Component
     /** "Additional" feature list (icon keys match the public room views). */
     public const ADDITIONAL = [
         'self_checkin' => 'Self-check-in',
-        'airport' => 'Airport pick-up',
+        'airport' => 'Vehicle pickup',
         'chef' => 'Private chef',
         'housekeeping' => '24/7 House-keeping',
     ];

@@ -36,7 +36,7 @@
 
                             @if (!empty($data['pickup_vehicle']))
                                 <div style="margin-top:20px;padding-top:20px;border-top:1px solid #e5e7eb;">
-                                    <p style="margin:0 0 12px;color:#6b7280;font-size:14px;font-weight:bold;text-transform:uppercase;letter-spacing:.04em;">Airport Pick-up</p>
+                                    <p style="margin:0 0 12px;color:#6b7280;font-size:14px;font-weight:bold;text-transform:uppercase;letter-spacing:.04em;">Vehicle Pickup</p>
                                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:15px;line-height:1.6;">
                                         <tr>
                                             <td style="padding:6px 0;color:#6b7280;width:160px;">Vehicle</td>

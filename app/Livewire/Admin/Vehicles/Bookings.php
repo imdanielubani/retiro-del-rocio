@@ -144,7 +144,7 @@ class Bookings extends Component
             ],
             'hasFilters' => $this->search !== '' || $this->range !== '' || $this->status !== '',
         ])->layout('components.admin.app', [
-            'title' => 'Airport Pickup Bookings',
+            'title' => 'Vehicle Pickup Bookings',
             'subtitle' => 'Transport reservations from the website',
         ]);
     }

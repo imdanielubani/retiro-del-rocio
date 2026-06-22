@@ -18,7 +18,7 @@ class PickupConfirmation extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your airport pick-up is confirmed — '.config('app.name'),
+            subject: 'Your vehicle pickup is confirmed — '.config('app.name'),
         );
     }
 

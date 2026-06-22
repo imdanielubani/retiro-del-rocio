@@ -98,6 +98,24 @@ $pages = [
         ],
     ],
 
+    'pickup' => [
+        'label' => 'Vehicle Pickup',
+        'category' => 'core',
+        'chips' => ['Service', 'Locations', 'Vehicles'],
+        'preview' => '/rooms-apartment',
+        'fields' => [
+            ['key' => 'pickup.title', 'label' => 'Popup title', 'type' => 'text', 'default' => 'Vehicle Pickup Service'],
+            ['key' => 'pickup.heading', 'label' => 'Feature heading', 'type' => 'text', 'default' => 'Premium Chauffeur Experience'],
+            ['key' => 'pickup.text', 'label' => 'Feature paragraph', 'type' => 'textarea', 'default' => 'Combine luxury accommodation with premium transportation services and enjoy special packages designed to enhance your stay from the moment you arrive.'],
+            ['key' => 'pickup.locations', 'label' => 'Pickup locations', 'type' => 'repeater', 'item' => ['name' => 'Location name'], 'default' => [
+                ['name' => 'Airport Pickup'],
+                ['name' => 'Valgee'],
+                ['name' => 'Nengee'],
+                ['name' => 'Plateau Riders'],
+            ]],
+        ],
+    ],
+
     'checkout' => [
         'label' => 'Checkout',
         'category' => 'core',

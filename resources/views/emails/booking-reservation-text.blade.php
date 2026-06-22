@@ -11,7 +11,7 @@ Check-in: {{ optional($booking->check_in)->format('l, M j, Y') ?: '—' }} (from
 Check-out: {{ optional($booking->check_out)->format('l, M j, Y') ?: '—' }} (by 12:00 PM)
 Guests: {{ $booking->guests }}
 @if ($booking->isPickup())
-Airport pick-up: {{ $booking->pickup_vehicle }} ({{ $booking->pickupAmountLabel() }})
+Vehicle pickup: {{ $booking->pickup_vehicle }} ({{ $booking->pickupAmountLabel() }})
 @endif
 Total paid: {{ $booking->amountLabel() }}
 @unless ($booking->roomUnit)

@@ -83,7 +83,7 @@
                 <svg class="size-6" viewBox="0 0 24 24" fill="currentColor"><path d="M2 19h20v2H2zM4 17h16l-1-6h-3l-2-7-2 .5 1.5 6.5H8l-1.5-3H5l1 3H4z"/></svg>
             </span>
             <p class="text-[15px] font-semibold text-[#1e1e1e]">No vehicles found</p>
-            <p class="text-[13px] text-[#6b7280]">Add a vehicle to the fleet — it will appear on the website airport pick-up.</p>
+            <p class="text-[13px] text-[#6b7280]">Add a vehicle to the fleet — it will appear on the website vehicle pickup.</p>
             <button type="button" wire:click="openCreate" class="mt-1 rounded-xl bg-[#f38c00] px-4 py-2 text-[13px] font-bold text-white hover:bg-[#dd7f00]">Add Vehicle</button>
         </div>
     @else

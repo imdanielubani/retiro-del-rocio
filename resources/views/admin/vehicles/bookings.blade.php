@@ -93,7 +93,7 @@
                     <svg class="size-6" viewBox="0 0 24 24" fill="currentColor"><path d="M2 19h20v2H2zM4 17h16l-1-6h-3l-2-7-2 .5 1.5 6.5H8l-1.5-3H5l1 3H4z"/></svg>
                 </span>
                 <p class="text-[15px] font-semibold text-[#1e1e1e]">No transport bookings found</p>
-                <p class="text-[13px] text-[#6b7280]">Airport pick-up bookings made on the website will appear here.</p>
+                <p class="text-[13px] text-[#6b7280]">Vehicle pickup bookings made on the website will appear here.</p>
             </div>
         @else
             {{-- Desktop table --}}

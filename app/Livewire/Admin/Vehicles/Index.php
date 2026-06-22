@@ -240,7 +240,7 @@ class Index extends Component
             ],
         ])->layout('components.admin.app', [
             'title' => 'Vehicles',
-            'subtitle' => 'Manage the airport pick-up fleet shown on the website',
+            'subtitle' => 'Manage the vehicle pickup fleet shown on the website',
         ]);
     }
 }

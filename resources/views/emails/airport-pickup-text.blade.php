@@ -1,6 +1,6 @@
 Dear {{ $booking->customer_name ?: 'Guest' }},
 
-Your airport pick-up has been arranged and confirmed. Our chauffeur will be ready to meet you on arrival.
+Your vehicle pickup has been arranged and confirmed. Our chauffeur will be ready to meet you on arrival.
 
 Reference: {{ $booking->transportCode() }}
 Vehicle: {{ $booking->pickup_vehicle }}

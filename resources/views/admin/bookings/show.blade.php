@@ -151,7 +151,7 @@
                     </div>
                     @if ($payment['pickup'] > 0)
                         <div class="flex items-center justify-between">
-                            <span class="text-[#6b7280]">Airport pickup</span>
+                            <span class="text-[#6b7280]">Vehicle pickup</span>
                             <span class="font-medium text-[#1e1e1e]">{{ $naira($payment['pickup']) }}</span>
                         </div>
                     @endif

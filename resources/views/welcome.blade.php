@@ -38,7 +38,7 @@
                         </div>
                         <span class="flex items-center gap-2 text-body font-semibold tracking-tight text-[#6c6c6c] sm:text-body-lg">
                             <img loading="lazy" src="{{ asset('images/Airport.png') }}" alt="" class="icon-lg object-contain [filter:brightness(0)_opacity(45%)]">
-                            Airport Pickup
+                            Vehicle Pickup
                         </span>
                         <span class="flex items-center gap-2 text-body font-semibold tracking-tight text-[#6c6c6c] sm:text-body-lg">
                             <img loading="lazy" src="{{ asset('images/travel.png') }}" alt="" class="icon-lg object-contain [filter:brightness(0)_opacity(45%)]">

@@ -76,7 +76,7 @@
                 checkOut: @js(request('check_out', '')),
                 today: new Date().toISOString().split('T')[0],
                 get datesValid() { return !!(this.checkIn && this.checkOut && this.checkOut > this.checkIn); },
-                location: 'Yakubu Gowon Airport (IATA)', {{-- permanent pick-up point --}}
+                location: @js(collect(cms_array('pickup.locations'))->pluck('name')->first() ?: 'Airport Pickup'), {{-- pickup point (editable in CMS) --}}
                 passengers: 2,
                 arrivalDate: '',
                 pickupTime: '',
@@ -194,15 +194,15 @@
             {{-- Airport pickup trigger (shown until a vehicle is selected) --}}
             <button type="button" x-show="!pickup" @click="airportModal = true" class="flex w-fit cursor-pointer items-center gap-1.5 text-white transition hover:text-[#f38c00]">
                 <svg class="icon-lg shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/></svg>
-                <span class="text-body-lg font-bold tracking-tight">Airport Pick-up</span>
+                <span class="text-body-lg font-bold tracking-tight">Vehicle Pickup</span>
             </button>
 
             {{-- Selected airport pick-up summary (Figma node 85:1299) --}}
             <div x-show="pickup" x-cloak
                  class="flex flex-col gap-3 rounded-[6px] bg-[#dadbda] px-[23px] py-3.5 text-[#232323] lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-8">
-                <button type="button" @click="pickup = null" class="flex shrink-0 cursor-pointer items-center gap-1.5" title="Remove airport pick-up">
+                <button type="button" @click="pickup = null" class="flex shrink-0 cursor-pointer items-center gap-1.5" title="Remove vehicle pickup">
                     <svg class="icon-lg shrink-0 text-[#191919]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <span class="text-body-lg font-bold tracking-tight lg:text-body-lg">Airport Pick-up</span>
+                    <span class="text-body-lg font-bold tracking-tight lg:text-body-lg">Vehicle Pickup</span>
                 </button>
                 <span class="flex items-center gap-2 text-body font-medium lg:text-body-lg">
                     Car Type:
@@ -243,7 +243,7 @@
 
                 {{-- Header --}}
                 <div class="flex items-center justify-between gap-4">
-                    <h2 class="text-2xl font-bold tracking-tight text-white sm:text-4xl lg:text-h1">Airport Pick-Up Service</h2>
+                    <h2 class="text-2xl font-bold tracking-tight text-white sm:text-4xl lg:text-h1">{{ cms('pickup.title') }}</h2>
                     <button type="button" @click="airportModal = false" aria-label="Close"
                             class="flex icon-xl shrink-0 items-center justify-center rounded-full text-white transition hover:bg-white/10 lg:icon-xl">
                         <svg class="icon-lg lg:icon-xl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -260,10 +260,10 @@
 
                     <div class="flex flex-col gap-[29px]">
                         <h3 class="text-4xl font-medium leading-tight tracking-tight text-white lg:text-display lg:leading-[60px]">
-                            Premium Chauffeur Experience
+                            {{ cms('pickup.heading') }}
                         </h3>
                         <p class="text-lg leading-relaxed tracking-tight text-white/90 lg:text-body-lg">
-                            Combine luxury accommodation with premium transportation services and enjoy special packages designed to enhance your stay from the moment you arrive.
+                            {{ cms('pickup.text') }}
                         </p>
                         <img loading="lazy" src="{{ asset('images/airportpickup image popup2.jpg') }}" alt="Chauffeur assisting guest"
                              class="h-[280px] w-full rounded-xl object-cover lg:h-auto lg:flex-1">
@@ -303,7 +303,7 @@
 
                 {{-- Header --}}
                 <div class="flex items-center justify-between gap-4">
-                    <h2 class="text-2xl font-bold tracking-tight text-white sm:text-4xl lg:text-h1">Airport Pick-Up Service</h2>
+                    <h2 class="text-2xl font-bold tracking-tight text-white sm:text-4xl lg:text-h1">{{ cms('pickup.title') }}</h2>
                     <button type="button" @click="vehicleModal = false" aria-label="Close"
                             class="flex icon-xl shrink-0 items-center justify-center rounded-full text-white transition hover:bg-white/10 lg:icon-xl">
                         <svg class="icon-lg lg:icon-xl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -368,7 +368,7 @@
                     @empty
                         <div class="flex flex-col items-center gap-2 rounded-[14px] bg-[#dcdcd9] px-6 py-12 text-center">
                             <p class="text-title font-semibold text-[#191919]">No vehicles available right now</p>
-                            <p class="text-body text-[#5a5a5a]">Airport pick-up is temporarily unavailable. Please check back soon.</p>
+                            <p class="text-body text-[#5a5a5a]">Vehicle pickup is temporarily unavailable. Please check back soon.</p>
                         </div>
                     @endforelse
                 </div>
@@ -428,7 +428,7 @@
         // default set; an explicit empty array hides the section.
         $additionalItems = is_null($room->additional) ? [
             ['label' => 'Self-check-in', 'icon' => 'self_checkin'],
-            ['label' => 'Airport pick-up', 'icon' => 'airport'],
+            ['label' => 'Vehicle pickup', 'icon' => 'airport'],
             ['label' => 'Private chef', 'icon' => 'chef'],
             ['label' => '24/7 House-keeping', 'icon' => 'housekeeping'],
         ] : $room->additional;

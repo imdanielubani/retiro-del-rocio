@@ -45,7 +45,7 @@
                 <tr><td class="label">Check-in / Check-out</td><td class="value">{{ $order['date_range'] }}</td></tr>
                 <tr><td class="label">Stay duration</td><td class="value">{{ $order['nights'] }} {{ \Illuminate\Support\Str::plural('Night', $order['nights']) }}</td></tr>
                 @if ($order['pickup_vehicle'])
-                    <tr><td class="label">Airport pick-up</td><td class="value">{{ $order['pickup_vehicle'] }}</td></tr>
+                    <tr><td class="label">Vehicle pickup</td><td class="value">{{ $order['pickup_vehicle'] }}</td></tr>
                 @endif
             </table>
 
@@ -60,7 +60,7 @@
             <table>
                 <tr><td class="label">{{ $order['room'] }} ({{ number_format($order['price_per_night']) }} × {{ $order['nights'] }})</td><td class="value">{{ $order['room_subtotal_label'] }}</td></tr>
                 @if ($order['pickup_price'])
-                    <tr><td class="label">Airport pick-up</td><td class="value">{{ $order['pickup_price'] }}</td></tr>
+                    <tr><td class="label">Vehicle pickup</td><td class="value">{{ $order['pickup_price'] }}</td></tr>
                 @endif
                 <tr><td class="label">VAT 7.5%</td><td class="value">{{ $order['vat_label'] }}</td></tr>
                 <tr><td class="label">Fees</td><td class="value">{{ $order['fees_label'] }}</td></tr>

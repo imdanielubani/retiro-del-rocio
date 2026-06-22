@@ -3,6 +3,14 @@
     'bookAction' => '',
 ])
 
+@php
+    // Pickup locations are editable in Admin → Website CMS → Vehicle Pickup.
+    $pickupLocations = collect(cms_array('pickup.locations'))->pluck('name')->filter()->values()->all();
+    if (empty($pickupLocations)) {
+        $pickupLocations = ['Airport Pickup', 'Valgee', 'Nengee', 'Plateau Riders'];
+    }
+@endphp
+
 {{--
     Airport pick-up search / booking bar — Figma node 85:1991.
     Relies on the parent Alpine scope: location (PERMANENT), passengers,
@@ -11,12 +19,17 @@
 --}}
 <div class="mt-6 rounded-[19px] bg-[#d9d9d9] px-4 py-6 sm:px-6 lg:px-[55px] lg:py-7">
     <div class="flex flex-col gap-[9px] lg:flex-row lg:items-stretch">
-        {{-- Location (permanent / fixed) --}}
+        {{-- Location (guest selects a pickup point) --}}
         <div class="flex h-[73px] flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6] px-[17px] lg:min-w-0 lg:flex-[1.6]">
             <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Location</p>
             <div class="flex items-center gap-[7px]">
-                <svg class="icon-md shrink-0 text-[#202020]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-                <span x-text="location" class="w-full truncate text-body-sm font-bold tracking-tight text-[#202020]"></span>
+                <svg class="icon-sm shrink-0 text-[#202020]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+                <select x-model="location" class="w-full min-w-0 cursor-pointer appearance-none truncate bg-transparent text-body-sm font-bold tracking-tight text-[#202020] focus:outline-none">
+                    @foreach ($pickupLocations as $loc)
+                        <option value="{{ $loc }}">{{ $loc }}</option>
+                    @endforeach
+                </select>
+                <svg class="icon-sm shrink-0 text-[#7a7a7a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </div>
         </div>
 

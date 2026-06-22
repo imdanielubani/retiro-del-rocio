@@ -114,7 +114,7 @@
                                 <div class="flex items-center justify-between gap-4 border-t border-white/10 py-4">
                                     <span class="flex items-center gap-2">
                                         <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M2 19h20v2H2zM4 17h16l-1-6h-3l-2-7-2 .5 1.5 6.5H8l-1.5-3H5l1 3H4z"/></svg>
-                                        Airport Pick-up
+                                        Vehicle Pickup
                                     </span>
                                     <span>{{ $booking['pickup_vehicle'] }}</span>
                                 </div>
@@ -132,7 +132,7 @@
                             </div>
                             @if ($booking['pickup_price'])
                                 <div class="flex items-center justify-between gap-4 border-t border-white/10 py-4">
-                                    <span class="text-body-lg font-medium tracking-tight lg:text-body-lg">Airport Pick-up</span>
+                                    <span class="text-body-lg font-medium tracking-tight lg:text-body-lg">Vehicle Pickup</span>
                                     <span class="text-body-lg font-semibold tracking-tight lg:text-body-lg">{{ $booking['pickup_price'] }}</span>
                                 </div>
                             @endif

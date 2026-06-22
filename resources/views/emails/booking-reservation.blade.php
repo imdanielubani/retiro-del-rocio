@@ -54,7 +54,7 @@
                                 </tr>
                                 @if ($booking->isPickup())
                                     <tr>
-                                        <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Airport pick-up</td>
+                                        <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Vehicle pickup</td>
                                         <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ $booking->pickup_vehicle }} · {{ $booking->pickupAmountLabel() }}</td>
                                     </tr>
                                 @endif

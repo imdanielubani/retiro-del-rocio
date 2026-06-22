@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Airport Pick-up Confirmed</title>
+    <title>Vehicle Pickup Confirmed</title>
 </head>
 <body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,Helvetica,sans-serif;color:#1e1e1e;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:24px 0;">
@@ -13,7 +13,7 @@
                     <tr>
                         <td style="background:#222a1f;padding:24px 32px;">
                             <h1 style="margin:0;color:#f38c00;font-size:20px;">Retiro Del Rocio</h1>
-                            <p style="margin:4px 0 0;color:#d1dbcc;font-size:13px;">Airport pick-up confirmation</p>
+                            <p style="margin:4px 0 0;color:#d1dbcc;font-size:13px;">Vehicle pickup confirmation</p>
                         </td>
                     </tr>
                     <tr>
@@ -21,7 +21,7 @@
                             <div style="display:inline-block;background:#dcfce7;color:#16a34a;font-size:13px;font-weight:bold;padding:6px 14px;border-radius:999px;">Pick-up confirmed</div>
                             <h2 style="margin:18px 0 6px;font-size:20px;">Dear {{ $booking->customer_name ?: 'Guest' }},</h2>
                             <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#374151;">
-                                Your airport pick-up has been arranged and confirmed. Our chauffeur will be ready to meet you on arrival.
+                                Your vehicle pickup has been arranged and confirmed. Our chauffeur will be ready to meet you on arrival.
                                 Here are your pick-up details:
                             </p>
 
