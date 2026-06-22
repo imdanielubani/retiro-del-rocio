@@ -58,6 +58,44 @@ $pages = [
         ],
     ],
 
+    'spa' => [
+        'label' => 'Spa & Wellness',
+        'category' => 'core',
+        'chips' => ['Hero', 'Services', 'Discover', 'Why Us'],
+        'preview' => '/spa-wellness',
+        'fields' => [
+            ['key' => 'spa.hero_image', 'label' => 'Hero image', 'type' => 'image', 'default' => 'images/image 14.jpg'],
+            ['key' => 'spa.hero_title', 'label' => 'Hero heading', 'type' => 'text', 'default' => 'Rejuvenate Mind, Body & Soul'],
+            ['key' => 'spa.hero_text', 'label' => 'Hero subtext', 'type' => 'textarea', 'default' => 'Escape the demands of everyday life and immerse yourself in a world of relaxation.'],
+            ['key' => 'spa.hero_cta_label', 'label' => 'Hero button text', 'type' => 'text', 'default' => 'Book Session'],
+            ['key' => 'spa.hero_cta_url', 'label' => 'Hero button link', 'type' => 'text', 'default' => '/contact-us'],
+
+            ['key' => 'spa.services_title', 'label' => 'Services heading', 'type' => 'text', 'default' => 'Explore our Spa Services'],
+            ['key' => 'spa.services_text', 'label' => 'Services subtext', 'type' => 'textarea', 'default' => 'From therapeutic massages to revitalizing skincare treatments, our wellness experiences are tailored to help you unwind, recharge, and feel your absolute best.'],
+
+            ['key' => 'spa.service_1_image', 'label' => 'Service 1 image', 'type' => 'image', 'default' => 'images/image 13.jpg'],
+            ['key' => 'spa.service_1_title', 'label' => 'Service 1 title', 'type' => 'text', 'default' => 'Skin Care'],
+            ['key' => 'spa.service_2_image', 'label' => 'Service 2 image', 'type' => 'image', 'default' => 'images/image 47.jpg'],
+            ['key' => 'spa.service_2_title', 'label' => 'Service 2 title', 'type' => 'text', 'default' => 'Manicure & Pedicure'],
+            ['key' => 'spa.service_3_image', 'label' => 'Service 3 image', 'type' => 'image', 'default' => 'images/image 5.png'],
+            ['key' => 'spa.service_3_title', 'label' => 'Service 3 title', 'type' => 'text', 'default' => 'Sauna Baths'],
+            ['key' => 'spa.service_4_image', 'label' => 'Service 4 image', 'type' => 'image', 'default' => 'images/image 7bg.jpg'],
+            ['key' => 'spa.service_4_title', 'label' => 'Service 4 title', 'type' => 'text', 'default' => 'Massage'],
+
+            ['key' => 'spa.discover_image', 'label' => 'Discover band image', 'type' => 'image', 'default' => 'images/image 1.jpg'],
+            ['key' => 'spa.discover_title', 'label' => 'Discover heading', 'type' => 'text', 'default' => 'Discover a Healthier Way to Relax'],
+            ['key' => 'spa.discover_text', 'label' => 'Discover paragraph', 'type' => 'textarea', 'default' => 'Wellness is more than a treatment—it’s a lifestyle. Experience holistic care that nurtures your body, mind, and spirit.'],
+
+            ['key' => 'spa.why_title', 'label' => '“Why us” heading', 'type' => 'text', 'default' => 'WHY Retiro Del Rocio'],
+            ['key' => 'spa.features', 'label' => '“Why us” features', 'type' => 'repeater', 'item' => ['title' => 'Title', 'text' => 'Description'], 'default' => [
+                ['title' => 'Premium Products', 'text' => 'We use carefully selected, high-quality products to ensure exceptional results and comfort.'],
+                ['title' => 'Certified Professionals', 'text' => 'Our experienced wellness specialists are dedicated to delivering personalized care and outstanding service.'],
+                ['title' => 'Personalized Treatments', 'text' => 'Every guest receives tailored recommendations and treatments designed around their unique needs.'],
+                ['title' => 'Serene Environment', 'text' => 'Enjoy a peaceful atmosphere thoughtfully designed to help you relax, recharge, and reconnect.'],
+            ]],
+        ],
+    ],
+
     'navigation' => [
         'label' => 'Navigation Menu',
         'category' => 'system',
@@ -71,7 +109,7 @@ $pages = [
                 ['label' => 'Gym', 'url' => '#'],
                 ['label' => 'Cinema', 'url' => '#'],
                 ['label' => 'Restaurant', 'url' => '#'],
-                ['label' => 'Spa/Wellness', 'url' => '#'],
+                ['label' => 'Spa/Wellness', 'url' => '/spa-wellness'],
             ]],
             ['key' => 'nav.cta_label', 'label' => 'Button text', 'type' => 'text', 'default' => 'Get in touch'],
             ['key' => 'nav.cta_url', 'label' => 'Button link', 'type' => 'text', 'default' => '/contact-us'],

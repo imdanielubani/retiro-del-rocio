@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public website.
 Route::view('/', 'welcome')->name('home');
+Route::view('spa-wellness', 'spa')->name('spa');
 Route::view('rooms-apartment', 'rooms')->name('rooms');
 Route::get('rooms-apartment/{room:slug}', function (Room $room) {
     abort_unless($room->is_published, 404);

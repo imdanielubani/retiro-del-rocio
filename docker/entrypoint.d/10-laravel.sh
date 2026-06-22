@@ -29,7 +29,12 @@ if [ -n "$DB_HOST" ]; then
 fi
 
 # --- Storage symlink (public/storage -> storage/app/public) ---
-php artisan storage:link --force || true
+# Ensure the upload dirs exist (the volume mounts at storage/app/public) and the
+# public/storage symlink is (re)created so uploaded CMS/room/vehicle images serve.
+mkdir -p storage/app/public/cms storage/app/public/rooms storage/app/public/vehicles
+[ -L public/storage ] || rm -rf public/storage
+php artisan storage:link --force
+echo "[entrypoint] storage symlink: $(readlink -f public/storage 2>/dev/null || echo 'MISSING')"
 
 # --- Database migrations (abort boot on real failure) ---
 php artisan migrate --force

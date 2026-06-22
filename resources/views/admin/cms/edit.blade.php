@@ -45,7 +45,7 @@
                                     @foreach ($field['item'] as $col => $colLabel)
                                         <div class="flex-1">
                                             <label class="mb-1 block text-[11px] font-medium text-[#9ca3af]">{{ $colLabel }}</label>
-                                            @if ($col === 'a')
+                                            @if (in_array($col, ['a', 'text'], true))
                                                 <textarea wire:model="repeaters.{{ $name }}.{{ $i }}.{{ $col }}" rows="2"
                                                           class="w-full rounded-lg border border-[#e5e7eb] p-2.5 text-[13px] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15"></textarea>
                                             @else

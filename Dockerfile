@@ -45,6 +45,11 @@ COPY --from=assets /app/public/build ./public/build
 RUN composer install --no-dev --optimize-autoloader --no-interaction \
     && php artisan package:discover --ansi || true
 
+# Create upload dirs + the public/storage symlink at build time (backstop in case
+# the runtime entrypoint link ever fails) so uploaded CMS/room/vehicle images serve.
+RUN mkdir -p storage/app/public/cms storage/app/public/rooms storage/app/public/vehicles \
+    && php artisan storage:link || true
+
 # Boot tasks (storage:link, migrate, config/route/view cache) run on container start.
 COPY docker/entrypoint.d/10-laravel.sh /etc/entrypoint.d/10-laravel.sh
 RUN chmod +x /etc/entrypoint.d/10-laravel.sh
