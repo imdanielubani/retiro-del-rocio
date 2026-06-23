@@ -23,23 +23,52 @@ window.spaReservation = function (config) {
         fees: config.fees || 2000,
         vatRate: 0.075,
         showModal: false,
-        selected: [],
-        guests: 2,
-        date: '',
-        time: '',
+        // step: 'select' (choose services) | 'checkout' (pay) | 'success'
+        step: config.step || 'select',
+
+        // selection state
+        selected: config.bookingSelected || [],
+        guests: config.bookingGuests || 2,
+        date: config.bookingDate || '',
+        time: config.bookingTime || '',
         special: '',
 
+        // checkout state
+        firstName: '', lastName: '', email: '', phone: '', channel: 'card',
+        paystackKey: config.paystackKey || '',
+        callbackUrl: config.callbackUrl || '',
+        bookingKobo: config.bookingKobo || 0,
+        bookingServices: config.bookingServices || '',
+        bookingDateLabel: config.bookingDateLabel || '',
+
         init() {
-            // Allow deep-linking straight to the booking popup, e.g. /spa-wellness#book
-            if (window.location.hash === '#book') this.open();
+            // Server drives the step: reopen the popup at checkout / success after a redirect.
+            if (this.step === 'checkout' || this.step === 'success') {
+                this.open();
+            } else if (window.location.hash === '#book') {
+                this.open();
+            }
         },
         open() { this.showModal = true; document.body.style.overflow = 'hidden'; },
         close() { this.showModal = false; document.body.style.overflow = ''; },
+        editSelection() { this.step = 'select'; },
+
         toggle(slug) {
             const i = this.selected.indexOf(slug);
             if (i === -1) this.selected.push(slug); else this.selected.splice(i, 1);
         },
         isSelected(slug) { return this.selected.includes(slug); },
+
+        // Format the chosen time as 12-hour with AM/PM, e.g. "15:00" -> "3:00 PM".
+        get timeLabel() {
+            if (!this.time) return '';
+            const [h, m] = this.time.split(':');
+            let hh = parseInt(h, 10);
+            if (isNaN(hh)) return this.time;
+            const ap = hh >= 12 ? 'PM' : 'AM';
+            hh = hh % 12 || 12;
+            return hh + ':' + (m || '00') + ' ' + ap;
+        },
 
         get chosen() { return this.services.filter((s) => this.selected.includes(s.slug)); },
         get subtotal() { return this.chosen.reduce((t, s) => t + s.price * Math.max(1, this.guests), 0); },
@@ -48,12 +77,48 @@ window.spaReservation = function (config) {
         money(n) { return '₦' + (n || 0).toLocaleString(); },
         get canSubmit() { return this.chosen.length > 0 && !!this.date; },
 
+        // Step 1 → submit selection to the server (sets session, redirects back to checkout step).
         submit() {
             if (!this.canSubmit) {
                 window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please select at least one service and choose a date.' } }));
                 return;
             }
             this.$refs.form.submit();
+        },
+
+        // Step 2 → Paystack payment.
+        pay() {
+            if (!this.firstName || !this.lastName || !this.email) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please enter your name and email to continue.' } }));
+                return;
+            }
+            if (!this.paystackKey) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Payments are not configured yet. Please add your Paystack keys.' } }));
+                return;
+            }
+            if (typeof PaystackPop === 'undefined') {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Payment library failed to load. Check your connection and try again.' } }));
+                return;
+            }
+            const channelMap = { card: 'card', bank: 'bank', transfer: 'bank_transfer' };
+            const handler = PaystackPop.setup({
+                key: this.paystackKey,
+                email: this.email,
+                amount: this.bookingKobo,
+                currency: 'NGN',
+                channels: [channelMap[this.channel] || 'card'],
+                metadata: {
+                    name: (this.firstName + ' ' + this.lastName).trim(),
+                    phone: this.phone ? '+234' + this.phone : '',
+                    custom_fields: [
+                        { display_name: 'Services', variable_name: 'services', value: this.bookingServices },
+                        { display_name: 'Date', variable_name: 'date', value: this.bookingDateLabel },
+                    ],
+                },
+                callback: (response) => { window.location.href = this.callbackUrl + '?reference=' + response.reference; },
+                onClose: () => { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Payment window closed before completing your reservation.' } })); },
+            });
+            handler.openIframe();
         },
     };
 };

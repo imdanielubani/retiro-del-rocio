@@ -27,9 +27,32 @@
             'image' => $s->imageUrl(),
             'description' => $s->description,
         ])->values();
+
+        // Server-driven popup steps: select → checkout → success.
+        // The order is consumed once (read then forgotten) so the success step
+        // only shows right after payment — never again on reload.
+        $spaOrder = session('spa_success');
+        session()->forget(['spa_success', 'spa_order']); // consume fresh order + clear any legacy stale value
+
+        $spaBooking = session('spa_booking');
+        $spaStep = $spaOrder ? 'success' : ($spaBooking ? 'checkout' : 'select');
+        $paystackKey = config('services.paystack.public_key');
     @endphp
 
-    <div x-data="spaReservation({ services: @js($spaServicesJson), fees: 2000 })">
+    <div x-data="spaReservation({
+            services: @js($spaServicesJson),
+            fees: 2000,
+            step: @js($spaStep),
+            paystackKey: @js($paystackKey),
+            callbackUrl: @js(route('spa.checkout.callback')),
+            bookingKobo: {{ (int) ($spaBooking['total_kobo'] ?? 0) }},
+            bookingServices: @js($spaBooking ? collect($spaBooking['services'])->pluck('name')->implode(', ') : ''),
+            bookingDateLabel: @js($spaBooking['date_label'] ?? ''),
+            bookingSelected: @js($spaBooking ? collect($spaBooking['services'])->pluck('slug')->values()->all() : []),
+            bookingGuests: {{ (int) ($spaBooking['guests'] ?? 2) }},
+            bookingDate: @js($spaBooking['date'] ?? ''),
+            bookingTime: @js($spaBooking['time'] ?? ''),
+         })">
 
 
     {{-- ============================ HERO ============================ --}}
@@ -45,7 +68,7 @@
                 <p class="max-w-[520px] text-lg leading-relaxed tracking-tight text-white/90 lg:text-body-lg">
                     {{ cms('spa.hero_text') }}
                 </p>
-                <button type="button" @click="open()"
+                <button type="button" @click="step = 'select'; open()"
                         class="flex w-fit items-center gap-2.5 rounded-[10px] bg-[#ba6d04] px-8 py-4 text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
                     {{ cms('spa.hero_cta_label') }}
                     <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -130,22 +153,23 @@
          x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
          x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
          @keydown.escape.window="close()">
-        <div class="relative w-full max-w-[1100px] overflow-hidden rounded-[20px] shadow-2xl"
-             style="background-image: linear-gradient(180deg, #ffcb8e 0px, #ffcb8e 70px, #1e1e1e 210px, #1e1e1e 100%);"
+        <div class="relative w-full max-w-[1100px] overflow-hidden rounded-[20px] bg-[#1e1e1e] shadow-2xl"
              @click.outside="close()"
              x-show="showModal"
              x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-6 scale-[0.98]" x-transition:enter-end="opacity-100 translate-y-0 scale-100"
              x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-[0.98]">
-            <div class="p-6 sm:p-9 lg:p-11">
+            {{-- Shared close button --}}
+            <button type="button" @click="close()" class="absolute right-5 top-5 z-20 flex size-11 shrink-0 items-center justify-center rounded-full border border-white/40 text-white transition hover:bg-white/10">
+                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+
+            {{-- ===================== STEP 1: SELECT SERVICES ===================== --}}
+            <div x-show="step === 'select'" class="p-6 sm:p-9 lg:p-11"
+                 style="background-image: linear-gradient(180deg, #ffcb8e 0px, #ffcb8e 70px, #1e1e1e 210px, #1e1e1e 100%);">
                 {{-- Header --}}
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex flex-col gap-2">
-                        <h2 class="text-3xl font-semibold tracking-tight text-[#FFFFFF] sm:text-4xl lg:text-h1">{{ cms('spares.title') }}</h2>
-                        <p class="max-w-[760px] text-body font-medium text-[#FFFFFF] lg:text-body-lg">{{ cms('spares.intro') }}</p>
-                    </div>
-                    <button type="button" @click="close()" class="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/30 text-white transition hover:bg-white/10">
-                        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-                    </button>
+                <div class="flex flex-col gap-2 pr-12">
+                    <h2 class="text-3xl font-semibold tracking-tight text-[#FFFFFF] sm:text-4xl lg:text-h1">{{ cms('spares.title') }}</h2>
+                    <p class="max-w-[760px] text-body font-medium text-[#FFFFFF] lg:text-body-lg">{{ cms('spares.intro') }}</p>
                 </div>
 
                 {{-- Guests / Date / Time --}}
@@ -235,7 +259,7 @@
                             <p class="font-medium text-[#f38c00]">Reservation</p>
                             <div class="flex items-center justify-between"><span>Number of Guest:</span><span class="font-medium" x-text="guests"></span></div>
                             <div class="flex items-center justify-between"><span>Date:</span><span class="font-medium" x-text="date || '—'"></span></div>
-                            <div class="flex items-center justify-between"><span>Time:</span><span class="font-medium" x-text="time || '—'"></span></div>
+                            <div class="flex items-center justify-between"><span>Time:</span><span class="font-medium" x-text="timeLabel || '—'"></span></div>
                         </div>
 
                         {{-- Fees & taxes --}}
@@ -259,7 +283,150 @@
                     </div>
                 </div>
             </div>
+            {{-- /step select --}}
+
+            {{-- ===================== STEP 2: CHECKOUT (pay) ===================== --}}
+            @if ($spaBooking)
+                @php $coImg = $spaBooking['services'][0]['image'] ?? null; @endphp
+                <div x-show="step === 'checkout'" x-cloak class="p-6 sm:p-9 lg:p-11"
+                     style="background-image: linear-gradient(180deg, #ffcb8e 0px, #ffcb8e 70px, #1e1e1e 210px, #1e1e1e 100%);">
+                    <div class="flex flex-col gap-2 pr-12">
+                        <h2 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-h1">{{ cms('spacheckout.checkout_heading') }}</h2>
+                        <button type="button" @click="editSelection()" class="flex w-fit items-center gap-2 text-body font-semibold text-white/80 transition hover:text-[#f38c00]">
+                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                            Edit selection
+                        </button>
+                    </div>
+
+                    <div class="mt-7 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        {{-- Left: image + order summary --}}
+                        <div class="flex flex-col gap-5">
+                            @if ($coImg)
+                                <img loading="lazy" src="{{ $coImg }}" alt="" class="h-[200px] w-full rounded-xl object-cover">
+                            @endif
+                            <div class="flex flex-col gap-4 rounded-xl bg-[#373d35]/40 p-5 text-white">
+                                <p class="text-lg font-semibold">Order Details</p>
+                                <div class="flex flex-col gap-2">
+                                    <p class="text-body font-medium text-[#f38c00]">Service</p>
+                                    @foreach ($spaBooking['services'] as $s)
+                                        <div class="flex items-center justify-between gap-4 text-body"><span>{{ $s['name'] }} ({{ $spaBooking['guests'] }} {{ \Illuminate\Support\Str::plural('Guest', $spaBooking['guests']) }}) :</span><span class="font-semibold">{{ $s['subtotal_label'] }}</span></div>
+                                    @endforeach
+                                </div>
+                                <div class="flex flex-col gap-2 border-t border-white/15 pt-3 text-body">
+                                    <p class="font-medium text-[#f38c00]">Reservation</p>
+                                    <div class="flex items-center justify-between"><span>Number of Guest:</span><span class="font-medium">{{ $spaBooking['guests'] }}</span></div>
+                                    <div class="flex items-center justify-between"><span>Date:</span><span class="font-medium">{{ $spaBooking['date_label'] }}</span></div>
+                                    @if ($spaBooking['time'])<div class="flex items-center justify-between"><span>Time:</span><span class="font-medium">{{ $spaBooking['time_label'] ?? $spaBooking['time'] }}</span></div>@endif
+                                </div>
+                                <div class="flex flex-col gap-1.5 border-t border-white/15 pt-3 text-body">
+                                    <div class="flex items-center justify-between"><span class="text-[#f38c00]">Convenience Fee:</span><span>{{ $spaBooking['fees_label'] }}</span></div>
+                                    <div class="flex items-center justify-between"><span class="text-[#f38c00]">Taxes (VAT 7.5%):</span><span>{{ $spaBooking['taxes_label'] }}</span></div>
+                                </div>
+                                <div class="flex items-center justify-between border-t border-white/15 pt-3"><span class="text-body-lg font-semibold text-[#f38c00]">TOTAL</span><span class="text-h3 font-semibold">{{ $spaBooking['total_label'] }}</span></div>
+                            </div>
+                        </div>
+
+                        {{-- Right: customer + payment --}}
+                        <div class="flex flex-col gap-5">
+                            <div class="rounded-xl bg-[#373d35] p-5 sm:p-6">
+                                <h3 class="text-h3 font-semibold text-white">{{ cms('spacheckout.customer_title') }}</h3>
+                                <div class="mt-5 flex flex-col gap-4">
+                                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <label class="flex flex-col gap-1.5 border-b border-white/30 pb-2"><span class="text-label text-[#a5a5a5]">First Name</span><input type="text" x-model="firstName" placeholder="Micheal" class="bg-transparent text-body-lg text-white placeholder:text-white/40 focus:outline-none"></label>
+                                        <label class="flex flex-col gap-1.5 border-b border-white/30 pb-2"><span class="text-label text-[#a5a5a5]">Last Name</span><input type="text" x-model="lastName" placeholder="Philips" class="bg-transparent text-body-lg text-white placeholder:text-white/40 focus:outline-none"></label>
+                                    </div>
+                                    <label class="flex flex-col gap-1.5 border-b border-white/30 pb-2"><span class="text-label text-[#a5a5a5]">Email Address</span><input type="email" x-model="email" placeholder="micheal.philips@gmail.com" class="bg-transparent text-body-lg text-white placeholder:text-white/40 focus:outline-none"></label>
+                                    <label class="flex flex-col gap-1.5 border-b border-white/30 pb-2"><span class="text-label text-[#a5a5a5]">Phone Number</span><div class="flex items-center gap-2"><span class="shrink-0 text-body-lg text-white">🇳🇬 +234</span><input type="tel" x-model="phone" placeholder="8143432903" inputmode="numeric" class="w-full bg-transparent text-body-lg text-white placeholder:text-white/40 focus:outline-none"></div></label>
+                                </div>
+                            </div>
+
+                            <div class="rounded-xl bg-[rgba(113,113,113,0.27)] p-5 sm:p-6">
+                                <h3 class="text-title font-semibold text-white">{{ cms('spacheckout.cancellation_title') }}</h3>
+                                <p class="mt-3 text-body leading-snug text-[#dadbda]">{{ cms('spacheckout.cancellation_text') }}</p>
+                            </div>
+
+                            <div class="rounded-xl bg-[#373d35] p-5 sm:p-6">
+                                <h3 class="text-h3 font-semibold text-white">Payment Options</h3>
+                                <div class="mt-4 flex flex-wrap gap-2">
+                                    <button type="button" @click="channel = 'card'" :class="channel === 'card' ? 'bg-[#ba6d04] text-white' : 'bg-[#696969] text-[#c9c9c9]'" class="flex h-[50px] items-center gap-2 rounded-[11px] px-5 text-body font-semibold transition">Card</button>
+                                    <button type="button" @click="channel = 'bank'" :class="channel === 'bank' ? 'bg-[#ba6d04] text-white' : 'bg-[#696969] text-[#c9c9c9]'" class="flex h-[50px] items-center gap-2 rounded-[11px] px-5 text-body font-medium transition">Bank</button>
+                                    <button type="button" @click="channel = 'transfer'" :class="channel === 'transfer' ? 'bg-[#ba6d04] text-white' : 'bg-[#696969] text-[#c9c9c9]'" class="flex h-[50px] items-center gap-2 rounded-[11px] px-5 text-body font-medium transition">Transfer</button>
+                                </div>
+                                <p class="mt-4 flex items-center gap-2 text-label text-white/60">
+                                    <svg class="icon-xs shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/></svg>
+                                    {{ cms('spacheckout.secure_note') }}
+                                </p>
+                                <div class="mt-5 flex flex-wrap items-center justify-between gap-4">
+                                    <button type="button" @click="pay()" class="flex h-[64px] min-w-[220px] flex-1 items-center justify-center rounded-[8px] bg-[#ba6d04] text-body-lg font-semibold text-white transition hover:bg-[#a35f03] sm:flex-none">{{ cms('spacheckout.pay_label') }}</button>
+                                    <div class="flex flex-col text-white"><span class="text-body font-semibold">Total</span><span class="text-h3 font-semibold">{{ $spaBooking['total_label'] }}</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ===================== STEP 3: SUCCESS (solid dark, no gradient) ===================== --}}
+            @if ($spaOrder)
+                <div x-show="step === 'success'" x-cloak class="px-6 pb-10 pt-16 sm:px-10 sm:pb-12 sm:pt-20 lg:px-14 lg:pb-14 lg:pt-24">
+                    <div class="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_441px] lg:gap-[78px]">
+                        {{-- Left: Order Details --}}
+                        <div class="flex flex-col gap-7 text-white">
+                            <p class="text-2xl font-semibold tracking-tight lg:text-h3">Order Details</p>
+
+                            <div class="flex flex-col gap-2.5">
+                                <p class="text-body font-medium text-[#f38c00]">Service</p>
+                                @foreach ($spaOrder['services'] as $s)
+                                    <div class="flex items-center justify-between gap-4 text-body lg:text-body-lg">
+                                        <span>{{ $s['name'] }} ({{ $spaOrder['guests'] }} {{ \Illuminate\Support\Str::plural('Guest', $spaOrder['guests']) }}) :</span>
+                                        <span class="font-semibold">{{ $s['subtotal_label'] }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <div class="flex flex-col gap-2.5 border-t border-white/15 pt-5 text-body lg:text-body-lg">
+                                <p class="font-medium text-[#f38c00]">Reservation</p>
+                                <div class="flex items-center justify-between"><span>Number of Guest:</span><span class="font-medium">{{ $spaOrder['guests'] }}</span></div>
+                                <div class="flex items-center justify-between"><span>Date:</span><span class="font-medium">{{ $spaOrder['date_label'] }}</span></div>
+                                @if ($spaOrder['time'])<div class="flex items-center justify-between"><span>Time:</span><span class="font-medium">{{ $spaOrder['time_label'] ?? $spaOrder['time'] }}</span></div>@endif
+                            </div>
+
+                            <div class="flex items-center justify-end gap-4 border-t border-white/15 pt-5">
+                                <span class="text-body-lg font-medium text-[#f38c00]">TOTAL</span>
+                                <span class="text-h3 font-semibold tracking-tight lg:text-h2">{{ $spaOrder['total_label'] }}</span>
+                            </div>
+                        </div>
+
+                        {{-- Right: success + customer + actions --}}
+                        <div class="flex flex-col gap-9">
+                            <div class="flex flex-col gap-6">
+                                <img loading="lazy" src="{{ asset('images/checkcircle.png') }}" alt="Success" class="size-[120px] object-contain lg:size-[150px]">
+                                <div class="flex flex-col gap-1.5">
+                                    <h2 class="text-h3 font-bold tracking-tight text-[#f38c00] lg:text-h2">{{ cms('spacheckout.success_title') }}</h2>
+                                    <p class="text-body text-white">{{ cms('spacheckout.success_text') }}</p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-4 text-body text-white lg:text-body-lg">
+                                <p class="font-medium">Customer Details</p>
+                                <p class="flex flex-wrap gap-2"><span>Name:</span><span>{{ $spaOrder['customer_name'] ?: '—' }}</span></p>
+                                <p class="flex flex-wrap gap-2"><span>Contact number:</span><span>{{ $spaOrder['customer_phone'] ?: '—' }}</span></p>
+                                <p class="flex flex-wrap gap-2"><span>Email Address:</span><span class="break-all">{{ $spaOrder['customer_email'] ?: '—' }}</span></p>
+                            </div>
+
+                            <div class="flex flex-col gap-5">
+                                <button type="button" onclick="window.print()" class="flex h-[70px] w-full items-center justify-center gap-2.5 rounded-[6px] bg-[#ba6d04] text-body-lg font-semibold text-white transition hover:bg-[#a35f03]">
+                                    Download Receipt
+                                    <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                                </button>
+                                <a href="{{ route('home') }}" wire:navigate class="flex h-[70px] w-full items-center justify-center rounded-[6px] border border-white text-body-lg font-medium text-white transition hover:bg-white/10">Back to Homepage</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
+        {{-- /panel --}}
 
         {{-- Hidden form submitted on "Complete Reservation" --}}
         <form x-ref="form" method="POST" action="{{ route('spa.checkout.start') }}" class="hidden">
@@ -274,4 +441,10 @@
     {{-- /Book Session popup --}}
     </div>
     {{-- /spaReservation wrapper --}}
+
+    @if (! empty($paystackKey))
+        @push('scripts')
+            <script src="https://js.paystack.co/v1/inline.js"></script>
+        @endpush
+    @endif
 </x-layouts.web>

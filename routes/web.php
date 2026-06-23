@@ -337,6 +337,7 @@ $buildSpaBooking = function (array $data): array {
             'subtotal' => $s->price * $guests,
             'price_label' => $naira($s->price),
             'subtotal_label' => $naira($s->price * $guests),
+            'image' => $s->imageUrl(),
         ])->values()->all();
 
     $subtotal = collect($services)->sum('subtotal');
@@ -345,12 +346,24 @@ $buildSpaBooking = function (array $data): array {
     $total = $subtotal + $fees + $taxes;
     $date = ! empty($data['date']) ? Carbon::parse($data['date']) : null;
 
+    // Format the chosen time to 12-hour with AM/PM, e.g. "15:00" -> "3:00 PM".
+    $timeRaw = $data['time'] ?? null;
+    $timeLabel = null;
+    if ($timeRaw) {
+        try {
+            $timeLabel = Carbon::createFromFormat('H:i', substr($timeRaw, 0, 5))->format('g:i A');
+        } catch (Throwable $e) {
+            $timeLabel = $timeRaw;
+        }
+    }
+
     return [
         'services' => $services,
         'guests' => $guests,
         'date' => $date?->toDateString(),
         'date_label' => $date?->format('F j, Y') ?? '—',
-        'time' => $data['time'] ?? null,
+        'time' => $timeRaw,
+        'time_label' => $timeLabel,
         'special_request' => $data['special_request'] ?? null,
         'subtotal' => $subtotal,
         'subtotal_label' => $naira($subtotal),
@@ -381,22 +394,18 @@ Route::post('spa-wellness/reserve', function () use ($buildSpaBooking) {
     }
 
     session(['spa_booking' => $booking]);
+    session()->forget('spa_order');
 
-    return redirect()->route('spa.checkout');
+    // The spa page reopens the popup at the checkout step (session('spa_booking')).
+    return redirect()->route('spa');
 })->name('spa.checkout.start');
 
-// Step 2 — the spa checkout page (customer details + summary + Paystack).
-Route::get('spa-wellness/checkout', function () {
-    $booking = session('spa_booking');
-    if (! $booking) {
-        return redirect()->route('spa');
-    }
+// Clear an in-progress booking (e.g. "Edit selection" / start over).
+Route::get('spa-wellness/reset', function () {
+    session()->forget(['spa_booking', 'spa_order']);
 
-    return view('spa-checkout', [
-        'booking' => $booking,
-        'paystackKey' => config('services.paystack.public_key'),
-    ]);
-})->name('spa.checkout');
+    return redirect()->route('spa');
+})->name('spa.checkout.reset');
 
 // Step 3 — Paystack verification + persist the spa booking.
 Route::get('spa-wellness/callback', function () {
@@ -415,7 +424,7 @@ Route::get('spa-wellness/callback', function () {
         $body = $response->json();
 
         if (! $response->ok() || data_get($body, 'data.status') !== 'success') {
-            return redirect()->route('spa.checkout')->with('toast', [
+            return redirect()->route('spa')->with('toast', [
                 'type' => 'error',
                 'message' => 'We could not verify your payment. If you were charged, contact us with reference: '.$reference,
             ]);
@@ -423,7 +432,7 @@ Route::get('spa-wellness/callback', function () {
     } catch (Throwable $e) {
         report($e);
 
-        return redirect()->route('spa.checkout')->with('toast', [
+        return redirect()->route('spa')->with('toast', [
             'type' => 'error', 'message' => 'Payment verification failed. Please try again or contact us.',
         ]);
     }
@@ -436,8 +445,8 @@ Route::get('spa-wellness/callback', function () {
         'paid_at' => data_get($body, 'data.paid_at'),
     ]);
 
-    session(['spa_order' => $order]);
     session()->forget('spa_booking');
+    session(['spa_success' => $order]); // consumed once by the spa page (read + forgotten), shows success only here
 
     try {
         SpaBooking::updateOrCreate(
@@ -446,7 +455,7 @@ Route::get('spa-wellness/callback', function () {
                 'services' => $order['services'],
                 'guests' => (int) $order['guests'],
                 'date' => $order['date'] ?? null,
-                'time' => $order['time'] ?? null,
+                'time' => $order['time_label'] ?? ($order['time'] ?? null),
                 'special_request' => $order['special_request'] ?? null,
                 'subtotal' => (int) $order['subtotal'],
                 'fees' => (int) $order['fees'],
@@ -464,18 +473,9 @@ Route::get('spa-wellness/callback', function () {
         report($e);
     }
 
-    return redirect()->route('spa.checkout.success');
+    // The spa page reopens the popup at the success step (session('spa_order')).
+    return redirect()->route('spa');
 })->name('spa.checkout.callback');
-
-// Step 4 — spa reservation success.
-Route::get('spa-wellness/reservation-successful', function () {
-    $order = session('spa_order');
-    if (! $order) {
-        return redirect()->route('spa');
-    }
-
-    return view('spa-success', ['order' => $order]);
-})->name('spa.checkout.success');
 
 Route::view('contact-us', 'contact')->name('contact');
 Route::post('contact-us', function () {
