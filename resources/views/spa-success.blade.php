@@ -1,5 +1,6 @@
 <x-layouts.web title="Reservation Successful — Retiro Del Rocio">
-    <section class="w-full bg-gradient-to-b from-[#222a1f] to-[#1e1e1e] py-10 lg:py-14">
+    <section class="w-full py-10 lg:py-14"
+             style="background-image: linear-gradient(180deg, #ffcb8e 0px, #ffcb8e 80px, #1e1e1e 280px, #1e1e1e 100%);">
         <x-layouts.container>
             <div class="grid grid-cols-1 gap-10 lg:grid-cols-[785px_1fr] lg:gap-16">
 
@@ -46,8 +47,8 @@
                         <div class="flex flex-col gap-[29px]">
                             <img loading="lazy" src="{{ asset('images/checkcircle.png') }}" alt="Success" class="size-[120px] shrink-0 object-contain lg:size-[167px]">
                             <div class="flex flex-col gap-1">
-                                <h1 class="text-h3 font-bold tracking-tight text-[#f38c00] lg:text-h2">Reservation Successful!</h1>
-                                <p class="text-body text-white">Your spa reservation is confirmed.</p>
+                                <h1 class="text-h3 font-bold tracking-tight text-[#f38c00] lg:text-h2">{{ cms('spacheckout.success_title') }}</h1>
+                                <p class="text-body text-white">{{ cms('spacheckout.success_text') }}</p>
                             </div>
                         </div>
 

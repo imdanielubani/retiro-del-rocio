@@ -175,6 +175,42 @@ $pages = [
         ],
     ],
 
+    'spareservation' => [
+        'label' => 'Spa Reservation',
+        'category' => 'core',
+        'chips' => ['Popup', 'Summary'],
+        'preview' => '/spa-wellness',
+        'fields' => [
+            ['key' => 'spares.title', 'label' => 'Popup heading', 'type' => 'text', 'default' => 'Reservation'],
+            ['key' => 'spares.intro', 'label' => 'Popup intro text', 'type' => 'textarea', 'default' => 'Choose your spa services, the number of guests and a preferred date & time. We’ll confirm your reservation after a secure payment.'],
+            ['key' => 'spares.service_label', 'label' => '“Select service” label', 'type' => 'text', 'default' => 'Select Spa Service'],
+            ['key' => 'spares.special_label', 'label' => '“Special request” label', 'type' => 'text', 'default' => 'Special Request'],
+            ['key' => 'spares.summary_title', 'label' => 'Reservation Summary heading', 'type' => 'text', 'default' => 'Reservation Summary'],
+            ['key' => 'spares.summary_text', 'label' => 'Reservation Summary text', 'type' => 'textarea', 'default' => 'Review your selected services and reservation details below, then complete your secure payment to confirm your booking.'],
+            ['key' => 'spares.cta_label', 'label' => 'Popup button text', 'type' => 'text', 'default' => 'Complete Reservation'],
+        ],
+    ],
+
+    'spacheckout' => [
+        'label' => 'Spa Checkout',
+        'category' => 'core',
+        'chips' => ['Checkout', 'Payment', 'Success'],
+        'preview' => '/spa-wellness',
+        'fields' => [
+            // Checkout page
+            ['key' => 'spacheckout.checkout_heading', 'label' => 'Checkout heading', 'type' => 'text', 'default' => 'Complete your spa reservation securely in under 2 minutes.'],
+            ['key' => 'spacheckout.customer_title', 'label' => 'Customer section heading', 'type' => 'text', 'default' => 'Customer Details'],
+            ['key' => 'spacheckout.cancellation_title', 'label' => 'Cancellation policy heading', 'type' => 'text', 'default' => 'Cancellation Policy'],
+            ['key' => 'spacheckout.cancellation_text', 'label' => 'Cancellation policy text', 'type' => 'textarea', 'default' => 'Reschedule or cancel up to 24 hours before your appointment for a full refund. Within 24 hours, the convenience fee is non-refundable.'],
+            ['key' => 'spacheckout.secure_note', 'label' => 'Secure-payment note', 'type' => 'textarea', 'default' => 'Card details are entered securely in the Paystack window.'],
+            ['key' => 'spacheckout.pay_label', 'label' => 'Pay button text', 'type' => 'text', 'default' => 'Make reservation'],
+
+            // Success page
+            ['key' => 'spacheckout.success_title', 'label' => 'Success heading', 'type' => 'text', 'default' => 'Reservation Successful!'],
+            ['key' => 'spacheckout.success_text', 'label' => 'Success message', 'type' => 'textarea', 'default' => 'Your spa reservation is confirmed.'],
+        ],
+    ],
+
     'contact' => [
         'label' => 'Contact Page',
         'category' => 'core',

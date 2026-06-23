@@ -126,26 +126,24 @@
 
     {{-- ============================ BOOK SESSION POPUP ============================ --}}
     <div x-show="showModal" x-cloak
-         class="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto bg-black/70 px-3 py-6 sm:px-6 sm:py-10"
+         class="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto bg-white/70 px-3 py-6 sm:px-6 sm:py-10"
          x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
          x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
          @keydown.escape.window="close()">
-        <div class="relative w-full max-w-[1100px] overflow-hidden rounded-[20px] bg-[#1e1e1e] shadow-2xl"
+        <div class="relative w-full max-w-[1100px] overflow-hidden rounded-[20px] shadow-2xl"
+             style="background-image: linear-gradient(180deg, #ffcb8e 0px, #ffcb8e 70px, #1e1e1e 210px, #1e1e1e 100%);"
              @click.outside="close()"
              x-show="showModal"
              x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-6 scale-[0.98]" x-transition:enter-end="opacity-100 translate-y-0 scale-100"
              x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-[0.98]">
-            {{-- top peach accent --}}
-            <div class="h-2 w-full bg-gradient-to-r from-[#ffcb8e] to-[#ba6d04]"></div>
-
             <div class="p-6 sm:p-9 lg:p-11">
                 {{-- Header --}}
                 <div class="flex items-start justify-between gap-4">
                     <div class="flex flex-col gap-2">
-                        <h2 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-h1">Reservation</h2>
-                        <p class="max-w-[760px] text-body text-white/70 lg:text-body-lg">Choose your spa services, the number of guests and a preferred date &amp; time. We’ll confirm your reservation after a secure payment.</p>
+                        <h2 class="text-3xl font-semibold tracking-tight text-[#FFFFFF] sm:text-4xl lg:text-h1">{{ cms('spares.title') }}</h2>
+                        <p class="max-w-[760px] text-body font-medium text-[#FFFFFF] lg:text-body-lg">{{ cms('spares.intro') }}</p>
                     </div>
-                    <button type="button" @click="close()" class="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/20 text-white transition hover:bg-white/10">
+                    <button type="button" @click="close()" class="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/30 text-white transition hover:bg-white/10">
                         <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
                     </button>
                 </div>
@@ -180,7 +178,7 @@
                 </div>
 
                 {{-- Select Spa Service (multi-select) --}}
-                <p class="mt-8 text-body-lg font-semibold text-white">Select Spa Service</p>
+                <p class="mt-8 text-body-lg font-semibold text-white">{{ cms('spares.service_label') }}</p>
                 <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <template x-for="s in services" :key="s.slug">
                         <button type="button" @click="toggle(s.slug)"
@@ -205,42 +203,57 @@
 
                 {{-- Special request --}}
                 <div class="mt-8 flex flex-col gap-3">
-                    <p class="text-body-lg font-semibold text-white">Special Request <span class="font-light italic text-white/60">(Optional)</span></p>
+                    <p class="text-body-lg font-semibold text-white">{{ cms('spares.special_label') }} <span class="font-light italic text-white/60">(Optional)</span></p>
                     <textarea x-model="special" rows="3" placeholder="Please let us know if you have any special request or preferences."
                               class="w-full rounded-[11px] bg-[#ececec] p-4 text-body text-[#3a3a3a] placeholder:italic placeholder:text-[#6a6a6a] focus:outline-none"></textarea>
                 </div>
 
+                {{-- Reservation Summary --}}
+                <div class="mt-9 flex flex-col gap-2 border-t border-white/10 pt-7">
+                    <h3 class="text-2xl font-semibold tracking-tight text-white sm:text-3xl lg:text-h2">{{ cms('spares.summary_title') }}</h3>
+                    <p class="max-w-[820px] text-body text-white/70 lg:text-body-lg">{{ cms('spares.summary_text') }}</p>
+                </div>
+
                 {{-- Summary --}}
-                <div class="mt-9 flex flex-col gap-6 border-t border-white/10 pt-7 lg:flex-row lg:items-end lg:justify-between">
-                    <div class="flex max-w-[560px] flex-col gap-4">
-                        <p class="text-2xl font-semibold tracking-tight text-white lg:text-h3">Order Details</p>
-                        <div class="flex flex-col gap-2">
+                <div class="mt-6 flex w-full flex-col gap-6">
+                    <div class="flex w-full flex-col gap-4">
+                        <p class="text-xl font-semibold tracking-tight text-white lg:text-h3">Order Details</p>
+                        {{-- Service --}}
+                        <div class="flex flex-col gap-2.5">
                             <p class="text-body font-medium text-[#f38c00]">Service</p>
                             <template x-for="s in chosen" :key="'sum-'+s.slug">
                                 <div class="flex items-center justify-between gap-4 text-body text-white">
-                                    <span x-text="s.name + ' (' + guests + ' ' + (guests > 1 ? 'Guests' : 'Guest') + ')'"></span>
+                                    <span x-text="s.name + ' (' + guests + ' ' + (guests > 1 ? 'Guests' : 'Guest') + ') :'"></span>
                                     <span class="font-semibold" x-text="money(s.price * guests)"></span>
                                 </div>
                             </template>
                             <p x-show="chosen.length === 0" class="text-body text-white/50">No service selected yet.</p>
                         </div>
-                        <div class="flex flex-col gap-1.5 border-t border-white/10 pt-3 text-body text-white">
-                            <div class="flex items-center justify-between"><span class="text-[#f38c00]">Number of Guest:</span><span x-text="guests"></span></div>
-                            <div class="flex items-center justify-between"><span class="text-[#f38c00]">Date:</span><span x-text="date || '—'"></span></div>
-                            <div class="flex items-center justify-between"><span class="text-[#f38c00]">Time:</span><span x-text="time || '—'"></span></div>
+
+                        {{-- Reservation --}}
+                        <div class="flex flex-col gap-2.5 border-t border-white/15 pt-4 text-body text-white">
+                            <p class="font-medium text-[#f38c00]">Reservation</p>
+                            <div class="flex items-center justify-between"><span>Number of Guest:</span><span class="font-medium" x-text="guests"></span></div>
+                            <div class="flex items-center justify-between"><span>Date:</span><span class="font-medium" x-text="date || '—'"></span></div>
+                            <div class="flex items-center justify-between"><span>Time:</span><span class="font-medium" x-text="time || '—'"></span></div>
+                        </div>
+
+                        {{-- Fees & taxes --}}
+                        <div class="flex flex-col gap-1.5 border-t border-white/15 pt-4 text-body text-white">
                             <div class="flex items-center justify-between"><span class="text-[#f38c00]">Convenience Fee:</span><span x-text="money(subtotal ? fees : 0)"></span></div>
                             <div class="flex items-center justify-between"><span class="text-[#f38c00]">Taxes (VAT 7.5%):</span><span x-text="money(taxes)"></span></div>
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-5">
-                        <div class="flex items-baseline gap-2">
+                    {{-- Total + Complete Reservation on one line --}}
+                    <div class="flex flex-wrap items-center justify-between gap-5 border-t border-white/15 pt-5">
+                        <div class="flex items-baseline gap-3">
                             <span class="text-body-lg font-medium text-[#f38c00]">TOTAL</span>
                             <span class="text-3xl font-semibold tracking-tight text-white lg:text-h2" x-text="money(total)"></span>
                         </div>
                         <button type="button" @click="submit()" :disabled="!canSubmit"
-                                class="flex h-[64px] min-w-[260px] flex-1 items-center justify-center gap-2 rounded-[10px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] disabled:cursor-not-allowed disabled:opacity-50">
-                            Complete Reservation
+                                class="flex h-[64px] min-w-[260px] items-center justify-center gap-2 rounded-[10px] bg-[#ba6d04] px-8 text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] disabled:cursor-not-allowed disabled:opacity-50">
+                            {{ cms('spares.cta_label') }}
                             <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                         </button>
                     </div>

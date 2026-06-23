@@ -1,5 +1,6 @@
 <x-layouts.web title="Spa Reservation — Retiro Del Rocio">
-    <section class="w-full bg-gradient-to-b from-[#222a1f] to-[#1e1e1e] py-10 lg:py-14"
+    <section class="w-full py-10 lg:py-14"
+             style="background-image: linear-gradient(180deg, #ffcb8e 0px, #ffcb8e 80px, #1e1e1e 280px, #1e1e1e 100%);"
              x-data="{
                 firstName: '',
                 lastName: '',
@@ -53,7 +54,7 @@
             </a>
 
             <h1 class="max-w-[687px] text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl lg:text-h1 lg:leading-[52px]">
-                Complete your spa reservation securely in under 2 minutes.
+                {{ cms('spacheckout.checkout_heading') }}
             </h1>
 
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_578px]">
@@ -126,7 +127,7 @@
                 {{-- ============ RIGHT: customer + payment ============ --}}
                 <div class="flex flex-col gap-[21px]">
                     <div class="rounded-[10px] bg-[#373d35] p-6 sm:p-8">
-                        <h2 class="text-h3 font-semibold tracking-tight text-white">Customer Details</h2>
+                        <h2 class="text-h3 font-semibold tracking-tight text-white">{{ cms('spacheckout.customer_title') }}</h2>
                         <div class="mt-6 flex flex-col gap-5">
                             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                                 <label class="flex flex-col gap-1.5 border-b border-white/30 pb-2">
@@ -153,9 +154,9 @@
                     </div>
 
                     <div class="rounded-[10px] bg-[rgba(113,113,113,0.27)] p-6 sm:p-8">
-                        <h3 class="text-title font-semibold tracking-tight text-white lg:text-h3">Cancellation Policy</h3>
+                        <h3 class="text-title font-semibold tracking-tight text-white lg:text-h3">{{ cms('spacheckout.cancellation_title') }}</h3>
                         <p class="mt-5 text-body leading-snug tracking-tight text-[#dadbda] lg:text-body-lg">
-                            Reschedule or cancel up to 24 hours before your appointment for a full refund. Within 24 hours, the convenience fee is non-refundable.
+                            {{ cms('spacheckout.cancellation_text') }}
                         </p>
                     </div>
 
@@ -177,11 +178,11 @@
                         </div>
                         <p class="mt-6 flex items-center gap-2 text-label text-white/60">
                             <svg class="icon-xs shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/></svg>
-                            Card details are entered securely in the Paystack window.
+                            {{ cms('spacheckout.secure_note') }}
                         </p>
                         <div class="mt-7 flex flex-wrap items-center gap-7">
                             <button type="button" @click="pay()" class="flex h-[75px] min-w-[240px] flex-1 items-center justify-center rounded-[6px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] sm:flex-none sm:w-[279px]">
-                                Make reservation
+                                {{ cms('spacheckout.pay_label') }}
                             </button>
                             <div class="flex flex-col text-white">
                                 <span class="text-body-lg font-semibold tracking-tight">Total</span>
