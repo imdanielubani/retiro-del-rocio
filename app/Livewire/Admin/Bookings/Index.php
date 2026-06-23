@@ -3,13 +3,37 @@
 namespace App\Livewire\Admin\Bookings;
 
 use App\Models\Booking;
+use App\Models\Room;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class Index extends Component
 {
     use WithPagination;
+
+    /* ----- New Booking modal ----- */
+    public bool $showCreate = false;
+
+    public string $cName = '';
+
+    public string $cEmail = '';
+
+    public string $cPhone = '';
+
+    public ?int $cRoomId = null;
+
+    public string $cCheckIn = '';
+
+    public string $cCheckOut = '';
+
+    public int $cGuests = 1;
+
+    public string $cStatus = 'paid';
+
+    public $cAmount = '';
 
     // Top tabs: all | calendar | approval | cancellations
     public string $tab = 'all';
@@ -50,6 +74,86 @@ class Index extends Component
     public function mount(): void
     {
         $this->calCursor = now()->format('Y-m-d');
+    }
+
+    /* ===================== New Booking ===================== */
+
+    public function openCreate(): void
+    {
+        $this->reset(['cName', 'cEmail', 'cPhone', 'cRoomId', 'cCheckIn', 'cCheckOut', 'cGuests', 'cStatus', 'cAmount']);
+        $this->cGuests = 1;
+        $this->cStatus = 'paid';
+        $this->cCheckIn = now()->toDateString();
+        $this->cCheckOut = now()->addDay()->toDateString();
+        $this->resetValidation();
+        $this->showCreate = true;
+    }
+
+    /** Suggested amount = room nightly price × nights (read by the modal preview). */
+    public function suggestedAmount(): int
+    {
+        $room = $this->cRoomId ? Room::find($this->cRoomId) : null;
+        if (! $room || ! $this->cCheckIn || ! $this->cCheckOut) {
+            return 0;
+        }
+        $nights = max(1, (int) Carbon::parse($this->cCheckIn)->diffInDays(Carbon::parse($this->cCheckOut)));
+
+        return (int) ($room->price * $nights);
+    }
+
+    public function createBooking(): void
+    {
+        $data = $this->validate([
+            'cName' => ['required', 'string', 'max:160'],
+            'cEmail' => ['nullable', 'email', 'max:190'],
+            'cPhone' => ['nullable', 'string', 'max:40'],
+            'cRoomId' => ['required', 'exists:rooms,id'],
+            'cCheckIn' => ['required', 'date'],
+            'cCheckOut' => ['required', 'date', 'after:cCheckIn'],
+            'cGuests' => ['required', 'integer', 'min:1', 'max:30'],
+            'cStatus' => ['required', Rule::in(['paid', 'pending'])],
+            'cAmount' => ['nullable', 'numeric', 'min:0'],
+        ], [], [
+            'cName' => 'guest name', 'cRoomId' => 'room', 'cCheckIn' => 'check-in', 'cCheckOut' => 'check-out',
+        ]);
+
+        $room = Room::find($data['cRoomId']);
+        $checkIn = Carbon::parse($data['cCheckIn']);
+        $checkOut = Carbon::parse($data['cCheckOut']);
+        $nights = max(1, (int) $checkIn->diffInDays($checkOut));
+        $amount = ($data['cAmount'] === '' || $data['cAmount'] === null)
+            ? (int) (($room?->price ?? 0) * $nights)
+            : (int) $data['cAmount'];
+
+        $booking = Booking::create([
+            'reference' => 'ADM-'.strtoupper(Str::random(10)),
+            'room_id' => $room?->id,
+            'room_name' => $room?->name,
+            'guests' => $data['cGuests'],
+            'check_in' => $checkIn->toDateString(),
+            'check_out' => $checkOut->toDateString(),
+            'nights' => $nights,
+            'amount' => $amount,
+            'customer_name' => $data['cName'],
+            'customer_email' => $data['cEmail'] ?: null,
+            'customer_phone' => $data['cPhone'] ?: null,
+            'status' => $data['cStatus'],
+            'payment_method' => 'manual',
+            'paid_at' => $data['cStatus'] === 'paid' ? now() : null,
+        ]);
+
+        // Allocate a physical room number for confirmed bookings.
+        if ($booking->status === 'paid') {
+            try {
+                $booking->autoAssignRoomUnit();
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        $this->showCreate = false;
+        $this->resetPage();
+        $this->dispatch('toast', type: 'success', message: $booking->bookingCode().' created for '.$booking->customer_name.'.');
     }
 
     public function selectCancellation(int $id): void
@@ -400,6 +504,7 @@ class Index extends Component
             'bookingsCount' => $bookingsCount,
             'stats' => $stats,
             'rooms' => $rooms,
+            'roomOptions' => Room::query()->orderBy('name')->get(['id', 'name', 'price']),
             'calendar' => $calendar,
             'approvalStats' => $approvalStats,
             'pendingRequests' => $pendingRequests,

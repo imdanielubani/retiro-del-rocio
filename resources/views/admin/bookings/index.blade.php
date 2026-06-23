@@ -386,7 +386,7 @@
                 Filters
             </button>
 
-            {{-- Count + clear --}}
+            {{-- Count + clear + new booking --}}
             <div class="ml-auto flex items-center gap-3">
                 @if ($hasFilters)
                     <button type="button" wire:click="clearFilters"
@@ -396,6 +396,11 @@
                     </button>
                 @endif
                 <p class="text-[12px] text-[#6b7280]"><span class="font-bold text-[#1e1e1e]">{{ $bookingsCount }}</span> bookings</p>
+                <button type="button" wire:click="openCreate"
+                        class="flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-[8px] bg-[#f38c00] px-4 text-[12px] font-bold text-white transition hover:bg-[#dd7f00]">
+                    <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                    New Booking
+                </button>
             </div>
         </div>
 
@@ -640,4 +645,118 @@
     @endif
 
     @endif
+
+    {{-- ===================== New Booking modal ===================== --}}
+    <div x-data="{ show: @entangle('showCreate') }" x-show="show" x-cloak x-transition.opacity
+         class="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-black/50 p-4 sm:p-6"
+         @keydown.escape.window="show = false">
+        <div class="absolute inset-0" @click="show = false"></div>
+        <div class="relative z-10 my-auto w-full max-w-[680px] rounded-2xl bg-white p-6 shadow-xl sm:p-7" x-show="show"
+             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-3" x-transition:enter-end="opacity-100 translate-y-0">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-[11px] font-bold uppercase tracking-[1px] text-[#f38c00]">Apartments</p>
+                    <h2 class="text-[19px] font-bold text-[#1e1e1e]">New Booking</h2>
+                    <p class="mt-0.5 text-[12px] text-[#6b7280]">Create a reservation manually (walk-in or phone booking).</p>
+                </div>
+                <button type="button" @click="show = false" class="flex size-8 items-center justify-center rounded-lg text-[#6b7280] transition hover:bg-[#f3f4f6]">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form wire:submit="createBooking" class="mt-5 flex flex-col gap-4">
+                {{-- Guest name + phone --}}
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#6b7280]">Guest Name</label>
+                        <input type="text" wire:model="cName" placeholder="e.g. Micheal Philip"
+                               class="h-11 rounded-xl border border-[#e5e7eb] bg-white px-3.5 text-[14px] text-[#1e1e1e] placeholder:text-[#9ca3af] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
+                        @error('cName') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#6b7280]">Phone <span class="font-normal normal-case text-[#9ca3af]">(optional)</span></label>
+                        <input type="text" wire:model="cPhone" placeholder="070 1234 5678"
+                               class="h-11 rounded-xl border border-[#e5e7eb] bg-white px-3.5 text-[14px] text-[#1e1e1e] placeholder:text-[#9ca3af] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
+                        @error('cPhone') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+
+                {{-- Email --}}
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#6b7280]">Email <span class="font-normal normal-case text-[#9ca3af]">(optional)</span></label>
+                    <input type="email" wire:model="cEmail" placeholder="guest@email.com"
+                           class="h-11 rounded-xl border border-[#e5e7eb] bg-white px-3.5 text-[14px] text-[#1e1e1e] placeholder:text-[#9ca3af] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
+                    @error('cEmail') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
+                </div>
+
+                {{-- Room --}}
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#6b7280]">Room / Apartment</label>
+                    <select wire:model="cRoomId"
+                            class="h-11 rounded-xl border border-[#e5e7eb] bg-white px-3 text-[14px] text-[#1e1e1e] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
+                        <option value="">Select a room…</option>
+                        @foreach ($roomOptions as $r)
+                            <option value="{{ $r->id }}">{{ $r->name }} — ₦{{ number_format($r->price) }}/night</option>
+                        @endforeach
+                    </select>
+                    @error('cRoomId') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
+                </div>
+
+                {{-- Dates + guests --}}
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#6b7280]">Check-in</label>
+                        <input type="date" wire:model="cCheckIn"
+                               class="h-11 rounded-xl border border-[#e5e7eb] bg-white px-3 text-[14px] text-[#1e1e1e] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
+                        @error('cCheckIn') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#6b7280]">Check-out</label>
+                        <input type="date" wire:model="cCheckOut"
+                               class="h-11 rounded-xl border border-[#e5e7eb] bg-white px-3 text-[14px] text-[#1e1e1e] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
+                        @error('cCheckOut') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#6b7280]">Guests</label>
+                        <input type="number" min="1" max="30" wire:model="cGuests"
+                               class="h-11 rounded-xl border border-[#e5e7eb] bg-white px-3.5 text-[14px] text-[#1e1e1e] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
+                        @error('cGuests') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+
+                {{-- Amount + status --}}
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#6b7280]">Amount (₦)</label>
+                        <div class="flex h-11 items-center rounded-xl border border-[#e5e7eb] bg-white px-3.5 focus-within:border-[#f38c00] focus-within:ring-2 focus-within:ring-[#f38c00]/15">
+                            <span class="mr-2 text-[15px] font-semibold text-[#9ca3af]">₦</span>
+                            <input type="number" min="0" wire:model="cAmount" placeholder="Auto"
+                                   class="h-full w-full bg-transparent text-[14px] text-[#1e1e1e] placeholder:text-[#9ca3af] focus:outline-none">
+                        </div>
+                        <span class="text-[10px] text-[#9ca3af]">Blank = room price × nights</span>
+                        @error('cAmount') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#6b7280]">Status</label>
+                        <select wire:model="cStatus"
+                                class="h-11 rounded-xl border border-[#e5e7eb] bg-white px-3 text-[14px] text-[#1e1e1e] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
+                            <option value="paid">Confirmed (paid)</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                </div>
+
+                {{-- Actions --}}
+                <div class="mt-1 flex justify-end gap-3">
+                    <button type="button" @click="show = false"
+                            class="rounded-xl border border-[#e5e7eb] bg-white px-5 py-2.5 text-[14px] font-medium text-[#374151] transition hover:bg-[#f9fafb]">Cancel</button>
+                    <button type="submit"
+                            class="flex items-center gap-2 rounded-xl bg-[#f38c00] px-5 py-2.5 text-[14px] font-bold text-white transition hover:bg-[#dd7f00]">
+                        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                        Create Booking
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
