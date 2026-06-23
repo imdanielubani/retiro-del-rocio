@@ -126,7 +126,7 @@
 
     {{-- ============================ BOOK SESSION POPUP ============================ --}}
     <div x-show="showModal" x-cloak
-         class="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto bg-white/70 px-3 py-6 sm:px-6 sm:py-10"
+         class="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto bg-black/70 px-3 py-6 sm:px-6 sm:py-10"
          x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
          x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
          @keydown.escape.window="close()">
