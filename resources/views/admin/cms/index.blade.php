@@ -7,7 +7,7 @@
     ];
 @endphp
 
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-4" x-data="{ view: 'grid' }">
     {{-- ===== Stat cards ===== --}}
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @foreach ($statCards as $stat)
@@ -20,12 +20,14 @@
         @endforeach
     </div>
 
-    {{-- ===== Toolbar ===== --}}
-    <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
-        <div class="relative w-full lg:max-w-[300px]">
+    {{-- ===== Toolbar (search + filters + view toggle + count) ===== --}}
+    <div class="flex flex-col gap-3 rounded-2xl border border-[#e5e7eb] bg-white p-3 xl:flex-row xl:items-center xl:justify-between xl:gap-4">
+      <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2 xl:flex-1">
+        {{-- Search --}}
+        <div class="relative w-full sm:w-[210px]">
             <svg class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#9ca3af]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg>
             <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search pages or sections…"
-                   class="h-11 w-full rounded-full border border-[#e5e7eb] bg-white pl-10 pr-4 text-[14px] text-[#1e1e1e] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/20">
+                   class="h-10 w-full rounded-full border border-[#e5e7eb] bg-white pl-10 pr-4 text-[13px] text-[#1e1e1e] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/20">
         </div>
 
         {{-- Status filter --}}
@@ -33,16 +35,16 @@
             @foreach (['' => 'All Pages', 'published' => 'Published', 'draft' => 'Draft'] as $key => $label)
                 <button type="button" wire:click="$set('statusFilter', @js($key))"
                         @class([
-                            'shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-[13px] font-medium transition',
-                            'border-[#f38c00] bg-[#f38c00] text-white' => $statusFilter === $key,
-                            'border-[#e5e7eb] bg-white text-[#6b7280] hover:bg-[#f9fafb]' => $statusFilter !== $key,
+                            'shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-medium transition',
+                            'bg-[#f38c00] text-white' => $statusFilter === $key,
+                            'text-[#6b7280] hover:bg-[#f3f4f6]' => $statusFilter !== $key,
                         ])>{{ $label }}</button>
             @endforeach
         </div>
 
         {{-- Category filter --}}
-        <div class="no-scrollbar flex flex-nowrap items-center gap-1.5 overflow-x-auto lg:ml-auto">
-            @foreach (['' => 'All Categories', 'core' => 'Core Pages', 'system' => 'System Pages'] as $key => $label)
+        <div class="no-scrollbar flex flex-nowrap items-center gap-1.5 overflow-x-auto">
+            @foreach (['' => 'All Categories', 'core' => 'Core Pages', 'service' => 'Service Pages', 'system' => 'System Pages'] as $key => $label)
                 <button type="button" wire:click="$set('categoryFilter', @js($key))"
                         @class([
                             'shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-[13px] font-medium transition',
@@ -50,6 +52,24 @@
                             'border-[#e5e7eb] bg-white text-[#6b7280] hover:bg-[#f9fafb]' => $categoryFilter !== $key,
                         ])>{{ $label }}</button>
             @endforeach
+        </div>
+      </div>
+
+        {{-- View toggle + page count --}}
+        <div class="flex items-center justify-between gap-3 xl:shrink-0">
+            <div class="flex items-center gap-1 rounded-xl border border-[#e5e7eb] p-1">
+                <button type="button" @click="view = 'grid'" title="Grid view"
+                        :class="view === 'grid' ? 'bg-[#f38c00] text-white' : 'text-[#9ca3af] hover:bg-[#f3f4f6]'"
+                        class="flex size-8 items-center justify-center rounded-lg transition">
+                    <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                </button>
+                <button type="button" @click="view = 'list'" title="List view"
+                        :class="view === 'list' ? 'bg-[#f38c00] text-white' : 'text-[#9ca3af] hover:bg-[#f3f4f6]'"
+                        class="flex size-8 items-center justify-center rounded-lg transition">
+                    <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+                </button>
+            </div>
+            <span class="shrink-0 whitespace-nowrap text-[13px] text-[#6b7280]"><span class="font-semibold text-[#1e1e1e]">{{ $pages->count() }}</span> {{ \Illuminate\Support\Str::plural('page', $pages->count()) }}</span>
         </div>
     </div>
 
@@ -60,11 +80,16 @@
             <p class="text-[13px] text-[#6b7280]">Try a different search or category.</p>
         </div>
     @else
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div :class="view === 'grid' ? 'grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3' : 'flex flex-col gap-3'">
             @foreach ($pages as $page)
                 @php
                     $isPublished = $page['status'] === 'published';
-                    $catColor = $page['category'] === 'core' ? '#f38c00' : '#3b82f6';
+                    $catColor = match ($page['category']) {
+                        'core' => '#f38c00',
+                        'service' => '#16a34a',
+                        'system' => '#3b82f6',
+                        default => '#6b7280',
+                    };
                 @endphp
                 <div class="flex flex-col gap-4 overflow-hidden rounded-2xl border border-[#e5e7eb] border-t-[3px] bg-white p-5"
                      style="border-top-color: {{ $isPublished ? '#16a34a' : '#d97706' }}" wire:key="cms-{{ $page['key'] }}">

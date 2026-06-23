@@ -143,7 +143,7 @@ $pages = [
 
     'pickup' => [
         'label' => 'Vehicle Pickup',
-        'category' => 'core',
+        'category' => 'service',
         'chips' => ['Service', 'Locations', 'Vehicles'],
         'preview' => '/rooms-apartment',
         'fields' => [
@@ -163,7 +163,7 @@ $pages = [
 
     'checkout' => [
         'label' => 'Checkout',
-        'category' => 'core',
+        'category' => 'service',
         'chips' => ['Booking Summary', 'Payment', 'Confirmation'],
         'preview' => '/rooms-apartment',
         'fields' => [
@@ -177,7 +177,7 @@ $pages = [
 
     'spareservation' => [
         'label' => 'Spa Reservation',
-        'category' => 'core',
+        'category' => 'service',
         'chips' => ['Popup', 'Summary'],
         'preview' => '/spa-wellness',
         'fields' => [
@@ -193,7 +193,7 @@ $pages = [
 
     'spacheckout' => [
         'label' => 'Spa Checkout',
-        'category' => 'core',
+        'category' => 'service',
         'chips' => ['Checkout', 'Payment', 'Success'],
         'preview' => '/spa-wellness',
         'fields' => [
