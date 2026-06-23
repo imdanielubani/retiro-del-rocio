@@ -12,6 +12,52 @@ import './bootstrap';
  * Usage in Blade:
  *   <div x-data="cmsImageUpload('uploads.field__name')"> … @change="handle($event)"
  */
+/*
+ * Spa & Wellness "Book Session" reservation popup.
+ * Multi-select services, guests, date & time → live priced summary → submit
+ * to the spa checkout. Config (services, fees) is passed from Blade.
+ */
+window.spaReservation = function (config) {
+    return {
+        services: config.services || [],
+        fees: config.fees || 2000,
+        vatRate: 0.075,
+        showModal: false,
+        selected: [],
+        guests: 2,
+        date: '',
+        time: '',
+        special: '',
+
+        init() {
+            // Allow deep-linking straight to the booking popup, e.g. /spa-wellness#book
+            if (window.location.hash === '#book') this.open();
+        },
+        open() { this.showModal = true; document.body.style.overflow = 'hidden'; },
+        close() { this.showModal = false; document.body.style.overflow = ''; },
+        toggle(slug) {
+            const i = this.selected.indexOf(slug);
+            if (i === -1) this.selected.push(slug); else this.selected.splice(i, 1);
+        },
+        isSelected(slug) { return this.selected.includes(slug); },
+
+        get chosen() { return this.services.filter((s) => this.selected.includes(s.slug)); },
+        get subtotal() { return this.chosen.reduce((t, s) => t + s.price * Math.max(1, this.guests), 0); },
+        get taxes() { return Math.round(this.subtotal * this.vatRate); },
+        get total() { return this.subtotal ? this.subtotal + this.fees + this.taxes : 0; },
+        money(n) { return '₦' + (n || 0).toLocaleString(); },
+        get canSubmit() { return this.chosen.length > 0 && !!this.date; },
+
+        submit() {
+            if (!this.canSubmit) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please select at least one service and choose a date.' } }));
+                return;
+            }
+            this.$refs.form.submit();
+        },
+    };
+};
+
 window.cmsImageUpload = function (model) {
     return {
         uploading: false,

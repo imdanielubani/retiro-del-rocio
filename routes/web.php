@@ -16,6 +16,8 @@ use App\Mail\PickupConfirmation;
 use App\Models\Booking;
 use App\Models\ContactMessage;
 use App\Models\Room;
+use App\Models\SpaBooking;
+use App\Models\SpaService;
 use App\Models\User;
 use App\Notifications\BookingReceived;
 use App\Notifications\MessageReceived;
@@ -313,6 +315,168 @@ Route::get('reservation-successful/receipt', function () {
 
     return view('receipt', ['order' => $order]);
 })->name('checkout.receipt');
+
+/*
+|--------------------------------------------------------------------------
+| Spa & Wellness reservation flow (Paystack) — parallels the room checkout
+|--------------------------------------------------------------------------
+*/
+
+$buildSpaBooking = function (array $data): array {
+    $guests = max(1, (int) $data['guests']);
+    $naira = fn ($n) => '₦'.number_format($n);
+
+    $services = SpaService::active()
+        ->whereIn('slug', (array) $data['services'])
+        ->ordered()->get()
+        ->map(fn ($s) => [
+            'name' => $s->name,
+            'slug' => $s->slug,
+            'price' => $s->price,
+            'guests' => $guests,
+            'subtotal' => $s->price * $guests,
+            'price_label' => $naira($s->price),
+            'subtotal_label' => $naira($s->price * $guests),
+        ])->values()->all();
+
+    $subtotal = collect($services)->sum('subtotal');
+    $fees = 2000;                              // convenience fee
+    $taxes = (int) round($subtotal * 0.075);   // VAT 7.5%
+    $total = $subtotal + $fees + $taxes;
+    $date = ! empty($data['date']) ? Carbon::parse($data['date']) : null;
+
+    return [
+        'services' => $services,
+        'guests' => $guests,
+        'date' => $date?->toDateString(),
+        'date_label' => $date?->format('F j, Y') ?? '—',
+        'time' => $data['time'] ?? null,
+        'special_request' => $data['special_request'] ?? null,
+        'subtotal' => $subtotal,
+        'subtotal_label' => $naira($subtotal),
+        'fees' => $fees,
+        'fees_label' => $naira($fees),
+        'taxes' => $taxes,
+        'taxes_label' => $naira($taxes),
+        'total' => $total,
+        'total_label' => $naira($total),
+        'total_kobo' => $total * 100,
+    ];
+};
+
+// Step 1 — "Complete Reservation" from the spa popup lands here.
+Route::post('spa-wellness/reserve', function () use ($buildSpaBooking) {
+    $data = request()->validate([
+        'services' => ['required', 'array', 'min:1'],
+        'services.*' => ['string', 'exists:spa_services,slug'],
+        'guests' => ['required', 'integer', 'min:1', 'max:30'],
+        'date' => ['required', 'date'],
+        'time' => ['nullable', 'string', 'max:20'],
+        'special_request' => ['nullable', 'string', 'max:1000'],
+    ]);
+
+    $booking = $buildSpaBooking($data);
+    if (empty($booking['services'])) {
+        return back()->with('toast', ['type' => 'error', 'message' => 'Please choose at least one spa service.']);
+    }
+
+    session(['spa_booking' => $booking]);
+
+    return redirect()->route('spa.checkout');
+})->name('spa.checkout.start');
+
+// Step 2 — the spa checkout page (customer details + summary + Paystack).
+Route::get('spa-wellness/checkout', function () {
+    $booking = session('spa_booking');
+    if (! $booking) {
+        return redirect()->route('spa');
+    }
+
+    return view('spa-checkout', [
+        'booking' => $booking,
+        'paystackKey' => config('services.paystack.public_key'),
+    ]);
+})->name('spa.checkout');
+
+// Step 3 — Paystack verification + persist the spa booking.
+Route::get('spa-wellness/callback', function () {
+    $reference = request('reference');
+    $booking = session('spa_booking');
+
+    if (! $reference || ! $booking) {
+        return redirect()->route('spa');
+    }
+
+    $secret = config('services.paystack.secret_key');
+
+    try {
+        $response = Http::withToken($secret)->acceptJson()
+            ->get(rtrim(config('services.paystack.payment_url'), '/').'/transaction/verify/'.$reference);
+        $body = $response->json();
+
+        if (! $response->ok() || data_get($body, 'data.status') !== 'success') {
+            return redirect()->route('spa.checkout')->with('toast', [
+                'type' => 'error',
+                'message' => 'We could not verify your payment. If you were charged, contact us with reference: '.$reference,
+            ]);
+        }
+    } catch (Throwable $e) {
+        report($e);
+
+        return redirect()->route('spa.checkout')->with('toast', [
+            'type' => 'error', 'message' => 'Payment verification failed. Please try again or contact us.',
+        ]);
+    }
+
+    $order = array_merge($booking, [
+        'customer_name' => data_get($body, 'data.metadata.name'),
+        'customer_phone' => data_get($body, 'data.metadata.phone'),
+        'customer_email' => data_get($body, 'data.customer.email'),
+        'reference' => $reference,
+        'paid_at' => data_get($body, 'data.paid_at'),
+    ]);
+
+    session(['spa_order' => $order]);
+    session()->forget('spa_booking');
+
+    try {
+        SpaBooking::updateOrCreate(
+            ['reference' => $reference],
+            [
+                'services' => $order['services'],
+                'guests' => (int) $order['guests'],
+                'date' => $order['date'] ?? null,
+                'time' => $order['time'] ?? null,
+                'special_request' => $order['special_request'] ?? null,
+                'subtotal' => (int) $order['subtotal'],
+                'fees' => (int) $order['fees'],
+                'taxes' => (int) $order['taxes'],
+                'total' => (int) $order['total'],
+                'customer_name' => $order['customer_name'] ?? null,
+                'customer_email' => $order['customer_email'] ?? null,
+                'customer_phone' => $order['customer_phone'] ?? null,
+                'status' => 'paid',
+                'payment_method' => data_get($body, 'data.channel'),
+                'paid_at' => $order['paid_at'] ?? now(),
+            ]
+        );
+    } catch (Throwable $e) {
+        report($e);
+    }
+
+    return redirect()->route('spa.checkout.success');
+})->name('spa.checkout.callback');
+
+// Step 4 — spa reservation success.
+Route::get('spa-wellness/reservation-successful', function () {
+    $order = session('spa_order');
+    if (! $order) {
+        return redirect()->route('spa');
+    }
+
+    return view('spa-success', ['order' => $order]);
+})->name('spa.checkout.success');
+
 Route::view('contact-us', 'contact')->name('contact');
 Route::post('contact-us', function () {
     $data = request()->validate([
@@ -382,6 +546,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Airport Pickups — Vehicles (fleet shown on the website pick-up popup)
         Route::get('airport-pickups/vehicles', App\Livewire\Admin\Vehicles\Index::class)->name('vehicles.index');
         Route::get('airport-pickups/bookings', App\Livewire\Admin\Vehicles\Bookings::class)->name('vehicles.bookings');
+
+        // Spa & Wellness — services fleet + reservations
+        Route::get('spa-wellness/services', App\Livewire\Admin\Spa\Services::class)->name('spa.services');
+        Route::get('spa-wellness/bookings', App\Livewire\Admin\Spa\Bookings::class)->name('spa.bookings');
 
         // Payment — transactions captured from checkout
         Route::get('payment', App\Livewire\Admin\Payment\Index::class)->name('payment.index');

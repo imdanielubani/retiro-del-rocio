@@ -1,0 +1,79 @@
+<x-layouts.web title="Reservation Successful — Retiro Del Rocio">
+    <section class="w-full bg-gradient-to-b from-[#222a1f] to-[#1e1e1e] py-10 lg:py-14">
+        <x-layouts.container>
+            <div class="grid grid-cols-1 gap-10 lg:grid-cols-[785px_1fr] lg:gap-16">
+
+                {{-- ============ LEFT: image + order details ============ --}}
+                <div class="flex flex-col gap-6">
+                    <div class="relative overflow-hidden rounded-[6px]">
+                        <img loading="lazy" src="{{ str_replace(' ', '%20', asset('images/spabg.jpg')) }}" alt="Spa & Wellness"
+                             class="h-[300px] w-full object-cover sm:h-[440px] lg:h-[520px]">
+                        <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/40"></div>
+                    </div>
+
+                    <div class="flex flex-col gap-6 rounded-[6px] bg-[#373d35]/[0.34] p-6 sm:p-8 lg:p-10">
+                        <h2 class="text-3xl font-semibold tracking-tight text-white lg:text-h2">Order Details</h2>
+
+                        <div class="flex flex-col gap-3">
+                            <p class="text-body font-medium text-[#f38c00] lg:text-body-lg">Service</p>
+                            @foreach ($order['services'] as $s)
+                                <div class="flex items-center justify-between gap-4 text-body-sm font-semibold text-[#f5f5f5] lg:text-body-lg">
+                                    <span>{{ $s['name'] }} ({{ $order['guests'] }} {{ \Illuminate\Support\Str::plural('Guest', $order['guests']) }})</span>
+                                    <span>{{ $s['subtotal_label'] }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="flex flex-col gap-2.5 border-t border-white/10 pt-5">
+                            <p class="text-body font-medium text-[#f38c00] lg:text-body-lg">Reservation</p>
+                            <div class="flex items-center justify-between gap-4 text-body-sm text-[#f5f5f5] lg:text-body-lg"><span>Number of Guest</span><span class="font-semibold">{{ $order['guests'] }}</span></div>
+                            <div class="flex items-center justify-between gap-4 text-body-sm text-[#f5f5f5] lg:text-body-lg"><span>Date</span><span class="font-semibold">{{ $order['date_label'] }}</span></div>
+                            @if ($order['time'])
+                                <div class="flex items-center justify-between gap-4 text-body-sm text-[#f5f5f5] lg:text-body-lg"><span>Time</span><span class="font-semibold">{{ $order['time'] }}</span></div>
+                            @endif
+                        </div>
+
+                        <div class="flex items-center justify-between gap-4 border-t-2 border-white/15 pt-5">
+                            <span class="text-title font-semibold tracking-tight text-white lg:text-h3">Total</span>
+                            <span class="text-h3 font-semibold tracking-tight text-white lg:text-h2">{{ $order['total_label'] }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ============ RIGHT: success + customer + actions ============ --}}
+                <div class="flex max-w-[441px] flex-col gap-[57px]">
+                    <div class="flex flex-col gap-[35px]">
+                        <div class="flex flex-col gap-[29px]">
+                            <img loading="lazy" src="{{ asset('images/checkcircle.png') }}" alt="Success" class="size-[120px] shrink-0 object-contain lg:size-[167px]">
+                            <div class="flex flex-col gap-1">
+                                <h1 class="text-h3 font-bold tracking-tight text-[#f38c00] lg:text-h2">Reservation Successful!</h1>
+                                <p class="text-body text-white">Your spa reservation is confirmed.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-[30px] pl-2 text-body-lg font-medium text-white">
+                            <p>Customer Details</p>
+                            <div class="flex flex-col gap-3 text-body lg:text-body-lg">
+                                <p class="flex flex-wrap gap-2"><span>Name:</span><span>{{ $order['customer_name'] ?: '—' }}</span></p>
+                                <p class="flex flex-wrap gap-2"><span>Contact number:</span><span>{{ $order['customer_phone'] ?: '—' }}</span></p>
+                                <p class="flex flex-wrap gap-2"><span>Email Address:</span><span class="break-all">{{ $order['customer_email'] ?: '—' }}</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-[29px]">
+                        <button type="button" onclick="window.print()"
+                                class="flex h-[75px] w-full items-center justify-center gap-2.5 rounded-[6px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
+                            Download Receipt
+                            <svg class="icon-lg shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                        </button>
+                        <a href="{{ route('home') }}" wire:navigate
+                           class="flex h-[75px] w-full items-center justify-center rounded-[6px] border border-white text-body-lg font-medium tracking-tight text-white transition hover:bg-white/10 lg:text-title">
+                            Back to Homepage
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </x-layouts.container>
+    </section>
+</x-layouts.web>

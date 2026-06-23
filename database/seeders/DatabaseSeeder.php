@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class,
             RoomSeeder::class,
             VehicleSeeder::class,
+            SpaServiceSeeder::class,
         ]);
     }
 }

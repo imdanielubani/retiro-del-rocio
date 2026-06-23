@@ -26,8 +26,8 @@
             ['label' => 'Bookings', 'href' => route('admin.vehicles.bookings'), 'active' => request()->routeIs('admin.vehicles.bookings')],
         ]],
         ['key' => 'spa', 'label' => 'Spa & Wellness', 'icon' => 'spa&wellness.png', 'children' => [
-            ['label' => 'Services', 'href' => '#'],
-            ['label' => 'Bookings', 'href' => '#'],
+            ['label' => 'Services', 'href' => route('admin.spa.services'), 'active' => request()->routeIs('admin.spa.services')],
+            ['label' => 'Bookings', 'href' => route('admin.spa.bookings'), 'active' => request()->routeIs('admin.spa.bookings')],
         ]],
         ['key' => 'website-cms', 'label' => 'Website CMS', 'icon' => 'websitecms.png', 'children' => [
             ['label' => 'Content', 'href' => route('admin.cms.index'), 'active' => request()->routeIs('admin.cms.*')],

@@ -9,7 +9,6 @@
             ['title' => cms('spa.service_4_title'), 'image' => cms_image('spa.service_4_image')],
         ];
         $features = cms_array('spa.features');
-        $heroCtaUrl = cms('spa.hero_cta_url') ?: '#';
 
         // Decorative icons for the "Why us" features (match the Figma, by position).
         $featureIcons = [
@@ -18,7 +17,20 @@
             asset('images/treatments.png'),
             asset('images/ic_twotone-spa.png'),
         ];
+
+        // Bookable spa services for the "Book Session" reservation popup.
+        $spaServices = \App\Models\SpaService::active()->ordered()->get();
+        $spaServicesJson = $spaServices->map(fn ($s) => [
+            'slug' => $s->slug,
+            'name' => $s->name,
+            'price' => $s->price,
+            'image' => $s->imageUrl(),
+            'description' => $s->description,
+        ])->values();
     @endphp
+
+    <div x-data="spaReservation({ services: @js($spaServicesJson), fees: 2000 })">
+
 
     {{-- ============================ HERO ============================ --}}
     <section class="relative w-full">
@@ -33,11 +45,11 @@
                 <p class="max-w-[520px] text-lg leading-relaxed tracking-tight text-white/90 lg:text-body-lg">
                     {{ cms('spa.hero_text') }}
                 </p>
-                <a href="{{ $heroCtaUrl }}" @if (str_starts_with($heroCtaUrl, '/')) wire:navigate @endif
-                   class="flex w-fit items-center gap-2.5 rounded-[10px] bg-[#ba6d04] px-8 py-4 text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
+                <button type="button" @click="open()"
+                        class="flex w-fit items-center gap-2.5 rounded-[10px] bg-[#ba6d04] px-8 py-4 text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03]">
                     {{ cms('spa.hero_cta_label') }}
                     <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                </a>
+                </button>
             </div>
         </x-layouts.container>
     </section>
@@ -111,4 +123,142 @@
             </div>
         </x-layouts.container>
     </section>
+
+    {{-- ============================ BOOK SESSION POPUP ============================ --}}
+    <div x-show="showModal" x-cloak
+         class="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto bg-black/70 px-3 py-6 sm:px-6 sm:py-10"
+         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+         @keydown.escape.window="close()">
+        <div class="relative w-full max-w-[1100px] overflow-hidden rounded-[20px] bg-[#1e1e1e] shadow-2xl"
+             @click.outside="close()"
+             x-show="showModal"
+             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-6 scale-[0.98]" x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-[0.98]">
+            {{-- top peach accent --}}
+            <div class="h-2 w-full bg-gradient-to-r from-[#ffcb8e] to-[#ba6d04]"></div>
+
+            <div class="p-6 sm:p-9 lg:p-11">
+                {{-- Header --}}
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex flex-col gap-2">
+                        <h2 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-h1">Reservation</h2>
+                        <p class="max-w-[760px] text-body text-white/70 lg:text-body-lg">Choose your spa services, the number of guests and a preferred date &amp; time. We’ll confirm your reservation after a secure payment.</p>
+                    </div>
+                    <button type="button" @click="close()" class="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/20 text-white transition hover:bg-white/10">
+                        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                    </button>
+                </div>
+
+                {{-- Guests / Date / Time --}}
+                <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
+                    <label class="flex flex-col gap-2">
+                        <span class="text-body font-semibold text-white">Number of Guest</span>
+                        <div class="flex h-[60px] items-center gap-3 rounded-[11px] bg-[#ececec] px-4">
+                            <svg class="size-6 shrink-0 text-[#6a6a6a]" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 2c-2.7 0-8 1.3-8 4v3h8v-3c0-1 .4-1.9 1-2.7-.3 0-.7-.3-1-.3zm8 0c-.3 0-.7 0-1 .1 1 .8 1.6 1.7 1.6 2.9v3H24v-3c0-2.7-5.3-4-8-4z"/></svg>
+                            <select x-model.number="guests" class="h-full w-full bg-transparent text-body-lg font-bold text-[#6a6a6a] focus:outline-none">
+                                @for ($g = 1; $g <= 10; $g++)
+                                    <option value="{{ $g }}">{{ $g }} {{ \Illuminate\Support\Str::plural('Guest', $g) }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                    </label>
+                    <label class="flex flex-col gap-2">
+                        <span class="text-body font-semibold text-white">Date</span>
+                        <div class="flex h-[60px] items-center gap-3 rounded-[11px] bg-[#ececec] px-4">
+                            <svg class="size-6 shrink-0 text-[#6a6a6a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4" stroke-linecap="round"/></svg>
+                            <input type="date" x-model="date" min="{{ now()->toDateString() }}" class="h-full w-full bg-transparent text-body-lg font-bold text-[#6a6a6a] focus:outline-none">
+                        </div>
+                    </label>
+                    <label class="flex flex-col gap-2">
+                        <span class="text-body font-semibold text-white">Time</span>
+                        <div class="flex h-[60px] items-center gap-3 rounded-[11px] bg-[#ececec] px-4">
+                            <svg class="size-6 shrink-0 text-[#6a6a6a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <input type="time" x-model="time" class="h-full w-full bg-transparent text-body-lg font-bold text-[#6a6a6a] focus:outline-none">
+                        </div>
+                    </label>
+                </div>
+
+                {{-- Select Spa Service (multi-select) --}}
+                <p class="mt-8 text-body-lg font-semibold text-white">Select Spa Service</p>
+                <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <template x-for="s in services" :key="s.slug">
+                        <button type="button" @click="toggle(s.slug)"
+                                class="relative flex flex-col items-center gap-4 rounded-[11px] bg-[#f6f9fc] p-5 text-center transition"
+                                :class="isSelected(s.slug) ? 'ring-2 ring-[#ba6d04]' : 'ring-1 ring-transparent hover:ring-[#ba6d04]/40'">
+                            <span class="absolute left-3 top-3 flex size-6 items-center justify-center rounded-full border-2 transition"
+                                  :class="isSelected(s.slug) ? 'border-[#ba6d04] bg-[#ba6d04] text-white' : 'border-[#cbd5e1] bg-white'">
+                                <svg x-show="isSelected(s.slug)" class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+                            </span>
+                            <span class="h-28 w-full overflow-hidden rounded-lg bg-[#e9edf1]">
+                                <img :src="s.image" :alt="s.name" class="h-full w-full object-cover" x-show="s.image">
+                            </span>
+                            <span class="text-[20px] font-bold text-[#343a40]" x-text="s.name"></span>
+                            <span class="line-clamp-2 text-[13px] text-[#5a5a5a]" x-text="s.description"></span>
+                            <span class="flex flex-col">
+                                <span class="text-[24px] font-semibold text-[#222]" x-text="money(s.price)"></span>
+                                <span class="text-[12px] text-[#6a6a6a]">Per Guest</span>
+                            </span>
+                        </button>
+                    </template>
+                </div>
+
+                {{-- Special request --}}
+                <div class="mt-8 flex flex-col gap-3">
+                    <p class="text-body-lg font-semibold text-white">Special Request <span class="font-light italic text-white/60">(Optional)</span></p>
+                    <textarea x-model="special" rows="3" placeholder="Please let us know if you have any special request or preferences."
+                              class="w-full rounded-[11px] bg-[#ececec] p-4 text-body text-[#3a3a3a] placeholder:italic placeholder:text-[#6a6a6a] focus:outline-none"></textarea>
+                </div>
+
+                {{-- Summary --}}
+                <div class="mt-9 flex flex-col gap-6 border-t border-white/10 pt-7 lg:flex-row lg:items-end lg:justify-between">
+                    <div class="flex max-w-[560px] flex-col gap-4">
+                        <p class="text-2xl font-semibold tracking-tight text-white lg:text-h3">Order Details</p>
+                        <div class="flex flex-col gap-2">
+                            <p class="text-body font-medium text-[#f38c00]">Service</p>
+                            <template x-for="s in chosen" :key="'sum-'+s.slug">
+                                <div class="flex items-center justify-between gap-4 text-body text-white">
+                                    <span x-text="s.name + ' (' + guests + ' ' + (guests > 1 ? 'Guests' : 'Guest') + ')'"></span>
+                                    <span class="font-semibold" x-text="money(s.price * guests)"></span>
+                                </div>
+                            </template>
+                            <p x-show="chosen.length === 0" class="text-body text-white/50">No service selected yet.</p>
+                        </div>
+                        <div class="flex flex-col gap-1.5 border-t border-white/10 pt-3 text-body text-white">
+                            <div class="flex items-center justify-between"><span class="text-[#f38c00]">Number of Guest:</span><span x-text="guests"></span></div>
+                            <div class="flex items-center justify-between"><span class="text-[#f38c00]">Date:</span><span x-text="date || '—'"></span></div>
+                            <div class="flex items-center justify-between"><span class="text-[#f38c00]">Time:</span><span x-text="time || '—'"></span></div>
+                            <div class="flex items-center justify-between"><span class="text-[#f38c00]">Convenience Fee:</span><span x-text="money(subtotal ? fees : 0)"></span></div>
+                            <div class="flex items-center justify-between"><span class="text-[#f38c00]">Taxes (VAT 7.5%):</span><span x-text="money(taxes)"></span></div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-5">
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-body-lg font-medium text-[#f38c00]">TOTAL</span>
+                            <span class="text-3xl font-semibold tracking-tight text-white lg:text-h2" x-text="money(total)"></span>
+                        </div>
+                        <button type="button" @click="submit()" :disabled="!canSubmit"
+                                class="flex h-[64px] min-w-[260px] flex-1 items-center justify-center gap-2 rounded-[10px] bg-[#ba6d04] text-body-lg font-semibold tracking-tight text-white transition hover:bg-[#a35f03] disabled:cursor-not-allowed disabled:opacity-50">
+                            Complete Reservation
+                            <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Hidden form submitted on "Complete Reservation" --}}
+        <form x-ref="form" method="POST" action="{{ route('spa.checkout.start') }}" class="hidden">
+            @csrf
+            <template x-for="slug in selected" :key="'f-'+slug"><input type="hidden" name="services[]" :value="slug"></template>
+            <input type="hidden" name="guests" :value="guests">
+            <input type="hidden" name="date" :value="date">
+            <input type="hidden" name="time" :value="time">
+            <input type="hidden" name="special_request" :value="special">
+        </form>
+    </div>
+    {{-- /Book Session popup --}}
+    </div>
+    {{-- /spaReservation wrapper --}}
 </x-layouts.web>
