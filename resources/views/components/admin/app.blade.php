@@ -218,7 +218,7 @@
             <div class="my-2 h-px w-full shrink-0 bg-white/20"></div>
 
             {{-- Nav (grouped sections; scrolls when the viewport is too short to fit everything) --}}
-            <nav class="no-scrollbar mt-2 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
+            <nav id="adminNav" class="no-scrollbar mt-2 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
                 {{-- Dashboard --}}
                 <a href="{{ $dashboard['href'] }}" wire:navigate @click="mobileOpen = false"
                    @class([
@@ -366,5 +366,21 @@
     <x-toast />
 
     @livewireScripts
+
+    {{-- Keep the sidebar's scroll position across wire:navigate page loads (don't jump to top). --}}
+    <script>
+        if (! window.__adminNavScrollBound) {
+            window.__adminNavScrollBound = true;
+            document.addEventListener('livewire:navigating', () => {
+                const nav = document.getElementById('adminNav');
+                if (nav) sessionStorage.setItem('adminNavScroll', nav.scrollTop);
+            });
+            document.addEventListener('livewire:navigated', () => {
+                const nav = document.getElementById('adminNav');
+                const y = sessionStorage.getItem('adminNavScroll');
+                if (nav && y !== null) nav.scrollTop = parseInt(y, 10);
+            });
+        }
+    </script>
 </body>
 </html>
