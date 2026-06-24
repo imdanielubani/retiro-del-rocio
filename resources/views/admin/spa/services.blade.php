@@ -116,13 +116,15 @@
                         </div>
 
                         {{-- action menu --}}
-                        <div class="relative shrink-0 self-start sm:self-center" x-data="{ open: false, confirm: false }">
-                            <button type="button" @click="open = !open; confirm = false"
+                        <div class="shrink-0 self-start sm:self-center" x-data="{ open: false, confirm: false, pos: {} }" @keydown.escape.window="open = false">
+                            <button type="button" x-ref="trigger"
+                                    @click="open = !open; confirm = false; if (open) $nextTick(() => { const r = $refs.trigger.getBoundingClientRect(); pos = { top: (r.bottom + 6) + 'px', left: (r.right - 192) + 'px' } })"
                                     class="flex size-[30px] items-center justify-center rounded-[7px] border border-[#e5e7eb] bg-white text-[#6b7280] transition hover:bg-[#f9fafb]">
                                 <svg class="size-3.5" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
                             </button>
                             <div x-show="open" x-cloak @click.outside="open = false" x-transition.opacity
-                                 class="absolute right-0 top-full z-30 mt-1.5 w-48 overflow-hidden rounded-xl border border-[#e5e7eb] bg-white py-1.5 shadow-lg">
+                                 :style="`top:${pos.top}; left:${pos.left}`"
+                                 class="fixed z-[100] w-48 overflow-hidden rounded-xl border border-[#e5e7eb] bg-white py-1.5 shadow-xl">
                                 <template x-if="!confirm">
                                     <div>
                                         <button type="button" wire:click="openEdit({{ $s->id }})" @click="open = false"
