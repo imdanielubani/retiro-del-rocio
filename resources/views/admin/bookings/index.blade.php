@@ -664,7 +664,8 @@
                 </button>
             </div>
 
-            <form wire:submit="createBooking" class="mt-5 flex flex-col gap-4">
+            <form wire:submit="createBooking" class="mt-5 flex flex-col gap-4"
+                  x-data="{ today: @js(now()->toDateString()), checkIn: @entangle('cCheckIn').live, checkOut: @entangle('cCheckOut').live }">
                 {{-- Guest name + phone --}}
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div class="flex flex-col gap-1.5">
@@ -692,7 +693,7 @@
                 {{-- Room --}}
                 <div class="flex flex-col gap-1.5">
                     <label class="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#6b7280]">Room / Apartment</label>
-                    <select wire:model="cRoomId"
+                    <select wire:model.live="cRoomId"
                             class="h-11 rounded-xl border border-[#e5e7eb] bg-white px-3 text-[14px] text-[#1e1e1e] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
                         <option value="">Select a room…</option>
                         @foreach ($roomOptions as $r)
@@ -706,13 +707,13 @@
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <div class="flex flex-col gap-1.5">
                         <label class="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#6b7280]">Check-in</label>
-                        <input type="date" wire:model="cCheckIn"
+                        <input type="date" x-model="checkIn" :min="today"
                                class="h-11 rounded-xl border border-[#e5e7eb] bg-white px-3 text-[14px] text-[#1e1e1e] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
                         @error('cCheckIn') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
                     </div>
                     <div class="flex flex-col gap-1.5">
                         <label class="text-[11px] font-semibold uppercase tracking-[0.5px] text-[#6b7280]">Check-out</label>
-                        <input type="date" wire:model="cCheckOut"
+                        <input type="date" x-model="checkOut" :min="checkIn || today"
                                class="h-11 rounded-xl border border-[#e5e7eb] bg-white px-3 text-[14px] text-[#1e1e1e] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
                         @error('cCheckOut') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
                     </div>

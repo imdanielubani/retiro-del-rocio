@@ -2,9 +2,11 @@
 
 namespace App\Livewire\Admin\Bookings;
 
+use App\Mail\BookingReservation;
 use App\Models\Booking;
 use App\Models\Room;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -89,7 +91,7 @@ class Index extends Component
         $this->showCreate = true;
     }
 
-    /** Suggested amount = room nightly price × nights (read by the modal preview). */
+    /** Suggested amount = room nightly price × nights. */
     public function suggestedAmount(): int
     {
         $room = $this->cRoomId ? Room::find($this->cRoomId) : null;
@@ -101,6 +103,28 @@ class Index extends Component
         return (int) ($room->price * $nights);
     }
 
+    // Auto-fill the amount whenever the room or dates change.
+    public function updatedCRoomId(): void
+    {
+        $this->refreshAmount();
+    }
+
+    public function updatedCCheckIn(): void
+    {
+        $this->refreshAmount();
+    }
+
+    public function updatedCCheckOut(): void
+    {
+        $this->refreshAmount();
+    }
+
+    protected function refreshAmount(): void
+    {
+        $amt = $this->suggestedAmount();
+        $this->cAmount = $amt > 0 ? $amt : '';
+    }
+
     public function createBooking(): void
     {
         $data = $this->validate([
@@ -108,7 +132,7 @@ class Index extends Component
             'cEmail' => ['nullable', 'email', 'max:190'],
             'cPhone' => ['nullable', 'string', 'max:40'],
             'cRoomId' => ['required', 'exists:rooms,id'],
-            'cCheckIn' => ['required', 'date'],
+            'cCheckIn' => ['required', 'date', 'after_or_equal:today'],
             'cCheckOut' => ['required', 'date', 'after:cCheckIn'],
             'cGuests' => ['required', 'integer', 'min:1', 'max:30'],
             'cStatus' => ['required', Rule::in(['paid', 'pending'])],
@@ -151,9 +175,20 @@ class Index extends Component
             }
         }
 
+        // Email the guest their booking confirmation (never block on a mail error).
+        $emailed = false;
+        if ($booking->customer_email) {
+            try {
+                Mail::to($booking->customer_email)->send(new BookingReservation($booking));
+                $emailed = true;
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
         $this->showCreate = false;
         $this->resetPage();
-        $this->dispatch('toast', type: 'success', message: $booking->bookingCode().' created for '.$booking->customer_name.'.');
+        $this->dispatch('toast', type: 'success', message: $booking->bookingCode().' created for '.$booking->customer_name.'.'.($emailed ? ' Confirmation emailed.' : ''));
     }
 
     public function selectCancellation(int $id): void
