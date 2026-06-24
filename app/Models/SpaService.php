@@ -8,14 +8,25 @@ use Illuminate\Support\Facades\Storage;
 class SpaService extends Model
 {
     protected $fillable = [
-        'name', 'slug', 'price', 'description', 'image', 'icon', 'is_active', 'sort_order',
+        'name', 'slug', 'spa_category_id', 'price', 'duration_minutes', 'description', 'image', 'icon', 'is_active', 'sort_order',
     ];
 
     protected $casts = [
         'price' => 'integer',
+        'duration_minutes' => 'integer',
         'is_active' => 'boolean',
         'sort_order' => 'integer',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(SpaCategory::class, 'spa_category_id');
+    }
+
+    public function durationLabel(): ?string
+    {
+        return $this->duration_minutes ? $this->duration_minutes.' min' : null;
+    }
 
     public function getRouteKeyName(): string
     {
