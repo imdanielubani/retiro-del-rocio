@@ -82,32 +82,14 @@
             <p class="text-[13px] text-[#6b7280]">{{ $search || $typeFilter ? 'Try a different search or filter.' : 'Add your first room to get started.' }}</p>
         </div>
     @else
-        <div class="flex flex-col gap-8">
-            @foreach ($rooms->groupBy('type') as $type => $groupRooms)
-                @php $cc = $categoryColors[$type] ?? '#6b7280'; $sub = $categorySubtitles[$type] ?? $groupRooms->first()->name; @endphp
-                <div>
-                    {{-- Section header --}}
-                    <div class="mb-3 flex items-start gap-3">
-                        <span class="mt-0.5 h-9 w-1 shrink-0 rounded-full" style="background: {{ $cc }}"></span>
-                        <div>
-                            <div class="flex items-center gap-2.5">
-                                <p class="text-[16px] font-bold text-[#1e1e1e]">{{ $type ?: 'Uncategorized' }}</p>
-                                <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style="background: {{ $cc }}1a; color: {{ $cc }}">{{ $groupRooms->count() }} {{ Str::plural('room', $groupRooms->count()) }}</span>
-                            </div>
-                            @if ($sub)
-                                <p class="text-[12px] text-[#6b7280]">{{ $sub }}</p>
-                            @endif
-                        </div>
-                    </div>
-
-                    {{-- Cards grid --}}
-                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-                        @foreach ($groupRooms as $room)
-                            @php
-                                $hasUnits = ($room->units_total ?? 0) > 0;
-                                $unitsFree = ($room->units_total ?? 0) - ($room->units_occupied ?? 0);
-                                $occupied = $hasUnits ? ($unitsFree <= 0) : $occupiedIds->contains($room->id);
-                            @endphp
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach ($rooms as $room)
+                @php
+                    $cc = $categoryColors[$room->type] ?? '#6b7280';
+                    $hasUnits = ($room->units_total ?? 0) > 0;
+                    $unitsFree = ($room->units_total ?? 0) - ($room->units_occupied ?? 0);
+                    $occupied = $hasUnits ? ($unitsFree <= 0) : $occupiedIds->contains($room->id);
+                @endphp
                             <div wire:key="room-{{ $room->id }}" x-data="{ confirming: false }"
                                  class="flex flex-col overflow-hidden rounded-2xl border border-[#e5e7eb] border-t-4 bg-white"
                                  style="border-top-color: {{ $cc }}">
@@ -213,9 +195,6 @@
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
-                </div>
             @endforeach
         </div>
     @endif
