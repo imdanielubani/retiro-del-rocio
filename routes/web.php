@@ -13,6 +13,7 @@ use App\Mail\BookingReservation;
 use App\Mail\ContactAcknowledgement;
 use App\Mail\ContactEnquiry;
 use App\Mail\PickupConfirmation;
+use App\Mail\SpaReservation;
 use App\Models\Booking;
 use App\Models\ContactMessage;
 use App\Models\Room;
@@ -21,6 +22,7 @@ use App\Models\SpaService;
 use App\Models\User;
 use App\Notifications\BookingReceived;
 use App\Notifications\MessageReceived;
+use App\Notifications\SpaBookingReceived;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -326,7 +328,7 @@ $buildSpaBooking = function (array $data): array {
     $guests = max(1, (int) $data['guests']);
     $naira = fn ($n) => '₦'.number_format($n);
 
-    $services = SpaService::active()
+    $services = SpaService::with('category')->active()
         ->whereIn('slug', (array) $data['services'])
         ->ordered()->get()
         ->map(fn ($s) => [
@@ -338,6 +340,9 @@ $buildSpaBooking = function (array $data): array {
             'price_label' => $naira($s->price),
             'subtotal_label' => $naira($s->price * $guests),
             'image' => $s->imageUrl(),
+            'duration_minutes' => $s->duration_minutes,
+            'category' => $s->category?->name,
+            'category_color' => $s->category?->color ?? '#6b7280',
         ])->values()->all();
 
     $subtotal = collect($services)->sum('subtotal');
@@ -449,7 +454,9 @@ Route::get('spa-wellness/callback', function () {
     session(['spa_success' => $order]); // consumed once by the spa page (read + forgotten), shows success only here
 
     try {
-        SpaBooking::updateOrCreate(
+        // Booking is automatic: once Paystack confirms payment we mark the
+        // session confirmed + paid, then email the guest their confirmation.
+        $spaBooking = SpaBooking::updateOrCreate(
             ['reference' => $reference],
             [
                 'services' => $order['services'],
@@ -464,11 +471,19 @@ Route::get('spa-wellness/callback', function () {
                 'customer_name' => $order['customer_name'] ?? null,
                 'customer_email' => $order['customer_email'] ?? null,
                 'customer_phone' => $order['customer_phone'] ?? null,
-                'status' => 'paid',
+                'status' => 'confirmed',
+                'payment_status' => 'paid',
                 'payment_method' => data_get($body, 'data.channel'),
                 'paid_at' => $order['paid_at'] ?? now(),
             ]
         );
+
+        if ($spaBooking->customer_email) {
+            Mail::to($spaBooking->customer_email)->send(new SpaReservation($spaBooking));
+        }
+
+        // Ring the admin bell for the new spa reservation.
+        Notification::send(User::admins()->get(), new SpaBookingReceived($spaBooking));
     } catch (Throwable $e) {
         report($e);
     }

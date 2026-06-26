@@ -21,55 +21,41 @@
     </div>
 
     {{-- ===== Toolbar ===== --}}
-    <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
-        {{-- Search --}}
-        <div class="relative w-full lg:max-w-[240px]">
-            <svg class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#9ca3af]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg>
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search vehicles…"
-                   class="h-11 w-full rounded-full border border-[#e5e7eb] bg-white pl-10 pr-4 text-[14px] text-[#1e1e1e] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/20">
-        </div>
-
-        {{-- Status filter tabs --}}
-        <div class="no-scrollbar flex flex-nowrap items-center gap-1.5 overflow-x-auto">
-            @php
-                $tabs = [
-                    '' => ['All Vehicles', $counts['all']],
-                    'available' => ['Available', $counts['available']],
-                    'in_use' => ['In Use', $counts['in_use']],
-                    'maintenance' => ['Maintenance', $counts['maintenance']],
-                ];
-            @endphp
-            @foreach ($tabs as $key => [$label, $count])
-                <button type="button" wire:click="$set('statusFilter', @js($key))"
-                        @class([
-                            'flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-2 text-[13px] font-medium transition',
-                            'border-[#f38c00] bg-[#f38c00] text-white' => $statusFilter === $key,
-                            'border-[#e5e7eb] bg-white text-[#6b7280] hover:bg-[#f9fafb]' => $statusFilter !== $key,
-                        ])>
-                    {{ $label }}
-                    <span @class([
-                        'flex min-w-[18px] items-center justify-center rounded-full px-1 text-[11px] font-semibold',
-                        'bg-white/25 text-white' => $statusFilter === $key,
-                        'bg-[#f3f4f6] text-[#6b7280]' => $statusFilter !== $key,
-                    ])>{{ $count }}</span>
-                </button>
-            @endforeach
-        </div>
-
-        {{-- Sort + count + add --}}
-        <div class="flex flex-wrap items-center gap-2.5 lg:ml-auto">
-            <div class="flex h-11 items-center gap-1 rounded-full border border-[#e5e7eb] bg-white pl-2.5 pr-1.5">
-                <svg class="size-4 shrink-0 text-[#9ca3af]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h12M3 12h9M3 17h6M17 7v10M17 17l3-3M17 17l-3-3"/></svg>
-                <select wire:model.live="sort" class="h-full bg-transparent pr-1 text-[13px] font-medium text-[#1e1e1e] focus:outline-none">
-                    <option value="sort_order">Default</option>
-                    <option value="name">Name</option>
-                    <option value="price_desc">Price ↓</option>
-                    <option value="price_asc">Price ↑</option>
-                </select>
+    <div class="flex flex-col gap-3 rounded-2xl border border-[#e5e7eb] bg-white p-3.5 xl:flex-row xl:items-center xl:gap-3">
+        <div class="flex flex-1 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2.5">
+            {{-- Search --}}
+            <div class="relative w-full sm:w-[230px]">
+                <svg class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#9ca3af]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg>
+                <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search vehicles…"
+                       class="h-10 w-full rounded-lg border border-[#e5e7eb] bg-[#f9fafb] pl-10 pr-4 text-[13px] text-[#1e1e1e] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/20">
             </div>
+
+            {{-- Status filter pills (inline counts) --}}
+            <div class="no-scrollbar flex flex-nowrap items-center gap-1.5 overflow-x-auto">
+                @php
+                    $tabs = [
+                        '' => ['All Vehicles', $counts['all']],
+                        'available' => ['Available', $counts['available']],
+                        'in_use' => ['In Use', $counts['in_use']],
+                        'maintenance' => ['Maintenance', $counts['maintenance']],
+                    ];
+                @endphp
+                @foreach ($tabs as $key => [$label, $count])
+                    <button type="button" wire:click="$set('statusFilter', @js($key))"
+                            @class([
+                                'shrink-0 whitespace-nowrap rounded-lg border px-4 py-1.5 text-[13px] font-medium transition',
+                                'border-[#f38c00] bg-[#f38c00] font-semibold text-white' => $statusFilter === $key,
+                                'border-[#e5e7eb] bg-white text-[#6b7280] hover:bg-[#f9fafb]' => $statusFilter !== $key,
+                            ])>{{ $label }} ({{ $count }})</button>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Count + add --}}
+        <div class="flex items-center justify-between gap-3 xl:shrink-0">
             <p class="shrink-0 whitespace-nowrap text-[13px] text-[#6b7280]"><span class="font-semibold text-[#1e1e1e]">{{ $vehicles->count() }}</span> {{ Str::plural('vehicle', $vehicles->count()) }}</p>
             <button type="button" wire:click="openCreate"
-                    class="flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#f38c00] px-5 text-[14px] font-bold text-white transition hover:bg-[#dd7f00]">
+                    class="flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-[#f38c00] px-5 text-[13px] font-bold text-white transition hover:bg-[#dd7f00]">
                 <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
                 Add Vehicle
             </button>

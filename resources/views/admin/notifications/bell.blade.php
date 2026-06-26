@@ -21,7 +21,7 @@
         </div>
 
         <div class="max-h-[60vh] overflow-y-auto">
-            @if ($messageNotifs->isEmpty() && $bookingNotifs->isEmpty())
+            @if ($messageNotifs->isEmpty() && $bookingNotifs->isEmpty() && $spaNotifs->isEmpty())
                 <div class="flex flex-col items-center gap-2 px-4 py-10 text-center">
                     <div class="flex size-11 items-center justify-center rounded-full bg-[#f3f3ee]">
                         <svg class="size-5 text-[#9ca3af]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
@@ -68,6 +68,27 @@
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-[13px] font-semibold text-[#1e1e1e]">{{ $d['customer'] ?? 'New booking' }}</p>
                             <p class="truncate text-[12px] text-[#6b7280]">{{ $d['message'] ?? $d['room'] ?? 'New reservation' }}</p>
+                            <p class="mt-0.5 text-[11px] text-[#9ca3af]">{{ $n->created_at->diffForHumans() }}</p>
+                        </div>
+                        @unless ($n->read_at)
+                            <span class="mt-1 size-2 shrink-0 rounded-full bg-[#f38c00]"></span>
+                        @endunless
+                    </a>
+                @endforeach
+            @endif
+            {{-- Spa booking notifications --}}
+            @if ($spaNotifs->isNotEmpty())
+                <p class="bg-[#fafaf7] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#9ca3af]">Spa & Wellness</p>
+                @foreach ($spaNotifs as $n)
+                    @php $d = $n->data; @endphp
+                    <a href="{{ $d['url'] ?? route('admin.spa.bookings') }}" wire:navigate @click="notifOpen = false"
+                       class="flex items-start gap-3 px-4 py-3 transition hover:bg-[#f9fafb] {{ $n->read_at ? '' : 'bg-[#fffaf3]' }}">
+                        <div class="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#f3e8ff] text-[#7c3aed]">
+                            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 3 2 5 2 8h10c0-3 2-5 2-8a7 7 0 0 0-7-7z"/><path d="M9 22h6"/></svg>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-[13px] font-semibold text-[#1e1e1e]">{{ $d['customer'] ?? 'New spa booking' }}</p>
+                            <p class="truncate text-[12px] text-[#6b7280]">{{ $d['message'] ?? $d['service'] ?? 'New spa reservation' }}</p>
                             <p class="mt-0.5 text-[11px] text-[#9ca3af]">{{ $n->created_at->diffForHumans() }}</p>
                         </div>
                         @unless ($n->read_at)

@@ -234,7 +234,7 @@ class Services extends Component
         $total = (clone $base)->count();
         $activeCount = (clone $base)->where('is_active', true)->count();
         $inactiveCount = (clone $base)->where('is_active', false)->count();
-        $revenue = (int) SpaBooking::where('status', 'paid')->sum('total');
+        $revenue = (int) SpaBooking::where('payment_status', 'paid')->sum('total');
 
         $stats = [
             ['label' => 'Total Services', 'value' => $total, 'sub' => 'Spa offerings', 'accent' => '#f38c00', 'subColor' => '#f38c00'],
@@ -245,7 +245,7 @@ class Services extends Component
 
         // Bookings per service (by slug) from paid spa reservations.
         $bookingCounts = [];
-        SpaBooking::where('status', 'paid')->get(['services'])->each(function ($b) use (&$bookingCounts) {
+        SpaBooking::where('payment_status', 'paid')->get(['services'])->each(function ($b) use (&$bookingCounts) {
             foreach (($b->services ?? []) as $svc) {
                 $slug = $svc['slug'] ?? null;
                 if ($slug) {

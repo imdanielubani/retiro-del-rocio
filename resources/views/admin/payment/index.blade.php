@@ -177,7 +177,16 @@
                         @foreach ($transactions as $t)
                             <tr wire:key="txn-{{ $t->id }}" class="border-b border-[#e5e7eb] {{ $loop->even ? 'bg-[#f9fafb]' : 'bg-white' }}">
                                 <td class="px-4 py-3.5 text-[13px] font-medium text-[#f38c00]">{{ $t->txnId() }}</td>
-                                <td class="px-4 py-3.5 text-[13px] text-[#6b7280]">{{ $t->bookingCode() }}</td>
+                                <td class="px-4 py-3.5 text-[13px] text-[#6b7280]">
+                                    <span class="inline-flex items-center gap-1.5">
+                                        {{ $t->bookingCode() }}
+                                        <span @class([
+                                            'rounded-full px-1.5 py-0.5 text-[10px] font-semibold',
+                                            'bg-[#f3e8ff] text-[#7c3aed]' => $t->sourceLabel() === 'Spa',
+                                            'bg-[#e0f2fe] text-[#0369a1]' => $t->sourceLabel() !== 'Spa',
+                                        ])>{{ $t->sourceLabel() }}</span>
+                                    </span>
+                                </td>
                                 <td class="px-4 py-3.5 text-[13px] font-medium text-[#1e1e1e]">{{ $t->customer_name ?: '—' }}</td>
                                 <td class="px-4 py-3.5 text-[13px] font-bold text-[#1e1e1e]">{{ $t->amountLabel() }}</td>
                                 <td class="px-4 py-3.5 text-[12px] text-[#6b7280]">{{ $t->methodLabel() }}</td>
@@ -204,7 +213,7 @@
                             <p class="text-[14px] font-bold text-[#1e1e1e]">{{ $t->amountLabel() }}</p>
                         </div>
                         <div class="flex items-center justify-between text-[12px] text-[#6b7280]">
-                            <span>{{ $t->bookingCode() }} · {{ $t->methodLabel() }}</span>
+                            <span>{{ $t->bookingCode() }} · {{ $t->sourceLabel() }} · {{ $t->methodLabel() }}</span>
                             <span>{{ optional($t->paid_at ?? $t->created_at)->format('M j, Y') }}</span>
                         </div>
                     </div>

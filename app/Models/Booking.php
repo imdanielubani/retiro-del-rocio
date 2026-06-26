@@ -160,6 +160,12 @@ class Booking extends Model
         return 'BK-'.str_pad((string) $this->id, 4, '0', STR_PAD_LEFT);
     }
 
+    // Where this transaction came from (room vs spa) for the Payments table.
+    public function sourceLabel(): string
+    {
+        return 'Room';
+    }
+
     // Cancellation reference, e.g. CAN-2841.
     public function cancellationCode(): string
     {

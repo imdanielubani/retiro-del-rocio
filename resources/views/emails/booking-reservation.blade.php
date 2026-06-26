@@ -10,12 +10,7 @@
         <tr>
             <td align="center">
                 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;">
-                    <tr>
-                        <td style="background:#222a1f;padding:24px 32px;">
-                            <h1 style="margin:0;color:#f38c00;font-size:20px;">Retiro Del Rocio</h1>
-                            <p style="margin:4px 0 0;color:#d1dbcc;font-size:13px;">Reservation confirmation</p>
-                        </td>
-                    </tr>
+                    @include('emails.partials.header', ['subtitle' => 'Reservation confirmation'])
                     <tr>
                         <td style="padding:32px;">
                             <div style="display:inline-block;background:#dcfce7;color:#16a34a;font-size:13px;font-weight:bold;padding:6px 14px;border-radius:999px;">Payment confirmed</div>

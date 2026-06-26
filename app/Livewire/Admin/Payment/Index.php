@@ -3,6 +3,8 @@
 namespace App\Livewire\Admin\Payment;
 
 use App\Models\Booking;
+use App\Models\SpaBooking;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -56,8 +58,8 @@ class Index extends Component
         $this->resetPage();
     }
 
-    // Build the filtered query shared by the table and the summary totals.
-    protected function baseQuery()
+    // Room bookings, filtered. Date column = paid_at.
+    protected function roomQuery()
     {
         $dateCol = 'paid_at';
 
@@ -69,6 +71,36 @@ class Index extends Component
                 ->orWhere('room_name', 'like', "%{$this->search}%")
                 ->orWhere('id', 'like', "%{$this->search}%")))
             ->when($this->status, fn ($q) => $q->where('status', $this->status))
+            ->when($this->method, fn ($q) => $q->where('payment_method', $this->method))
+            ->when($this->year, fn ($q) => $q->whereYear($dateCol, $this->year))
+            ->when($this->month, fn ($q) => $q->whereMonth($dateCol, $this->month))
+            ->when($this->day, fn ($q) => $q->whereDay($dateCol, $this->day))
+            ->when($this->from, fn ($q) => $q->whereDate($dateCol, '>=', $this->from))
+            ->when($this->to, fn ($q) => $q->whereDate($dateCol, '<=', $this->to))
+            ->when($this->range, function ($q) use ($dateCol) {
+                [$start, $end] = $this->rangeBounds();
+                if ($start) {
+                    $q->whereBetween($dateCol, [$start, $end]);
+                }
+            });
+    }
+
+    // Spa reservations, filtered. Same date column + payment-centric status map.
+    protected function spaQuery()
+    {
+        $dateCol = 'paid_at';
+
+        // Map the shared status filter (paid|pending|cancelled) onto the spa
+        // payment_status (paid|pending|refunded) so both tables agree.
+        $statusMap = ['paid' => 'paid', 'pending' => 'pending', 'cancelled' => 'refunded'];
+
+        return SpaBooking::query()
+            ->when($this->search, fn ($q) => $q->where(fn ($w) => $w
+                ->where('reference', 'like', "%{$this->search}%")
+                ->orWhere('customer_name', 'like', "%{$this->search}%")
+                ->orWhere('customer_email', 'like', "%{$this->search}%")
+                ->orWhere('id', 'like', "%{$this->search}%")))
+            ->when($this->status, fn ($q) => $q->where('payment_status', $statusMap[$this->status] ?? $this->status))
             ->when($this->method, fn ($q) => $q->where('payment_method', $this->method))
             ->when($this->year, fn ($q) => $q->whereYear($dateCol, $this->year))
             ->when($this->month, fn ($q) => $q->whereMonth($dateCol, $this->month))
@@ -110,29 +142,33 @@ class Index extends Component
     public function render()
     {
         $now = Carbon::now();
+        $monthStart = $now->copy()->startOfMonth();
+        $monthEnd = $now->copy()->endOfMonth();
+        $lastStart = $now->copy()->subMonthNoOverflow()->startOfMonth();
+        $lastEnd = $now->copy()->subMonthNoOverflow()->endOfMonth();
 
-        // ---- Stat cards (all-time / month context) ----
-        $monthRevenue = (int) Booking::where('status', 'paid')
-            ->whereBetween('paid_at', [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()])
-            ->sum('amount');
+        // ---- Stat cards (room + spa combined) ----
+        $monthRevenue = (int) Booking::where('status', 'paid')->whereBetween('paid_at', [$monthStart, $monthEnd])->sum('amount')
+            + (int) SpaBooking::where('payment_status', 'paid')->whereBetween('paid_at', [$monthStart, $monthEnd])->sum('total');
 
-        $lastMonthRevenue = (int) Booking::where('status', 'paid')
-            ->whereBetween('paid_at', [$now->copy()->subMonthNoOverflow()->startOfMonth(), $now->copy()->subMonthNoOverflow()->endOfMonth()])
-            ->sum('amount');
+        $lastMonthRevenue = (int) Booking::where('status', 'paid')->whereBetween('paid_at', [$lastStart, $lastEnd])->sum('amount')
+            + (int) SpaBooking::where('payment_status', 'paid')->whereBetween('paid_at', [$lastStart, $lastEnd])->sum('total');
 
         $revenueDelta = $lastMonthRevenue > 0
             ? (int) round((($monthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100)
             : ($monthRevenue > 0 ? 100 : 0);
 
-        $totalTransactions = Booking::count();
+        $totalTransactions = Booking::count() + SpaBooking::count();
 
-        $pendingAmount = (int) Booking::where('status', 'pending')->sum('amount');
-        $pendingCount = Booking::where('status', 'pending')->count();
+        $pendingAmount = (int) Booking::where('status', 'pending')->sum('amount')
+            + (int) SpaBooking::where('payment_status', 'pending')->sum('total');
+        $pendingCount = Booking::where('status', 'pending')->count()
+            + SpaBooking::where('payment_status', 'pending')->count();
 
-        $refundsAmount = (int) Booking::where('status', 'cancelled')->sum('amount');
-        $refundsThisMonth = Booking::where('status', 'cancelled')
-            ->whereBetween('updated_at', [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()])
-            ->count();
+        $refundsAmount = (int) Booking::where('status', 'cancelled')->sum('amount')
+            + (int) SpaBooking::where('payment_status', 'refunded')->sum('total');
+        $refundsThisMonth = Booking::where('status', 'cancelled')->whereBetween('updated_at', [$monthStart, $monthEnd])->count()
+            + SpaBooking::where('payment_status', 'refunded')->whereBetween('updated_at', [$monthStart, $monthEnd])->count();
 
         $stats = [
             'revenue' => [
@@ -161,30 +197,40 @@ class Index extends Component
             ],
         ];
 
-        // ---- Filtered summary ----
-        $summaryCount = (clone $this->baseQuery())->count();
-        $summaryAmount = (int) (clone $this->baseQuery())->sum('amount');
+        // ---- Filtered summary (both sources) ----
+        $summaryCount = (clone $this->roomQuery())->count() + (clone $this->spaQuery())->count();
+        $summaryAmount = (int) (clone $this->roomQuery())->sum('amount') + (int) (clone $this->spaQuery())->sum('total');
 
         // Whether any filter is active (drives the "Clear all" button).
         $hasFilters = (bool) ($this->search || $this->range || $this->year || $this->month
             || $this->day || $this->from || $this->to || $this->method || $this->status);
 
-        // ---- Table ----
-        $transactions = $this->baseQuery()->latest('paid_at')->latest('id')->paginate(8);
-
-        // ---- Filter option sources ----
-        $years = Booking::query()
-            ->selectRaw('DISTINCT YEAR(COALESCE(paid_at, created_at)) as y')
-            ->orderByDesc('y')
-            ->pluck('y')
-            ->filter()
+        // ---- Merged, manually-paginated transaction table ----
+        $rows = $this->roomQuery()->get()
+            ->concat($this->spaQuery()->get())
+            ->sortByDesc(fn ($t) => ($t->paid_at ?? $t->created_at)?->timestamp ?? 0)
             ->values();
 
-        $methods = Booking::query()
-            ->whereNotNull('payment_method')
-            ->distinct()
-            ->orderBy('payment_method')
-            ->pluck('payment_method');
+        $perPage = 8;
+        $page = (int) ($this->paginators['page'] ?? 1);
+        $page = max(1, $page);
+
+        $transactions = new LengthAwarePaginator(
+            $rows->forPage($page, $perPage)->values(),
+            $rows->count(),
+            $perPage,
+            $page,
+            ['path' => LengthAwarePaginator::resolveCurrentPath(), 'pageName' => 'page'],
+        );
+
+        // ---- Filter option sources (union of both tables) ----
+        $years = Booking::query()->selectRaw('DISTINCT YEAR(COALESCE(paid_at, created_at)) as y')->pluck('y')
+            ->merge(SpaBooking::query()->selectRaw('DISTINCT YEAR(COALESCE(paid_at, created_at)) as y')->pluck('y'))
+            ->filter()->unique()->sortDesc()->values();
+
+        $methods = Booking::query()->whereNotNull('payment_method')->distinct()->pluck('payment_method')
+            ->merge(SpaBooking::query()->whereNotNull('payment_method')->distinct()->pluck('payment_method'))
+            ->filter()->unique()->sort()->values();
 
         return view('admin.payment.index', [
             'transactions' => $transactions,
@@ -196,7 +242,7 @@ class Index extends Component
             'methods' => $methods,
         ])->layout('components.admin.app', [
             'title' => 'Payments',
-            'subtitle' => 'Transactions captured from checkout',
+            'subtitle' => 'Transactions captured from room & spa checkout',
         ]);
     }
 }
