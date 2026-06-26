@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'welcome')->name('home');
 Route::view('spa-wellness', 'spa')->name('spa');
 Route::view('rooms-apartment', 'rooms')->name('rooms');
+Route::view('experience', 'experience')->name('experience');
 Route::get('rooms-apartment/{room:slug}', function (Room $room) {
     abort_unless($room->is_published, 404);
 

@@ -106,6 +106,7 @@ $pages = [
             ['key' => 'nav.links', 'label' => 'Menu links', 'type' => 'repeater', 'item' => ['label' => 'Label', 'url' => 'Link (URL)'], 'default' => [
                 ['label' => 'Home', 'url' => '/'],
                 ['label' => 'Rooms & Apartment', 'url' => '/rooms-apartment'],
+                ['label' => 'Experience', 'url' => '/experience'],
                 ['label' => 'Gym', 'url' => '#'],
                 ['label' => 'Cinema', 'url' => '#'],
                 ['label' => 'Restaurant', 'url' => '#'],
@@ -242,6 +243,65 @@ $pages = [
                 ['q' => 'Is my payment information secure on Retiro Del Rocio?', 'a' => 'Yes. All payments are processed over encrypted, secure channels and we never store your full card details.'],
                 ['q' => 'What if I have trouble booking tickets?', 'a' => 'Our support team is available Mon–Fri, 9am–4pm. Call or email us and we will help you complete your booking.'],
             ]],
+        ],
+    ],
+
+    'experience' => [
+        'label' => 'Experience Page',
+        'category' => 'core',
+        'chips' => ['Hero', 'Explore Jos', 'Calm & Adventure', 'Member', 'Trending'],
+        'preview' => '/experience',
+        'fields' => [
+            // Hero
+            ['key' => 'experience.hero_image', 'label' => 'Hero image', 'type' => 'image', 'default' => 'images/experience.jpg'],
+
+            // Beyond Your Stay, Explore Jos City
+            ['key' => 'experience.jos_image', 'label' => '“Explore Jos” image', 'type' => 'image', 'default' => 'images/ilovejoscity.jpg'],
+            ['key' => 'experience.jos_title', 'label' => '“Explore Jos” heading', 'type' => 'text', 'default' => 'Beyond Your Stay, Explore Jos City'],
+            ['key' => 'experience.jos_text', 'label' => '“Explore Jos” paragraph', 'type' => 'textarea', 'default' => 'Discover the beauty and calm that make Jos truly unforgettable. From breathtaking landscapes and cultural landmarks to serene outdoor escapes, every moment outside the hotel becomes part of your experience.'],
+
+            // Experience Calm & Adventure
+            ['key' => 'experience.calm_title', 'label' => '“Calm & Adventure” heading', 'type' => 'text', 'default' => 'Experience Calm & Adventure'],
+            ['key' => 'experience.calm_text', 'label' => '“Calm & Adventure” paragraph', 'type' => 'textarea', 'default' => 'Reconnect with nature, calm your mind, and enjoy experiences designed for relaxation, adventure, and well-being across Jos.'],
+            ['key' => 'experience.calm_image_1', 'label' => '“Calm & Adventure” image (left)', 'type' => 'image', 'default' => 'images/2.jpg'],
+            ['key' => 'experience.calm_image_2', 'label' => '“Calm & Adventure” image (right)', 'type' => 'image', 'default' => 'images/1.jpg'],
+
+            // Become a member
+            ['key' => 'experience.member_image', 'label' => '“Member” image', 'type' => 'image', 'default' => 'images/image 474.jpg'],
+            ['key' => 'experience.member_title', 'label' => '“Member” heading', 'type' => 'text', 'default' => 'Become a member of Retiro Del Rocio'],
+            ['key' => 'experience.member_text', 'label' => '“Member” paragraph', 'type' => 'textarea', 'default' => 'Get exclusive discounts on services, experiences, and curated destinations across Jos and beyond. Enjoy member-only perks designed to help you explore more for less.'],
+            ['key' => 'experience.member_cta_label', 'label' => '“Member” button text', 'type' => 'text', 'default' => 'Subscribe'],
+            ['key' => 'experience.member_cta_url', 'label' => '“Member” button link', 'type' => 'text', 'default' => '/contact-us'],
+            ['key' => 'experience.member_link_label', 'label' => '“Member” secondary link text', 'type' => 'text', 'default' => 'Contact Us'],
+            ['key' => 'experience.member_link_url', 'label' => '“Member” secondary link', 'type' => 'text', 'default' => '/contact-us'],
+
+            // Trending Destination
+            ['key' => 'experience.trending_title', 'label' => '“Trending” heading', 'type' => 'text', 'default' => 'Trending Destination'],
+            ['key' => 'experience.trending_text', 'label' => '“Trending” paragraph', 'type' => 'textarea', 'default' => 'Discover the most visited and talked-about spots in Jos, from scenic nature escapes to cultural landmarks and relaxing outdoor experiences.'],
+
+            ['key' => 'experience.dest_1_image', 'label' => 'Destination 1 image', 'type' => 'image', 'default' => 'images/Joswild.jpg'],
+            ['key' => 'experience.dest_1_title', 'label' => 'Destination 1 title', 'type' => 'text', 'default' => 'Jos Wildlife Park'],
+            ['key' => 'experience.dest_1_text', 'label' => 'Destination 1 text', 'type' => 'textarea', 'default' => 'A major conservation area featuring a wide variety of animals, ideal for picnics and safari views.'],
+
+            ['key' => 'experience.dest_2_image', 'label' => 'Destination 2 image', 'type' => 'image', 'default' => 'images/kurra.jpg'],
+            ['key' => 'experience.dest_2_title', 'label' => 'Destination 2 title', 'type' => 'text', 'default' => 'Kurra Falls'],
+            ['key' => 'experience.dest_2_text', 'label' => 'Destination 2 text', 'type' => 'textarea', 'default' => 'A beautiful area known for its waterfalls, lakes, and electric power generation, often used for leisure.'],
+
+            ['key' => 'experience.dest_3_image', 'label' => 'Destination 3 image', 'type' => 'image', 'default' => 'images/sheres.jpg'],
+            ['key' => 'experience.dest_3_title', 'label' => 'Destination 3 title', 'type' => 'text', 'default' => 'Shere Hills'],
+            ['key' => 'experience.dest_3_text', 'label' => 'Destination 3 text', 'type' => 'textarea', 'default' => 'A range of high, rocky hills popular for hiking, climbing, and offering panoramic views of the city.'],
+
+            ['key' => 'experience.dest_4_image', 'label' => 'Destination 4 image', 'type' => 'image', 'default' => 'images/ten.jpg'],
+            ['key' => 'experience.dest_4_title', 'label' => 'Destination 4 title', 'type' => 'text', 'default' => 'Ten Commandments Monument'],
+            ['key' => 'experience.dest_4_text', 'label' => 'Destination 4 text', 'type' => 'textarea', 'default' => 'A significant, often visited landmark located in Dwei Du, Rayfield.'],
+
+            ['key' => 'experience.dest_5_image', 'label' => 'Destination 5 image', 'type' => 'image', 'default' => 'images/jsmuseum.jpg'],
+            ['key' => 'experience.dest_5_title', 'label' => 'Destination 5 title', 'type' => 'text', 'default' => 'Jos Museum Complex'],
+            ['key' => 'experience.dest_5_text', 'label' => 'Destination 5 text', 'type' => 'textarea', 'default' => 'The Museum sits at the foot of a tree-covered granite mountain named Coronation Hill. Pre-historic Nigeria is deeply rooted in Jos, as seen in its Nok Art.'],
+
+            ['key' => 'experience.dest_6_image', 'label' => 'Destination 6 image', 'type' => 'image', 'default' => 'images/solomon.jpg'],
+            ['key' => 'experience.dest_6_title', 'label' => 'Destination 6 title', 'type' => 'text', 'default' => 'Solomon Lar Amusement Park'],
+            ['key' => 'experience.dest_6_text', 'label' => 'Destination 6 text', 'type' => 'textarea', 'default' => 'A centrally located park for leisure and recreation, offering a relaxed outdoor escape in the heart of the city.'],
         ],
     ],
 ];

@@ -40,10 +40,10 @@
                             <img loading="lazy" src="{{ asset('images/Airport.png') }}" alt="" class="icon-lg object-contain [filter:brightness(0)_opacity(45%)]">
                             Vehicle Pickup
                         </span>
-                        <span class="flex items-center gap-2 text-body font-semibold tracking-tight text-[#6c6c6c] sm:text-body-lg">
+                        <a href="{{ route('experience') }}" wire:navigate class="flex items-center gap-2 text-body font-semibold tracking-tight text-[#6c6c6c] transition hover:text-[#ba6d04] sm:text-body-lg">
                             <img loading="lazy" src="{{ asset('images/travel.png') }}" alt="" class="icon-lg object-contain [filter:brightness(0)_opacity(45%)]">
                             Experience
-                        </span>
+                        </a>
                     </div>
                     <hr class="my-4 border-black/10">
 
@@ -166,7 +166,7 @@
     {{-- ===================== MORE THAN A DESTINATION ======================= --}}
     <section class="w-full py-12 lg:py-16">
         <x-layouts.container>
-            <div class="relative overflow-hidden rounded-2xl">
+            <div class="relative overflow-hidden rounded-[20px]">
                 <img loading="lazy" src="{{ cms_image('home.destination_image') }}" alt="More than a destination"
                      class="h-[440px] w-full object-cover sm:h-[600px] lg:h-[780px]">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
@@ -190,7 +190,7 @@
     {{-- ========================= BECOME A MEMBER =========================== --}}
     <section class="w-full py-12 lg:py-16">
         <x-layouts.container>
-            <div class="grid grid-cols-1 overflow-hidden rounded-[6px] lg:grid-cols-[57%_43%]">
+            <div class="grid grid-cols-1 overflow-hidden rounded-[20px] lg:grid-cols-[57%_43%]">
                 <img loading="lazy" src="{{ cms_image('home.member_image') }}" alt=""
                      class="h-[260px] w-full object-cover lg:h-full lg:min-h-[508px]">
                 <div class="flex flex-col justify-center gap-[27px] bg-[#e8e6e1] px-8 py-12 lg:px-[51px] lg:py-[80px]">
@@ -225,7 +225,7 @@
     <section class="w-full py-16 lg:py-24">
         <x-layouts.container class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {{-- top-left landscape --}}
-            <img loading="lazy" src="{{ cms_image('home.jos_image_1') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[300px]">
+            <img loading="lazy" src="{{ cms_image('home.jos_image_1') }}" alt="Jos City" class="h-[240px] w-full rounded-[18px] object-cover lg:h-[300px]">
             {{-- top-right text --}}
             <div class="flex flex-col justify-center gap-[24px]">
                 <h2 class="text-4xl font-medium leading-tight tracking-tight text-white sm:text-5xl lg:text-display lg:leading-[60px]">
@@ -236,9 +236,9 @@
                 </p>
             </div>
             {{-- bottom-left ruins --}}
-            <img loading="lazy" src="{{ cms_image('home.jos_image_2') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[320px]">
+            <img loading="lazy" src="{{ cms_image('home.jos_image_2') }}" alt="Jos City" class="h-[240px] w-full rounded-[18px] object-cover lg:h-[320px]">
             {{-- bottom-right forest --}}
-            <img loading="lazy" src="{{ cms_image('home.jos_image_3') }}" alt="Jos City" class="h-[240px] w-full rounded-xl object-cover lg:h-[320px]">
+            <img loading="lazy" src="{{ cms_image('home.jos_image_3') }}" alt="Jos City" class="h-[240px] w-full rounded-[18px] object-cover lg:h-[320px]">
         </x-layouts.container>
     </section>
 
@@ -246,7 +246,7 @@
     <section class="w-full py-12 lg:py-16">
         <x-layouts.container class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {{-- Left: wellness lifestyle tall image card --}}
-            <div class="relative min-h-[480px] overflow-hidden rounded-2xl lg:min-h-[760px]">
+            <div class="relative min-h-[480px] overflow-hidden rounded-[20px] lg:min-h-[760px]">
                 <img loading="lazy" src="{{ cms_image('home.wellness_image') }}" alt="Wellness lifestyle"
                      class="absolute inset-0 h-full w-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
@@ -272,7 +272,7 @@
                     </p>
                 </div>
                 <img loading="lazy" src="{{ cms_image('home.train_image') }}" alt="Wellness"
-                     class="h-[300px] w-full flex-1 rounded-2xl object-cover lg:h-auto lg:min-h-[480px]">
+                     class="h-[300px] w-full flex-1 rounded-[18px] object-cover lg:h-auto lg:min-h-[480px]">
             </div>
         </x-layouts.container>
     </section>
