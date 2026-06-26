@@ -121,6 +121,16 @@ class Bookings extends Component
         $this->dispatch('toast', type: 'success', message: 'Session '.$b->sessionCode().' confirmed — guest notified.');
     }
 
+    public function markCompleted(int $id): void
+    {
+        $b = SpaBooking::find($id);
+        if (! $b) {
+            return;
+        }
+        $b->update(['status' => 'completed']);
+        $this->dispatch('toast', type: 'success', message: 'Session '.$b->sessionCode().' marked completed.');
+    }
+
     public function recordPayment(int $id): void
     {
         $b = SpaBooking::find($id);

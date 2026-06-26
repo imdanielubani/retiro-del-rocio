@@ -123,6 +123,7 @@ class SpaBooking extends Model
         return match ($this->status) {
             'confirmed' => 'Confirmed',
             'pending' => 'Pending',
+            'completed' => 'Completed',
             'cancelled' => 'Cancelled',
             // Legacy fallback in case any old row slips through.
             'paid' => 'Confirmed',
@@ -136,6 +137,7 @@ class SpaBooking extends Model
         return match ($this->status) {
             'confirmed', 'paid' => ['#16a34a', '#dcfce7'],
             'pending' => ['#d97706', '#fef3c7'],
+            'completed' => ['#7c3aed', '#f3e8ff'],
             'cancelled' => ['#dc2626', '#fee2e2'],
             default => ['#6b7280', '#f3f4f6'],
         };

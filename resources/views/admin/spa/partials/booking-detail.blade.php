@@ -1,18 +1,21 @@
-{{-- Booking detail slide-over (right). Driven by $showDetail + $selected. --}}
+{{-- Booking detail — centered modal (consistent with the other modules). --}}
 @if ($showDetail && $selected)
     @php
         [$sColor, $sBg] = $selected->statusColors();
         [$pColor, $pBg] = $selected->paymentColors();
+        $canComplete = ! in_array($selected->status, ['cancelled', 'completed'], true);
+        $canCancel = ! in_array($selected->status, ['cancelled', 'completed'], true);
+        $canRecord = $selected->payment_status !== 'paid' && $selected->status !== 'cancelled';
     @endphp
-    <div class="fixed inset-0 z-[90] flex justify-end" wire:key="spa-detail-{{ $selected->id }}">
-        <div class="absolute inset-0 bg-black/40" wire:click="closeDetail"></div>
+    <div class="fixed inset-0 z-[95] flex items-center justify-center p-4" wire:key="spa-detail-{{ $selected->id }}">
+        <div class="absolute inset-0 bg-black/50" wire:click="closeDetail"></div>
 
-        <div class="relative z-10 flex h-full w-full max-w-[440px] flex-col bg-white shadow-2xl"
-             x-data x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0">
+        <div class="relative z-10 flex max-h-[90vh] w-full max-w-[480px] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+             x-data x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-4 scale-[0.98]" x-transition:enter-end="opacity-100 translate-y-0 scale-100">
             {{-- Header --}}
             <div class="flex items-start justify-between border-b border-[#e5e7eb] px-6 py-5">
                 <div>
-                    <p class="text-[12px] font-semibold uppercase tracking-[0.5px] text-[#f38c00]">{{ $selected->sessionCode() }}</p>
+                    <p class="text-[12px] font-bold uppercase tracking-[0.5px] text-[#f38c00]">{{ $selected->sessionCode() }}</p>
                     <h3 class="mt-1 text-[18px] font-bold text-[#1e1e1e]">{{ $selected->customer_name ?: 'Guest' }}</h3>
                     <div class="mt-2 flex items-center gap-2">
                         <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold" style="background: {{ $sBg }}; color: {{ $sColor }};">{{ $selected->statusLabel() }}</span>
@@ -94,17 +97,19 @@
             </div>
 
             {{-- Footer actions --}}
-            <div class="flex items-center gap-2 border-t border-[#e5e7eb] px-6 py-4">
-                @if ($selected->status !== 'confirmed' && $selected->status !== 'cancelled')
-                    <button type="button" wire:click="confirmSession({{ $selected->id }})" class="flex-1 rounded-lg bg-[#16a34a] px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-[#15803d]">Confirm Session</button>
-                @endif
-                @if ($selected->payment_status !== 'paid' && $selected->status !== 'cancelled')
-                    <button type="button" wire:click="recordPayment({{ $selected->id }})" class="flex-1 rounded-lg border border-[#e5e7eb] px-4 py-2.5 text-[13px] font-semibold text-[#374151] transition hover:bg-[#f9fafb]">Record Payment</button>
-                @endif
-                @if ($selected->status !== 'cancelled')
-                    <button type="button" wire:click="cancelSession({{ $selected->id }})" class="flex-1 rounded-lg bg-[#fee2e2] px-4 py-2.5 text-[13px] font-bold text-[#dc2626] transition hover:bg-[#fecaca]">Cancel Session</button>
-                @endif
-            </div>
+            @if ($canComplete || $canCancel || $canRecord)
+                <div class="flex flex-wrap items-center gap-2 border-t border-[#e5e7eb] px-6 py-4">
+                    @if ($canComplete)
+                        <button type="button" wire:click="markCompleted({{ $selected->id }})" class="flex-1 rounded-lg bg-[#7c3aed] px-4 py-2.5 text-[13px] font-bold text-white transition hover:bg-[#6d28d9]">Mark Completed</button>
+                    @endif
+                    @if ($canRecord)
+                        <button type="button" wire:click="recordPayment({{ $selected->id }})" class="flex-1 rounded-lg border border-[#e5e7eb] px-4 py-2.5 text-[13px] font-semibold text-[#374151] transition hover:bg-[#f9fafb]">Record Payment</button>
+                    @endif
+                    @if ($canCancel)
+                        <button type="button" wire:click="cancelSession({{ $selected->id }})" class="flex-1 rounded-lg bg-[#fee2e2] px-4 py-2.5 text-[13px] font-bold text-[#dc2626] transition hover:bg-[#fecaca]">Reject / Cancel</button>
+                    @endif
+                </div>
+            @endif
         </div>
     </div>
 @endif

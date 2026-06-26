@@ -23,7 +23,7 @@
 @endphp
 
 <div class="flex flex-col gap-4" x-data="{ showFilters: @js($showFilters) }">
-    {{-- ===== Stat cards ===== --}}
+    {{-- ===== Stat cards (consistent with the other admin modules) ===== --}}
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @foreach ($stats as $stat)
             <div class="flex flex-col gap-2 rounded-xl border border-[#e5e7eb] border-l-4 bg-white px-6 py-5"
@@ -41,37 +41,33 @@
             {{-- Search --}}
             <div class="relative w-full sm:w-[240px]">
                 <svg class="pointer-events-none absolute left-3 top-1/2 size-[13px] -translate-y-1/2 text-[#9ca3af]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg>
-                <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search guest, service or ID…"
+                <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search for guest"
                        class="h-[34px] w-full rounded-[9px] border border-[#e5e7eb] bg-[#f9fafb] pl-9 pr-3 text-[12px] text-[#1e1e1e] placeholder:text-[#1e1e1e]/50 focus:outline-none focus:ring-2 focus:ring-[#f38c00]/20">
             </div>
 
-            <div class="hidden h-7 w-px bg-[#e5e7eb] sm:block"></div>
-
             {{-- Quick range filters --}}
-            <div class="flex flex-wrap items-center gap-[5px]">
+            <div class="flex flex-wrap items-center gap-2">
                 <button type="button" wire:click="$set('range', '')"
                         @class([
-                            'rounded-[7px] border px-3 py-1.5 text-[11px] transition',
-                            'border-[#f38c00] bg-[#f38c00] font-bold text-[#222a1f]' => $range === '',
+                            'rounded-lg border px-3.5 py-[7px] text-[12px] transition',
+                            'border-[#f38c00] bg-[#f38c00] font-semibold text-white' => $range === '',
                             'border-[#e5e7eb] text-[#6b7280] hover:bg-[#f9fafb]' => $range !== '',
                         ])>All time</button>
                 @foreach (['today' => 'Today', '7d' => '7 days', '30d' => '30 days', 'month' => 'This month'] as $key => $label)
                     <button type="button" wire:click="setRange('{{ $key }}')"
                             @class([
-                                'rounded-[7px] border px-3 py-1.5 text-[11px] transition',
-                                'border-[#f38c00] bg-[#f38c00] font-bold text-[#222a1f]' => $range === $key,
+                                'rounded-lg border px-3.5 py-[7px] text-[12px] transition',
+                                'border-[#f38c00] bg-[#f38c00] font-semibold text-white' => $range === $key,
                                 'border-[#e5e7eb] text-[#6b7280] hover:bg-[#f9fafb]' => $range !== $key,
                             ])>{{ $label }}</button>
                 @endforeach
             </div>
 
-            <div class="hidden h-7 w-px bg-[#e5e7eb] sm:block"></div>
-
             {{-- Filters toggle --}}
             <button type="button" @click="showFilters = !showFilters"
                     :class="showFilters ? 'border-[#f38c00] text-[#f38c00]' : 'border-[#e5e7eb] text-[#6b7280]'"
-                    class="flex items-center gap-1.5 rounded-[8px] border px-3.5 py-[7px] text-[12px] transition hover:bg-[#f9fafb]">
-                <svg class="size-[13px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+                    class="flex items-center gap-2 rounded-lg border px-3.5 py-[7px] text-[12px] transition hover:bg-[#f9fafb]">
+                <svg class="size-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
                 Filters
             </button>
 
@@ -131,6 +127,7 @@
                         <option value="">All Status</option>
                         <option value="confirmed">Confirmed</option>
                         <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
                         <option value="cancelled">Cancelled</option>
                     </select>
                 </div>
@@ -158,13 +155,16 @@
                 <p class="text-[13px] text-[#6b7280]">Spa bookings made on the website will appear here.</p>
             </div>
         @else
-            {{-- Desktop table --}}
-            <div class="hidden overflow-x-auto lg:block">
+            {{-- Table (tablet + desktop; scrolls horizontally on tablet) --}}
+            <div class="hidden overflow-x-auto md:block">
                 <table class="w-full min-w-[1040px] border-collapse">
                     <thead>
                         <tr class="bg-[#f9fafb] text-left">
-                            @foreach (['Session ID', 'Guest', 'Service', 'Category', 'Date & Time', 'Duration', 'Amount', 'Payment', 'Status', ''] as $col)
-                                <th class="border-b border-[#e5e7eb] px-4 py-2.5 text-[11px] uppercase tracking-[0.5px] text-[#6b7280]">{{ $col }}</th>
+                            @foreach (['Booking ID', 'Guest', 'Service', 'Category', 'Date & Time', 'Duration', 'Amount', 'Payment', 'Status', 'Action'] as $col)
+                                <th @class([
+                                        'border-b border-[#e5e7eb] px-4 py-2.5 text-[11px] uppercase tracking-[0.5px] text-[#6b7280]',
+                                        'text-right' => $col === 'Action',
+                                    ])>{{ $col }}</th>
                             @endforeach
                         </tr>
                     </thead>
@@ -177,7 +177,7 @@
                                 $dur = $bkDuration($b);
                             @endphp
                             <tr wire:key="spabk-{{ $b->id }}" class="border-b border-[#e5e7eb] {{ $loop->even ? 'bg-[#f9fafb]' : 'bg-white' }}">
-                                <td class="px-4 py-3.5 text-[13px] font-semibold text-[#f38c00]">{{ $b->sessionCode() }}</td>
+                                <td class="px-4 py-3.5 text-[13px] font-bold text-[#f38c00]">{{ $b->sessionCode() }}</td>
                                 <td class="px-4 py-3.5">
                                     <p class="text-[13px] font-medium text-[#1e1e1e]">{{ $b->customer_name ?: '—' }}</p>
                                     <p class="text-[11px] text-[#9ca3af]">{{ $b->customer_email ?: '' }}</p>
@@ -185,7 +185,7 @@
                                 <td class="px-4 py-3.5 text-[13px] text-[#374151]">{{ $b->primaryService() }}</td>
                                 <td class="px-4 py-3.5">
                                     @if ($cat)
-                                        <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold" style="background: {{ $cat['color'] }}1a; color: {{ $cat['color'] }};">{{ $cat['name'] }}</span>
+                                        <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.4px]" style="background: {{ $cat['color'] }}1a; color: {{ $cat['color'] }};">{{ $cat['name'] }}</span>
                                     @else
                                         <span class="text-[12px] text-[#9ca3af]">—</span>
                                     @endif
@@ -205,9 +205,7 @@
                                     <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold" style="background: {{ $pBg }}; color: {{ $pColor }};">{{ $b->paymentLabel() }}</span>
                                 </td>
                                 <td class="px-4 py-3.5">
-                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold" style="background: {{ $sBg }}; color: {{ $sColor }};">
-                                        <span class="size-1.5 rounded-full" style="background: {{ $sColor }};"></span>{{ $b->statusLabel() }}
-                                    </span>
+                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold" style="background: {{ $sBg }}; color: {{ $sColor }};">{{ $b->statusLabel() }}</span>
                                 </td>
                                 <td class="px-4 py-3.5 text-right">
                                     @include('admin.spa.partials.booking-menu', ['b' => $b])
@@ -218,8 +216,8 @@
                 </table>
             </div>
 
-            {{-- Mobile cards --}}
-            <div class="flex flex-col divide-y divide-[#e5e7eb] lg:hidden">
+            {{-- Mobile cards (phones only) --}}
+            <div class="flex flex-col divide-y divide-[#e5e7eb] md:hidden">
                 @foreach ($bookings as $b)
                     @php
                         [$sColor, $sBg] = $b->statusColors();
@@ -229,7 +227,7 @@
                     @endphp
                     <div wire:key="spabk-m-{{ $b->id }}" class="flex flex-col gap-2 px-4 py-3.5">
                         <div class="flex items-center justify-between">
-                            <span class="text-[13px] font-semibold text-[#f38c00]">{{ $b->sessionCode() }}</span>
+                            <span class="text-[13px] font-bold text-[#f38c00]">{{ $b->sessionCode() }}</span>
                             <div class="flex items-center gap-1.5">
                                 <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold" style="background: {{ $pBg }}; color: {{ $pColor }};">{{ $b->paymentLabel() }}</span>
                                 <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold" style="background: {{ $sBg }}; color: {{ $sColor }};">{{ $b->statusLabel() }}</span>

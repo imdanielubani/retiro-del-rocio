@@ -201,28 +201,64 @@
                     </label>
                 </div>
 
-                {{-- Select Spa Service (multi-select) --}}
+                {{-- Select Spa Service (multi-select carousel) --}}
                 <p class="mt-8 text-body-lg font-semibold text-white">{{ cms('spares.service_label') }}</p>
-                <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <template x-for="s in services" :key="s.slug">
-                        <button type="button" @click="toggle(s.slug)"
-                                class="relative flex flex-col items-center gap-4 rounded-[11px] bg-[#f6f9fc] p-5 text-center transition"
-                                :class="isSelected(s.slug) ? 'ring-2 ring-[#ba6d04]' : 'ring-1 ring-transparent hover:ring-[#ba6d04]/40'">
-                            <span class="absolute left-3 top-3 flex size-6 items-center justify-center rounded-full border-2 transition"
-                                  :class="isSelected(s.slug) ? 'border-[#ba6d04] bg-[#ba6d04] text-white' : 'border-[#cbd5e1] bg-white'">
-                                <svg x-show="isSelected(s.slug)" class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
-                            </span>
-                            <span class="h-28 w-full overflow-hidden rounded-lg bg-[#e9edf1]">
-                                <img :src="s.image" :alt="s.name" class="h-full w-full object-cover" x-show="s.image">
-                            </span>
-                            <span class="text-[20px] font-bold text-[#343a40]" x-text="s.name"></span>
-                            <span class="line-clamp-2 text-[13px] text-[#5a5a5a]" x-text="s.description"></span>
-                            <span class="flex flex-col">
-                                <span class="text-[24px] font-semibold text-[#222]" x-text="money(s.price)"></span>
-                                <span class="text-[12px] text-[#6a6a6a]">Per Guest</span>
-                            </span>
-                        </button>
-                    </template>
+                <div class="relative mt-4"
+                     x-data="{
+                        canLeft: false,
+                        canRight: true,
+                        refresh() {
+                            const t = $refs.track;
+                            if (!t) return;
+                            this.canLeft = t.scrollLeft > 4;
+                            this.canRight = (t.scrollLeft + t.clientWidth) < (t.scrollWidth - 4);
+                        },
+                        slide(dir) {
+                            const t = $refs.track;
+                            const card = t.querySelector('[data-spa-card]');
+                            const amount = card ? (card.offsetWidth + 16) : 300;
+                            t.scrollBy({ left: dir * amount, behavior: 'smooth' });
+                        }
+                     }"
+                     x-init="$nextTick(() => refresh())"
+                     x-effect="if (showModal && step === 'select') $nextTick(() => setTimeout(() => refresh(), 60))">
+                    {{-- Left arrow --}}
+                    <button type="button" @click="slide(-1)" x-show="canRight || canLeft" :disabled="!canLeft"
+                            aria-label="Previous services"
+                            class="absolute -left-2 top-1/2 z-10 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[#ba6d04] shadow-lg transition hover:bg-[#fff3e0] disabled:cursor-not-allowed disabled:opacity-30 sm:flex">
+                        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+
+                    {{-- Track --}}
+                    <div x-ref="track" @scroll.debounce.50ms="refresh()"
+                         class="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-1">
+                        <template x-for="s in services" :key="s.slug">
+                            <button type="button" data-spa-card @click="toggle(s.slug)"
+                                    class="relative flex w-[230px] shrink-0 snap-start flex-col items-center gap-4 rounded-[11px] bg-[#f6f9fc] p-5 text-center transition sm:w-[250px]"
+                                    :class="isSelected(s.slug) ? 'ring-2 ring-[#ba6d04]' : 'ring-1 ring-transparent hover:ring-[#ba6d04]/40'">
+                                <span class="absolute left-3 top-3 flex size-6 items-center justify-center rounded-full border-2 transition"
+                                      :class="isSelected(s.slug) ? 'border-[#ba6d04] bg-[#ba6d04] text-white' : 'border-[#cbd5e1] bg-white'">
+                                    <svg x-show="isSelected(s.slug)" class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+                                </span>
+                                <span class="h-28 w-full overflow-hidden rounded-lg bg-[#e9edf1]">
+                                    <img :src="s.image" :alt="s.name" class="h-full w-full object-cover" x-show="s.image">
+                                </span>
+                                <span class="text-[20px] font-bold text-[#343a40]" x-text="s.name"></span>
+                                <span class="line-clamp-2 text-[13px] text-[#5a5a5a]" x-text="s.description"></span>
+                                <span class="flex flex-col">
+                                    <span class="text-[24px] font-semibold text-[#222]" x-text="money(s.price)"></span>
+                                    <span class="text-[12px] text-[#6a6a6a]">Per Guest</span>
+                                </span>
+                            </button>
+                        </template>
+                    </div>
+
+                    {{-- Right arrow --}}
+                    <button type="button" @click="slide(1)" x-show="canRight || canLeft" :disabled="!canRight"
+                            aria-label="Next services"
+                            class="absolute -right-2 top-1/2 z-10 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[#ba6d04] shadow-lg transition hover:bg-[#fff3e0] disabled:cursor-not-allowed disabled:opacity-30 sm:flex">
+                        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
                 </div>
 
                 {{-- Special request --}}
