@@ -34,6 +34,9 @@ Route::view('/', 'welcome')->name('home');
 Route::view('spa-wellness', 'spa')->name('spa');
 Route::view('rooms-apartment', 'rooms')->name('rooms');
 Route::view('experience', 'experience')->name('experience');
+Route::view('privacy-policy', 'privacy')->name('privacy');
+Route::view('terms-of-service', 'terms')->name('terms');
+Route::view('booking-policy', 'booking')->name('booking');
 Route::get('rooms-apartment/{room:slug}', function (Room $room) {
     abort_unless($room->is_published, 404);
 
@@ -529,7 +532,7 @@ Route::post('contact-us', function () {
     ]);
 })->name('contact.submit');
 
-Route::prefix('admin')->name('admin.')->group(function () {
+route::prefix('admin')->name('admin.')->group(function () {
     // Guest-only authentication screens.
     Route::middleware('guest')->group(function () {
         Route::get('login', Login::class)->name('login');

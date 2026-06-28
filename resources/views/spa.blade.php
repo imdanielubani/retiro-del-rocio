@@ -57,8 +57,9 @@
 
     {{-- ============================ HERO ============================ --}}
     <section class="relative w-full">
-        <img loading="eager" fetchpriority="high" src="{{ cms_image('spa.hero_image') }}" alt="Spa & Wellness"
-             class="h-[460px] w-full object-cover sm:h-[600px] lg:h-[720px]">
+        <x-img src="{{ cms_image('spa.hero_image') }}" alt="Spa & Wellness" sizes="100vw"
+               loading="eager" fetchpriority="high"
+               class="h-[460px] w-full object-cover sm:h-[600px] lg:h-[720px]" />
         <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-black/10"></div>
         <x-layouts.container class="absolute inset-0 flex items-center">
             <div class="flex max-w-[640px] flex-col gap-6">
@@ -91,8 +92,9 @@
                     <div class="flex flex-col gap-4">
                         <div class="overflow-hidden rounded-2xl">
                             @if ($service['image'])
-                                <img loading="lazy" src="{{ $service['image'] }}" alt="{{ $service['title'] }}"
-                                     class="h-[300px] w-full object-cover transition duration-300 hover:scale-105 lg:h-[419px]">
+                                <x-img src="{{ $service['image'] }}" alt="{{ $service['title'] }}"
+                                       sizes="(min-width:1024px) 25vw, (min-width:640px) 50vw, 100vw" loading="lazy" decoding="async"
+                                       class="h-[300px] w-full object-cover transition duration-300 hover:scale-105 lg:h-[419px]" />
                             @else
                                 <div class="flex h-[300px] w-full items-center justify-center bg-[#373d35] lg:h-[419px]">
                                     <svg class="size-10 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
@@ -108,8 +110,8 @@
 
     {{-- ================= DISCOVER A HEALTHIER WAY TO RELAX ================= --}}
     <section class="relative w-full">
-        <img loading="lazy" src="{{ cms_image('spa.discover_image') }}" alt=""
-             class="h-[460px] w-full object-cover lg:h-[560px]">
+        <x-img src="{{ cms_image('spa.discover_image') }}" alt="" sizes="100vw" loading="lazy" decoding="async"
+               class="h-[460px] w-full object-cover lg:h-[560px]" />
         <div class="absolute inset-0 bg-black/65"></div>
         <x-layouts.container class="absolute inset-0 flex items-center">
             <div class="grid grid-cols-1 items-center gap-6 lg:grid-cols-2 lg:gap-16">
@@ -338,7 +340,7 @@
                         {{-- Left: image + order summary --}}
                         <div class="flex flex-col gap-5">
                             @if ($coImg)
-                                <img loading="lazy" src="{{ $coImg }}" alt="" class="h-[200px] w-full rounded-xl object-cover">
+                                <x-img src="{{ $coImg }}" alt="" sizes="(min-width:1024px) 50vw, 100vw" loading="lazy" decoding="async" class="h-[200px] w-full rounded-xl object-cover" />
                             @endif
                             <div class="flex flex-col gap-4 rounded-xl bg-[#373d35]/40 p-5 text-white">
                                 <p class="text-lg font-semibold">Order Details</p>

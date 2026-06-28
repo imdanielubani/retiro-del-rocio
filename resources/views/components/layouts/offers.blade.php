@@ -20,8 +20,9 @@
                     @php($cardHref = $isModel ? route('rooms.show', $room) : '#')
                     <a href="{{ $cardHref }}" @if ($isModel) wire:navigate @endif data-card
                        class="group relative block w-[686px] max-w-[88%] shrink-0 snap-start overflow-hidden rounded-2xl bg-[#1e1e1e]">
-                        <img loading="lazy" src="{{ $cardImage }}" alt="{{ $cardName }}"
-                             class="h-[420px] w-full object-cover transition duration-500 group-hover:scale-105 lg:h-[541px]">
+                        <x-img src="{{ $cardImage }}" alt="{{ $cardName }}"
+                               sizes="(min-width:768px) 686px, 88vw" loading="lazy" decoding="async"
+                               class="h-[420px] w-full object-cover transition duration-500 group-hover:scale-105 lg:h-[541px]" />
                         <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent"></div>
 
                         <div class="absolute inset-x-0 bottom-0 flex flex-col gap-4 p-6 lg:p-9">

@@ -65,8 +65,9 @@
                 <div class="flex flex-col gap-1.5">
                     {{-- Room image --}}
                     <div class="relative overflow-hidden rounded-[10px]">
-                        <img loading="lazy" src="{{ str_replace(' ', '%20', asset('images/image 7.jpg')) }}" alt="{{ $booking['room'] }}"
-                             class="h-[320px] w-full object-cover sm:h-[440px] lg:h-[560px]">
+                        <x-img src="{{ str_replace(' ', '%20', asset('images/image 7.jpg')) }}" alt="{{ $booking['room'] }}"
+                               sizes="(min-width:1024px) 50vw, 100vw" loading="lazy" decoding="async"
+                               class="h-[320px] w-full object-cover sm:h-[440px] lg:h-[560px]" />
                         <div class="absolute inset-0 bg-gradient-to-b from-black/75 via-transparent to-black/30"></div>
                     </div>
 
@@ -224,34 +225,11 @@
                             </button>
                         </div>
 
-                        {{-- Secure card preview (entry happens in the Paystack window) --}}
-                        <div class="mt-9 flex flex-col gap-5 opacity-95">
-                            <div class="flex flex-col gap-1.5 border-b border-white/30 pb-2">
-                                <span class="text-label font-medium tracking-tight text-[#a5a5a5]">Card holder name</span>
-                                <span class="text-body-lg tracking-tight text-white/50">••• •••</span>
-                            </div>
-                            <div class="flex flex-col gap-1.5 border-b border-white/30 pb-2">
-                                <span class="text-label font-medium tracking-tight text-[#a5a5a5]">Card number</span>
-                                <div class="flex items-center justify-between gap-4">
-                                    <span class="text-body-lg tracking-tight text-white/50">•••• •••• •••• ••••</span>
-                                    <span class="flex items-center gap-1.5 text-caption font-semibold text-white/70">VISA · Mastercard · Verve</span>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-5">
-                                <div class="flex flex-col gap-1.5 border-b border-white/30 pb-2">
-                                    <span class="text-label font-medium tracking-tight text-[#a5a5a5]">CVC</span>
-                                    <span class="text-body-lg tracking-tight text-white/50">•••</span>
-                                </div>
-                                <div class="flex flex-col gap-1.5 border-b border-white/30 pb-2">
-                                    <span class="text-label font-medium tracking-tight text-[#a5a5a5]">Expiry Date</span>
-                                    <span class="text-body-lg tracking-tight text-white/50">MM/YY</span>
-                                </div>
-                            </div>
-                            <p class="flex items-center gap-2 text-label text-white/60">
-                                <svg class="icon-xs shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/></svg>
-                                {{ cms('checkout.secure_note') }}
-                            </p>
-                        </div>
+                        {{-- Secure note (card entry happens securely in the Paystack window — matches the spa checkout) --}}
+                        <p class="mt-6 flex items-center gap-2 text-label text-white/60">
+                            <svg class="icon-xs shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/></svg>
+                            {{ cms('checkout.secure_note') }}
+                        </p>
 
                         {{-- Submit + total --}}
                         <div class="mt-9 flex flex-wrap items-center gap-7">

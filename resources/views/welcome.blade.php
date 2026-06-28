@@ -19,8 +19,9 @@
     <section class="w-full">
         {{-- Full-width hero image (Figma 85:143 — spans the viewport edge to edge) --}}
         <div class="w-full overflow-hidden">
-            <img loading="eager" fetchpriority="high" src="{{ cms_image('home.hero_image') }}" alt="Retiro Del Rocio"
-                 class="h-[380px] w-full object-cover sm:h-[520px] lg:h-[660px]">
+            <x-img src="{{ cms_image('home.hero_image') }}" alt="Retiro Del Rocio" sizes="100vw"
+                   loading="eager" fetchpriority="high"
+                   class="h-[380px] w-full object-cover sm:h-[520px] lg:h-[660px]" />
         </div>
 
         {{-- Search panel (#d9d9d9) overlapping the hero bottom, inset to the container — Figma node 92:112 --}}
@@ -167,8 +168,9 @@
     <section class="w-full py-12 lg:py-16">
         <x-layouts.container>
             <div class="relative overflow-hidden rounded-[20px]">
-                <img loading="lazy" src="{{ cms_image('home.destination_image') }}" alt="More than a destination"
-                     class="h-[440px] w-full object-cover sm:h-[600px] lg:h-[780px]">
+                <x-img src="{{ cms_image('home.destination_image') }}" alt="More than a destination"
+                       sizes="(min-width:1280px) 1280px, 100vw" loading="lazy" decoding="async"
+                       class="h-[440px] w-full object-cover sm:h-[600px] lg:h-[780px]" />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
 
                 {{-- Heading (left) + paragraph (right), aligned to the bottom --}}
@@ -191,8 +193,9 @@
     <section class="w-full py-12 lg:py-16">
         <x-layouts.container>
             <div class="grid grid-cols-1 overflow-hidden rounded-[20px] lg:grid-cols-[57%_43%]">
-                <img loading="lazy" src="{{ cms_image('home.member_image') }}" alt=""
-                     class="h-[260px] w-full object-cover lg:h-full lg:min-h-[508px]">
+                <x-img src="{{ cms_image('home.member_image') }}" alt="" sizes="(min-width:1024px) 57vw, 100vw"
+                       loading="lazy" decoding="async"
+                       class="h-[260px] w-full object-cover lg:h-full lg:min-h-[508px]" />
                 <div class="flex flex-col justify-center gap-[27px] bg-[#e8e6e1] px-8 py-12 lg:px-[51px] lg:py-[80px]">
                     <div class="flex flex-col gap-[12px] text-[#343a40]">
                         <h2 class="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-h1 lg:leading-[52px]">
@@ -225,7 +228,7 @@
     <section class="w-full py-16 lg:py-24">
         <x-layouts.container class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {{-- top-left landscape --}}
-            <img loading="lazy" src="{{ cms_image('home.jos_image_1') }}" alt="Jos City" class="h-[240px] w-full rounded-[18px] object-cover lg:h-[300px]">
+            <x-img src="{{ cms_image('home.jos_image_1') }}" alt="Jos City" sizes="(min-width:640px) 50vw, 100vw" loading="lazy" decoding="async" class="h-[240px] w-full rounded-[18px] object-cover lg:h-[300px]" />
             {{-- top-right text --}}
             <div class="flex flex-col justify-center gap-[24px]">
                 <h2 class="text-4xl font-medium leading-tight tracking-tight text-white sm:text-5xl lg:text-display lg:leading-[60px]">
@@ -236,9 +239,9 @@
                 </p>
             </div>
             {{-- bottom-left ruins --}}
-            <img loading="lazy" src="{{ cms_image('home.jos_image_2') }}" alt="Jos City" class="h-[240px] w-full rounded-[18px] object-cover lg:h-[320px]">
+            <x-img src="{{ cms_image('home.jos_image_2') }}" alt="Jos City" sizes="(min-width:640px) 50vw, 100vw" loading="lazy" decoding="async" class="h-[240px] w-full rounded-[18px] object-cover lg:h-[320px]" />
             {{-- bottom-right forest --}}
-            <img loading="lazy" src="{{ cms_image('home.jos_image_3') }}" alt="Jos City" class="h-[240px] w-full rounded-[18px] object-cover lg:h-[320px]">
+            <x-img src="{{ cms_image('home.jos_image_3') }}" alt="Jos City" sizes="(min-width:640px) 50vw, 100vw" loading="lazy" decoding="async" class="h-[240px] w-full rounded-[18px] object-cover lg:h-[320px]" />
         </x-layouts.container>
     </section>
 
@@ -247,8 +250,9 @@
         <x-layouts.container class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {{-- Left: wellness lifestyle tall image card --}}
             <div class="relative min-h-[480px] overflow-hidden rounded-[20px] lg:min-h-[760px]">
-                <img loading="lazy" src="{{ cms_image('home.wellness_image') }}" alt="Wellness lifestyle"
-                     class="absolute inset-0 h-full w-full object-cover">
+                <x-img src="{{ cms_image('home.wellness_image') }}" alt="Wellness lifestyle"
+                       sizes="(min-width:1024px) 50vw, 100vw" loading="lazy" decoding="async"
+                       class="absolute inset-0 h-full w-full object-cover" />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 <div class="absolute inset-x-0 bottom-0 flex flex-col gap-[29px] p-8 lg:p-[60px]">
                     <h2 class="max-w-[420px] text-3xl font-medium leading-tight tracking-tight text-white sm:text-4xl lg:text-display lg:leading-[58px]">
@@ -271,8 +275,9 @@
                         {{ cms('home.train_text') }}
                     </p>
                 </div>
-                <img loading="lazy" src="{{ cms_image('home.train_image') }}" alt="Wellness"
-                     class="h-[300px] w-full flex-1 rounded-[18px] object-cover lg:h-auto lg:min-h-[480px]">
+                <x-img src="{{ cms_image('home.train_image') }}" alt="Wellness"
+                       sizes="(min-width:1024px) 50vw, 100vw" loading="lazy" decoding="async"
+                       class="h-[300px] w-full flex-1 rounded-[18px] object-cover lg:h-auto lg:min-h-[480px]" />
             </div>
         </x-layouts.container>
     </section>

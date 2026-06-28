@@ -26,8 +26,9 @@
 
 <a href="{{ $href }}" wire:navigate class="group relative block overflow-hidden rounded-2xl bg-[#1e1e1e]">
     @if ($imageUrl)
-        <img loading="lazy" src="{{ $imageUrl }}" alt="{{ $name }}"
-             class="h-[320px] w-full object-cover transition duration-500 group-hover:scale-105 sm:h-[400px] lg:h-[500px]">
+        <x-img src="{{ $imageUrl }}" alt="{{ $name }}"
+               sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" loading="lazy" decoding="async"
+               class="h-[320px] w-full object-cover transition duration-500 group-hover:scale-105 sm:h-[400px] lg:h-[500px]" />
     @else
         <div class="h-[320px] w-full sm:h-[400px] lg:h-[500px]"></div>
     @endif

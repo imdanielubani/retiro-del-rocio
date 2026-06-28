@@ -14,8 +14,9 @@
     <section class="w-full">
         {{-- Full-width hero image --}}
         <div class="w-full overflow-hidden">
-            <img loading="eager" fetchpriority="high" src="{{ cms_image('experience.hero_image') }}" alt="Explore Jos"
-                 class="h-[380px] w-full object-cover sm:h-[520px] lg:h-[660px]">
+            <x-img src="{{ cms_image('experience.hero_image') }}" alt="Explore Jos" sizes="100vw"
+                   loading="eager" fetchpriority="high"
+                   class="h-[380px] w-full object-cover sm:h-[520px] lg:h-[660px]" />
         </div>
 
         {{-- Search panel overlapping the hero bottom (same as homepage) --}}
@@ -104,8 +105,9 @@
     {{-- =================== BEYOND YOUR STAY — EXPLORE JOS =================== --}}
     <section class="w-full py-12 lg:py-16">
         <x-layouts.container class="flex flex-col gap-8 lg:gap-10">
-            <img loading="lazy" src="{{ cms_image('experience.jos_image') }}" alt="{{ cms('experience.jos_title') }}"
-                 class="h-[260px] w-full rounded-[18px] object-cover sm:h-[440px] lg:h-[600px]">
+            <x-img src="{{ cms_image('experience.jos_image') }}" alt="{{ cms('experience.jos_title') }}"
+                   sizes="(min-width:1280px) 1280px, 100vw" loading="lazy" decoding="async"
+                   class="h-[260px] w-full rounded-[18px] object-cover sm:h-[440px] lg:h-[600px]" />
             <div class="grid grid-cols-1 gap-5 lg:grid-cols-[40%_60%] lg:items-start lg:gap-10">
                 <h2 class="text-3xl font-semibold leading-tight tracking-tight text-[#f38c00] sm:text-4xl lg:text-h1">{{ cms('experience.jos_title') }}</h2>
                 <p class="text-body leading-relaxed tracking-tight text-white/70 lg:text-body-lg">{{ cms('experience.jos_text') }}</p>
@@ -118,8 +120,8 @@
         <x-layouts.container>
             {{-- Two images side by side with the heading + text overlaid bottom-left --}}
             <div class="relative grid grid-cols-2 overflow-hidden rounded-[20px]">
-                <img loading="lazy" src="{{ cms_image('experience.calm_image_1') }}" alt="" class="h-[320px] w-full object-cover sm:h-[480px] lg:h-[600px]">
-                <img loading="lazy" src="{{ cms_image('experience.calm_image_2') }}" alt="" class="h-[320px] w-full object-cover sm:h-[480px] lg:h-[600px]">
+                <x-img src="{{ cms_image('experience.calm_image_1') }}" alt="" sizes="(min-width:640px) 50vw, 100vw" loading="lazy" decoding="async" class="h-[320px] w-full object-cover sm:h-[480px] lg:h-[600px]" />
+                <x-img src="{{ cms_image('experience.calm_image_2') }}" alt="" sizes="(min-width:640px) 50vw, 100vw" loading="lazy" decoding="async" class="h-[320px] w-full object-cover sm:h-[480px] lg:h-[600px]" />
                 <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 to-transparent px-6 pb-12 pt-44 sm:px-10 sm:pb-14 lg:px-14 lg:pb-16">
                     <h2 class="text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl lg:text-h1">{{ cms('experience.calm_title') }}</h2>
                     <p class="mt-3 max-w-[820px] text-body leading-relaxed tracking-tight text-white/85 lg:text-body-lg">{{ cms('experience.calm_text') }}</p>
@@ -132,8 +134,9 @@
     <section class="w-full py-12 lg:py-16">
         <x-layouts.container>
             <div class="grid grid-cols-1 overflow-hidden rounded-[20px] lg:grid-cols-[57%_43%]">
-                <img loading="lazy" src="{{ cms_image('experience.member_image') }}" alt=""
-                     class="h-[260px] w-full object-cover lg:h-full lg:min-h-[508px]">
+                <x-img src="{{ cms_image('experience.member_image') }}" alt="" sizes="(min-width:1024px) 57vw, 100vw"
+                       loading="lazy" decoding="async"
+                       class="h-[260px] w-full object-cover lg:h-full lg:min-h-[508px]" />
                 <div class="flex flex-col justify-center gap-[27px] bg-[#e8e6e1] px-8 py-12 lg:px-[51px] lg:py-[80px]">
                     <div class="flex flex-col gap-[12px] text-[#343a40]">
                         <h2 class="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-h1 lg:leading-[52px]">
@@ -170,8 +173,9 @@
             <div class="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:gap-x-12 lg:gap-y-16">
                 @foreach ($destinations as $d)
                     <div class="flex flex-col gap-5">
-                        <img loading="lazy" src="{{ $d['image'] }}" alt="{{ $d['title'] }}"
-                             class="h-[240px] w-full rounded-[18px] object-cover sm:h-[360px] lg:h-[420px]">
+                        <x-img src="{{ $d['image'] }}" alt="{{ $d['title'] }}"
+                               sizes="(min-width:640px) 50vw, 100vw" loading="lazy" decoding="async"
+                               class="h-[240px] w-full rounded-[18px] object-cover sm:h-[360px] lg:h-[420px]" />
                         <h3 class="text-2xl font-semibold tracking-tight text-white lg:text-h3">{{ $d['title'] }}</h3>
                         <p class="text-body leading-relaxed tracking-tight text-white/70 lg:text-body-lg">{{ $d['text'] }}</p>
                     </div>

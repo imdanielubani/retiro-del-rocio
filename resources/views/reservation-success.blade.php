@@ -6,8 +6,9 @@
                 {{-- ============ LEFT: image + order details ============ --}}
                 <div class="flex flex-col gap-6">
                     <div class="relative overflow-hidden rounded-[6px]">
-                        <img loading="lazy" src="{{ str_replace(' ', '%20', asset('images/image 7.jpg')) }}" alt="{{ $order['room'] }}"
-                             class="h-[320px] w-full object-cover sm:h-[480px] lg:h-[560px]">
+                        <x-img src="{{ str_replace(' ', '%20', asset('images/image 7.jpg')) }}" alt="{{ $order['room'] }}"
+                               sizes="(min-width:1024px) 50vw, 100vw" loading="lazy" decoding="async"
+                               class="h-[320px] w-full object-cover sm:h-[480px] lg:h-[560px]" />
                         <div class="absolute inset-0 bg-gradient-to-b from-black/75 via-transparent to-black/30"></div>
                     </div>
 

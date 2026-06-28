@@ -255,8 +255,9 @@
 
                 {{-- Content: car image (left) + heading/text + chauffeur image (right) --}}
                 <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <img loading="lazy" src="{{ cms_image('pickup.image_1') }}" alt="Premium chauffeur car"
-                         class="h-[300px] w-full rounded-xl object-cover lg:h-full lg:min-h-[620px]">
+                    <x-img src="{{ cms_image('pickup.image_1') }}" alt="Premium chauffeur car"
+                           sizes="(min-width:1024px) 50vw, 100vw" loading="lazy" decoding="async"
+                           class="h-[300px] w-full rounded-xl object-cover lg:h-full lg:min-h-[620px]" />
 
                     <div class="flex flex-col gap-[29px]">
                         <h3 class="text-4xl font-medium leading-tight tracking-tight text-white lg:text-display lg:leading-[60px]">
@@ -265,8 +266,9 @@
                         <p class="text-lg leading-relaxed tracking-tight text-white/90 lg:text-body-lg">
                             {{ cms('pickup.text') }}
                         </p>
-                        <img loading="lazy" src="{{ cms_image('pickup.image_2') }}" alt="Chauffeur assisting guest"
-                             class="h-[280px] w-full rounded-xl object-cover lg:h-auto lg:flex-1">
+                        <x-img src="{{ cms_image('pickup.image_2') }}" alt="Chauffeur assisting guest"
+                               sizes="(min-width:1024px) 50vw, 100vw" loading="lazy" decoding="async"
+                               class="h-[280px] w-full rounded-xl object-cover lg:h-auto lg:flex-1" />
                     </div>
                 </div>
             </div>
