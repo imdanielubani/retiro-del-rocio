@@ -21,6 +21,11 @@ return Application::configure(basePath: dirname(__DIR__))
             | Request::HEADER_X_FORWARDED_PROTO
             | Request::HEADER_X_FORWARDED_AWS_ELB);
 
+        // Inject the cookie-consent banner before </body> on public pages.
+        $middleware->web(append: [
+            \Statikbe\CookieConsent\CookieConsentMiddleware::class,
+        ]);
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
