@@ -107,7 +107,7 @@ $pages = [
                 ['label' => 'Home', 'url' => '/'],
                 ['label' => 'Rooms & Apartment', 'url' => '/rooms-apartment'],
                 ['label' => 'Experience', 'url' => '/experience'],
-                ['label' => 'Gym', 'url' => '#'],
+                ['label' => 'Gym', 'url' => '/gym'],
                 ['label' => 'Cinema', 'url' => '#'],
                 ['label' => 'Restaurant', 'url' => '#'],
                 ['label' => 'Spa/Wellness', 'url' => '/spa-wellness'],
@@ -372,6 +372,42 @@ $pages = [
                 ['title' => 'Group & Extended Stays', 'text' => 'Special terms may apply to group bookings and extended stays, including deposit and cancellation requirements. Please contact us directly to arrange these.'],
                 ['title' => 'Contact Us', 'text' => "For help with a booking, please contact us:\n\nRetiro Del Rocio\nNo. 1, Off Liberty Boulevard, Millionaire Quarters, Jos, Plateau State\nEmail: hello@retirodelrocio.com\nPhone: (+234) 7012623680"],
             ]],
+        ],
+    ],
+    'gym' => [
+        'label' => 'Gym & Fitness',
+        'category' => 'core',
+        'chips' => ['Hero', 'Elevate', 'Plans', 'What We Offer'],
+        'preview' => '/gym',
+        'fields' => [
+            // Hero
+            ['key' => 'gym.hero_image', 'label' => 'Hero image', 'type' => 'image', 'default' => 'images/image 131.jpg'],
+            ['key' => 'gym.hero_title', 'label' => 'Hero heading', 'type' => 'text', 'default' => 'Wellness that fits your lifestyle'],
+            ['key' => 'gym.hero_text', 'label' => 'Hero subtext', 'type' => 'textarea', 'default' => 'Achieve balance, strength, and vitality with personalized wellness experiences designed around your goals. From fitness programs to holistic recovery, we help you become your best self.'],
+            ['key' => 'gym.subscribe_label', 'label' => 'Subscribe button text', 'type' => 'text', 'default' => 'Subscribe'],
+            ['key' => 'gym.renew_label', 'label' => 'Renew button text', 'type' => 'text', 'default' => 'Renew Subscription'],
+
+            // Elevate band
+            ['key' => 'gym.elevate_title', 'label' => '“Elevate” heading', 'type' => 'text', 'default' => 'Elevate Your Mind, Body & Spirit'],
+            ['key' => 'gym.elevate_text', 'label' => '“Elevate” paragraph', 'type' => 'textarea', 'default' => 'Whether you’re beginning your fitness journey or refining an established routine, our expert-led programs, modern facilities, and supportive environment provide everything you need to succeed.'],
+            ['key' => 'gym.banner_image', 'label' => 'Wide banner image', 'type' => 'image', 'default' => 'images/IMG_2649 1.jpg'],
+
+            // Plans heading (plans themselves are managed in Admin → Gym → Plans)
+            ['key' => 'gym.plans_subtitle', 'label' => 'Plans — small heading', 'type' => 'text', 'default' => 'Our Fitness Plans'],
+            ['key' => 'gym.plans_title', 'label' => 'Plans — heading', 'type' => 'text', 'default' => 'Exclusive plans just for you'],
+
+            // What we offer
+            ['key' => 'gym.offer_image', 'label' => '“What we offer” image', 'type' => 'image', 'default' => 'images/image 161.jpg'],
+            ['key' => 'gym.offer_subtitle', 'label' => '“What we offer” small heading', 'type' => 'text', 'default' => 'What we offer'],
+            ['key' => 'gym.offer_title', 'label' => '“What we offer” heading', 'type' => 'text', 'default' => 'Programs Designed for Every Fitness Level'],
+            ['key' => 'gym.offer_1_title', 'label' => 'Offer 1 title', 'type' => 'text', 'default' => 'Yoga & Flexibility'],
+            ['key' => 'gym.offer_1_text', 'label' => 'Offer 1 text', 'type' => 'textarea', 'default' => 'Improve mobility, balance, and calm with guided yoga and stretching sessions.'],
+            ['key' => 'gym.offer_2_title', 'label' => 'Offer 2 title', 'type' => 'text', 'default' => 'Personal Trainer'],
+            ['key' => 'gym.offer_2_text', 'label' => 'Offer 2 text', 'type' => 'textarea', 'default' => 'Train one-on-one with certified coaches who tailor every session to your goals.'],
+            ['key' => 'gym.offer_3_title', 'label' => 'Offer 3 title', 'type' => 'text', 'default' => 'Weight Loss'],
+            ['key' => 'gym.offer_3_text', 'label' => 'Offer 3 text', 'type' => 'textarea', 'default' => 'Structured programs and accountability to help you burn fat and build lasting habits.'],
+            ['key' => 'gym.offer_4_title', 'label' => 'Offer 4 title', 'type' => 'text', 'default' => 'Cardio Training'],
+            ['key' => 'gym.offer_4_text', 'label' => 'Offer 4 text', 'type' => 'textarea', 'default' => 'Boost stamina and heart health with high-energy cardio workouts for every level.'],
         ],
     ],
 ];

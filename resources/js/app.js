@@ -123,6 +123,84 @@ window.spaReservation = function (config) {
     };
 };
 
+/*
+ * Gym membership popup. Subscribe / Renewal tabs, customer details + plan
+ * selection + Paystack payment in one modal. On a successful charge it submits
+ * a hidden POST form (so personal data never goes in the URL) to gym/subscribe,
+ * which verifies the payment, records the membership and reopens at success.
+ */
+window.gymMembership = function (config) {
+    return {
+        plans: config.plans || [],
+        paystackKey: config.paystackKey || '',
+        showModal: false,
+        step: config.successData ? 'success' : 'form',
+        type: 'subscribe', // subscribe | renewal
+        name: '', email: '', phone: '', dob: '',
+        planSlug: config.defaultPlan || (config.plans[0] ? config.plans[0].slug : ''),
+        channel: 'card',
+        success: config.successData || null,
+        payReference: '',
+
+        init() {
+            if (this.success) { this.step = 'success'; this.open(); }
+            else if (window.location.hash === '#subscribe') { this.open('subscribe'); }
+        },
+        open(type, planSlug) {
+            // A Subscribe/Renew click always opens the fresh form, even right
+            // after a successful subscription (clears the consumed success).
+            if (type) { this.type = type; this.success = null; this.step = 'form'; }
+            if (planSlug) this.planSlug = planSlug;
+            this.showModal = true; document.body.style.overflow = 'hidden';
+        },
+        close() { this.showModal = false; document.body.style.overflow = ''; },
+
+        selectPlan(slug) { this.planSlug = slug; },
+        isPlan(slug) { return this.planSlug === slug; },
+        get selectedPlan() { return this.plans.find((p) => p.slug === this.planSlug) || null; },
+        get amountKobo() { return this.selectedPlan ? this.selectedPlan.price * 100 : 0; },
+        money(n) { return '₦' + (n || 0).toLocaleString(); },
+
+        pay() {
+            if (!this.name || !this.email) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please enter your name and email to continue.' } }));
+                return;
+            }
+            if (!this.selectedPlan) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please choose a membership plan.' } }));
+                return;
+            }
+            if (!this.paystackKey) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Payments are not configured yet. Please add your Paystack keys.' } }));
+                return;
+            }
+            if (typeof PaystackPop === 'undefined') {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Payment library failed to load. Check your connection and try again.' } }));
+                return;
+            }
+            const channelMap = { card: 'card', bank: 'bank', transfer: 'bank_transfer' };
+            const handler = PaystackPop.setup({
+                key: this.paystackKey,
+                email: this.email,
+                amount: this.amountKobo,
+                currency: 'NGN',
+                channels: [channelMap[this.channel] || 'card'],
+                metadata: {
+                    name: this.name,
+                    phone: this.phone ? '+234' + this.phone : '',
+                    custom_fields: [
+                        { display_name: 'Plan', variable_name: 'plan', value: this.selectedPlan.name },
+                        { display_name: 'Type', variable_name: 'type', value: this.type },
+                    ],
+                },
+                callback: (response) => { this.payReference = response.reference; this.$nextTick(() => this.$refs.form.submit()); },
+                onClose: () => { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Payment window closed before completing your membership.' } })); },
+            });
+            handler.openIframe();
+        },
+    };
+};
+
 window.cmsImageUpload = function (model) {
     return {
         uploading: false,

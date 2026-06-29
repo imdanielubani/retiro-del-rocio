@@ -105,8 +105,8 @@
                 ['label' => 'Bookings', 'href' => '#'],
             ]],
             ['key' => 'gym', 'label' => 'Gym', 'icon' => 'gym', 'children' => [
-                ['label' => 'Plans', 'href' => '#'],
-                ['label' => 'Memberships', 'href' => '#'],
+                ['label' => 'Plans', 'href' => route('admin.gym.plans'), 'active' => request()->routeIs('admin.gym.plans')],
+                ['label' => 'Memberships', 'href' => route('admin.gym.memberships'), 'active' => request()->routeIs('admin.gym.memberships')],
                 ['label' => 'Access Logs', 'href' => '#'],
             ]],
             ['key' => 'vehicle-pickups', 'label' => 'Vehicle Pickups', 'icon' => 'car', 'children' => [

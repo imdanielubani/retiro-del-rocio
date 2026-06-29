@@ -12,15 +12,19 @@ use App\Mail\BookingRequest;
 use App\Mail\BookingReservation;
 use App\Mail\ContactAcknowledgement;
 use App\Mail\ContactEnquiry;
+use App\Mail\GymMembershipConfirmation;
 use App\Mail\PickupConfirmation;
 use App\Mail\SpaReservation;
 use App\Models\Booking;
+use App\Models\GymMembership;
+use App\Models\GymPlan;
 use App\Models\ContactMessage;
 use App\Models\Room;
 use App\Models\SpaBooking;
 use App\Models\SpaService;
 use App\Models\User;
 use App\Notifications\BookingReceived;
+use App\Notifications\GymMembershipReceived;
 use App\Notifications\MessageReceived;
 use App\Notifications\SpaBookingReceived;
 use Illuminate\Support\Facades\Notification;
@@ -496,6 +500,91 @@ Route::get('spa-wellness/callback', function () {
     return redirect()->route('spa');
 })->name('spa.checkout.callback');
 
+/*
+|--------------------------------------------------------------------------
+| Gym membership flow (Paystack)
+|--------------------------------------------------------------------------
+*/
+Route::view('gym', 'gym')->name('gym');
+
+// Subscribe / renew — called via a hidden POST after a successful Paystack charge.
+Route::post('gym/subscribe', function () {
+    $data = request()->validate([
+        'reference' => ['required', 'string', 'max:190'],
+        'plan' => ['required', 'string', 'exists:gym_plans,slug'],
+        'type' => ['required', 'in:subscribe,renewal'],
+        'name' => ['required', 'string', 'max:160'],
+        'email' => ['required', 'email', 'max:190'],
+        'phone' => ['nullable', 'string', 'max:40'],
+        'dob' => ['nullable', 'date'],
+        'channel' => ['nullable', 'string', 'max:30'],
+    ]);
+
+    $plan = GymPlan::where('slug', $data['plan'])->first();
+
+    // Verify the payment with Paystack before recording anything.
+    try {
+        $response = Http::withToken(config('services.paystack.secret_key'))->acceptJson()
+            ->get(rtrim(config('services.paystack.payment_url'), '/').'/transaction/verify/'.$data['reference']);
+        $body = $response->json();
+
+        if (! $response->ok() || data_get($body, 'data.status') !== 'success') {
+            return redirect()->route('gym')->with('toast', [
+                'type' => 'error',
+                'message' => 'We could not verify your payment. If you were charged, contact us with reference: '.$data['reference'],
+            ]);
+        }
+    } catch (Throwable $e) {
+        report($e);
+
+        return redirect()->route('gym')->with('toast', ['type' => 'error', 'message' => 'Payment verification failed. Please try again or contact us.']);
+    }
+
+    $phone = $data['phone'] ? '+234'.ltrim($data['phone'], '+0') : null;
+
+    try {
+        $membership = GymMembership::create([
+            'code' => GymMembership::makeCode(),
+            'reference' => $data['reference'],
+            'gym_plan_id' => $plan->id,
+            'plan_name' => $plan->name,
+            'price' => $plan->price,
+            'period' => $plan->period,
+            'type' => $data['type'],
+            'customer_name' => $data['name'],
+            'customer_email' => $data['email'],
+            'customer_phone' => $phone,
+            'dob' => $data['dob'] ?? null,
+            'status' => 'active',
+            'payment_status' => 'paid',
+            'starts_at' => now()->toDateString(),
+            'ends_at' => now()->addMonthsNoOverflow($plan->durationMonths())->toDateString(),
+            'payment_method' => data_get($body, 'data.channel'),
+            'paid_at' => data_get($body, 'data.paid_at') ?? now(),
+        ]);
+
+        if ($membership->customer_email) {
+            Mail::to($membership->customer_email)->send(new GymMembershipConfirmation($membership));
+        }
+        Notification::send(User::admins()->get(), new GymMembershipReceived($membership));
+
+        session(['gym_success' => [
+            'code' => $membership->code,
+            'plan_name' => $membership->plan_name,
+            'customer_name' => $membership->customer_name,
+            'customer_email' => $membership->customer_email,
+            'customer_phone' => $membership->customer_phone,
+            'ends_at' => optional($membership->ends_at)->format('M j, Y'),
+        ]]);
+    } catch (Throwable $e) {
+        report($e);
+
+        return redirect()->route('gym')->with('toast', ['type' => 'error', 'message' => 'Your payment went through but we could not save your membership. Please contact us with reference: '.$data['reference']]);
+    }
+
+    return redirect()->route('gym');
+})->name('gym.subscribe');
+
 Route::view('contact-us', 'contact')->name('contact');
 Route::post('contact-us', function () {
     $data = request()->validate([
@@ -532,7 +621,7 @@ Route::post('contact-us', function () {
     ]);
 })->name('contact.submit');
 
-route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->group(function () {
     // Guest-only authentication screens.
     Route::middleware('guest')->group(function () {
         Route::get('login', Login::class)->name('login');
@@ -569,6 +658,13 @@ route::prefix('admin')->name('admin.')->group(function () {
         // Spa & Wellness — services fleet + reservations
         Route::get('spa-wellness/services', App\Livewire\Admin\Spa\Services::class)->name('spa.services');
         Route::get('spa-wellness/bookings', App\Livewire\Admin\Spa\Bookings::class)->name('spa.bookings');
+
+        // Gym & Fitness — plans + memberships
+        Route::get('gym/plans', App\Livewire\Admin\Gym\Plans::class)->name('gym.plans');
+        Route::get('gym/memberships', App\Livewire\Admin\Gym\Memberships::class)->name('gym.memberships');
+        Route::get('gym/memberships/{membership}/receipt', function (GymMembership $membership) {
+            return view('gym-receipt', ['m' => $membership]);
+        })->name('gym.receipt');
 
         // Payment — transactions captured from checkout
         Route::get('payment', App\Livewire\Admin\Payment\Index::class)->name('payment.index');

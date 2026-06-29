@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             RoomSeeder::class,
             VehicleSeeder::class,
             SpaServiceSeeder::class,
+            GymPlanSeeder::class,
         ]);
     }
 }
