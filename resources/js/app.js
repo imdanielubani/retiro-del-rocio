@@ -325,21 +325,29 @@ window.cinemaBooking = function (config) {
         movie: config.movie || {},
         snacks: config.snacks || [],
         paystackKey: config.paystackKey || '',
+        seatsUrl: config.seatsUrl || '',
+        holdUrl: config.holdUrl || '',
+        releaseUrl: config.releaseUrl || '',
+        csrf: config.csrf || '',
         dates: [],
         selectedDate: '',
         selectedTime: config.movie && config.movie.showtimes && config.movie.showtimes[0] ? config.movie.showtimes[0] : '',
         rows: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
         cols: 12,
         seats: [],
+        takenSeats: [],
         adult: 1,
         child: 0,
         snackQty: {},
         name: '', email: '', phone: '',
         channel: 'card',
         showCheckout: false,
+        holding: false,
         step: config.successData ? 'success' : 'checkout',
         success: config.successData || null,
         payReference: '',
+        // Unique token tying this guest's seat hold to their Paystack reference.
+        token: 'CIN-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase(),
 
         init() {
             // Build the next 7 selectable dates.
@@ -351,13 +359,48 @@ window.cinemaBooking = function (config) {
             this.selectedDate = this.dates[0].iso;
             this.snacks.forEach((s) => { this.snackQty[s.id] = 0; });
             if (this.success) { this.step = 'success'; this.showCheckout = true; document.body.style.overflow = 'hidden'; }
+
+            // Keep the seat map in sync with what's already taken.
+            this.fetchTaken();
+            this.$watch('selectedDate', () => this.fetchTaken());
+            this.$watch('selectedTime', () => this.fetchTaken());
+            // Best-effort release of our hold if the guest leaves mid-checkout.
+            window.addEventListener('beforeunload', () => {
+                if (this.step !== 'success' && this.seats.length) { this.releaseHold(true); }
+            });
+        },
+
+        fetchTaken() {
+            if (!this.seatsUrl || !this.selectedDate || !this.selectedTime) { this.takenSeats = []; return; }
+            const url = this.seatsUrl + '?date=' + encodeURIComponent(this.selectedDate) + '&time=' + encodeURIComponent(this.selectedTime);
+            fetch(url, { headers: { Accept: 'application/json' } })
+                .then((r) => r.json())
+                .then((j) => {
+                    this.takenSeats = Array.isArray(j.taken) ? j.taken : [];
+                    // Drop any selected seat that is now taken by someone else.
+                    this.seats = this.seats.filter((s) => !this.takenSeats.includes(s));
+                })
+                .catch(() => { this.takenSeats = []; });
         },
 
         toggleSeat(id) {
+            if (this.isTaken(id)) { return; }
             const i = this.seats.indexOf(id);
             if (i === -1) { this.seats.push(id); } else { this.seats.splice(i, 1); }
         },
         isSeat(id) { return this.seats.includes(id); },
+        isTaken(id) { return this.takenSeats.includes(id); },
+
+        releaseHold(beacon) {
+            if (!this.releaseUrl) { return; }
+            // Form-encoded so sendBeacon (which can't set headers) still passes CSRF via _token.
+            const body = 'token=' + encodeURIComponent(this.token) + '&_token=' + encodeURIComponent(this.csrf);
+            if (beacon && navigator.sendBeacon) {
+                navigator.sendBeacon(this.releaseUrl, new Blob([body], { type: 'application/x-www-form-urlencoded' }));
+                return;
+            }
+            fetch(this.releaseUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': this.csrf }, body, keepalive: true }).catch(() => {});
+        },
 
         get ticketsCount() { return this.adult + this.child; },
         get ticketsTotal() { return this.adult * (this.movie.adult_price || 0) + this.child * (this.movie.child_price || 0); },
@@ -368,14 +411,44 @@ window.cinemaBooking = function (config) {
         prettyDate(iso) { if (!iso) return '—'; try { return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }); } catch (e) { return iso; } },
         get chosenSnacks() { return this.snacks.filter((s) => (this.snackQty[s.id] || 0) > 0).map((s) => ({ name: s.name, qty: this.snackQty[s.id], price: s.price })); },
 
-        openCheckout() {
+        async openCheckout() {
             if (this.ticketsCount < 1) { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please add at least one ticket.' } })); return; }
             if (!this.selectedDate || !this.selectedTime) { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please choose a date and showtime.' } })); return; }
             if (this.seats.length !== this.ticketsCount) { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please select ' + this.ticketsCount + ' seat' + (this.ticketsCount > 1 ? 's' : '') + ' to match your tickets.' } })); return; }
+
+            // Reserve the seats before payment so they can't be taken by someone else.
+            if (this.holdUrl) {
+                this.holding = true;
+                try {
+                    const res = await fetch(this.holdUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': this.csrf },
+                        body: JSON.stringify({ movie: this.movie.slug, date: this.selectedDate, time: this.selectedTime, seats: this.seats, token: this.token }),
+                    });
+                    const j = await res.json();
+                    if (!j.ok) {
+                        const taken = (j.conflicts || []).join(', ');
+                        window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Seat' + ((j.conflicts || []).length > 1 ? 's' : '') + ' ' + taken + ' just got taken. Please pick another.' } }));
+                        this.fetchTaken();
+                        this.holding = false;
+                        return;
+                    }
+                } catch (e) {
+                    window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Could not reserve your seats. Please try again.' } }));
+                    this.holding = false;
+                    return;
+                }
+                this.holding = false;
+            }
+
             this.success = null; this.step = 'checkout';
             this.showCheckout = true; document.body.style.overflow = 'hidden';
         },
-        closeCheckout() { this.showCheckout = false; document.body.style.overflow = ''; },
+        closeCheckout() {
+            // Free the held seats unless the booking already succeeded.
+            if (this.step !== 'success') { this.releaseHold(false); this.fetchTaken(); }
+            this.showCheckout = false; document.body.style.overflow = '';
+        },
 
         pay() {
             if (!this.name || !this.email) { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please enter your name and email to continue.' } })); return; }
@@ -387,6 +460,7 @@ window.cinemaBooking = function (config) {
                 email: this.email,
                 amount: this.amountKobo,
                 currency: 'NGN',
+                ref: this.token, // tie the payment to our seat hold
                 channels: [channelMap[this.channel] || 'card'],
                 metadata: { name: this.name, phone: this.phone ? '+234' + this.phone : '', custom_fields: [{ display_name: 'Movie', variable_name: 'movie', value: this.movie.title }] },
                 callback: (response) => { this.payReference = response.reference; this.$nextTick(() => this.$refs.form.submit()); },

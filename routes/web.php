@@ -19,6 +19,7 @@ use App\Models\Booking;
 use App\Mail\CinemaBookingConfirmation;
 use App\Mail\RestaurantReservationConfirmation;
 use App\Models\CinemaBooking;
+use App\Models\CinemaSeatHold;
 use App\Models\CinemaSnack;
 use App\Models\GymMembership;
 use App\Models\GymPlan;
@@ -709,6 +710,43 @@ Route::get('cinema/{movie:slug}', function (Movie $movie) {
     ]);
 })->name('cinema.movie');
 
+// Seats already taken for a showing (booked or actively held) — drives the seat map.
+Route::get('cinema/{movie:slug}/seats', function (Movie $movie) {
+    $date = request('date');
+    $time = request('time');
+
+    if (! $date || ! $time) {
+        return response()->json(['taken' => []]);
+    }
+
+    return response()->json(['taken' => CinemaSeatHold::takenSeats($movie->id, $date, $time)]);
+})->name('cinema.seats');
+
+// Hold the chosen seats before payment so nobody else can take them.
+Route::post('cinema/hold', function () {
+    $data = request()->validate([
+        'movie' => ['required', 'string', 'exists:movies,slug'],
+        'date' => ['required', 'date'],
+        'time' => ['required', 'string', 'max:30'],
+        'seats' => ['required', 'array', 'min:1', 'max:20'],
+        'seats.*' => ['string', 'max:8'],
+        'token' => ['required', 'string', 'max:80'],
+    ]);
+
+    $movie = Movie::where('slug', $data['movie'])->first();
+    $result = CinemaSeatHold::placeHold($movie->id, $data['date'], $data['time'], $data['seats'], $data['token']);
+
+    return response()->json($result);
+})->name('cinema.hold');
+
+// Release a hold when the guest abandons checkout.
+Route::post('cinema/release', function () {
+    $data = request()->validate(['token' => ['required', 'string', 'max:80']]);
+    CinemaSeatHold::release($data['token']);
+
+    return response()->json(['ok' => true]);
+})->name('cinema.release');
+
 // Book — called via a hidden POST after a successful Paystack charge.
 Route::post('cinema/book', function () {
     $data = request()->validate([
@@ -777,6 +815,30 @@ Route::post('cinema/book', function () {
             'payment_method' => data_get($body, 'data.channel'),
             'paid_at' => data_get($body, 'data.paid_at') ?? now(),
         ]);
+
+        // Lock the seats to this booking (the hold was placed before payment). If
+        // any seat was lost in the rare hold-expiry race, refund + notify rather
+        // than double-book it.
+        if (! empty($seats)) {
+            $secured = CinemaSeatHold::claimForBooking($movie->id, $data['date'], $data['time'], $seats, $data['reference'], $booking);
+            $lost = array_values(array_diff($seats, $secured));
+
+            if ($lost) {
+                $booking->update(['status' => 'cancelled', 'payment_status' => 'refunded']);
+                if ($booking->customer_email) {
+                    try {
+                        Mail::to($booking->customer_email)->send(new \App\Mail\CinemaBookingCancelled($booking->fresh()));
+                    } catch (Throwable $e) {
+                        report($e);
+                    }
+                }
+
+                return redirect()->route('cinema.movie', $movie)->with('toast', [
+                    'type' => 'error',
+                    'message' => 'Sorry, seat'.(count($lost) > 1 ? 's' : '').' '.implode(', ', $lost).' '.(count($lost) > 1 ? 'were' : 'was').' just taken. Your payment will be refunded within 24 hours.',
+                ]);
+            }
+        }
 
         if ($booking->customer_email) {
             Mail::to($booking->customer_email)->send(new CinemaBookingConfirmation($booking));

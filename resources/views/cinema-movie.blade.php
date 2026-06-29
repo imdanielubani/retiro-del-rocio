@@ -21,6 +21,10 @@
             snacks: @js($snacksJson),
             paystackKey: @js($paystackKey),
             successData: @js($cinemaSuccess),
+            seatsUrl: @js(url('cinema/'.$movie->slug.'/seats')),
+            holdUrl: @js(route('cinema.hold')),
+            releaseUrl: @js(route('cinema.release')),
+            csrf: @js(csrf_token()),
          })">
 
         {{-- ============================ MOVIE HERO ============================ --}}
@@ -127,8 +131,9 @@
                                         <span class="w-4 text-label text-white/40" x-text="row"></span>
                                         <template x-for="c in cols" :key="row + c">
                                             <button type="button" @click="toggleSeat(row + '' + c)"
+                                                    :disabled="isTaken(row + '' + c)"
                                                     class="size-6 rounded-[5px] text-[9px] font-medium transition lg:size-7"
-                                                    :class="isSeat(row + '' + c) ? 'bg-[#f38c00] text-white' : 'bg-white/12 text-white/50 hover:bg-white/25'"
+                                                    :class="isTaken(row + '' + c) ? 'cursor-not-allowed bg-white/5 text-white/20 line-through' : (isSeat(row + '' + c) ? 'bg-[#f38c00] text-white' : 'bg-white/12 text-white/50 hover:bg-white/25')"
                                                     x-text="c"></button>
                                         </template>
                                     </div>
@@ -137,6 +142,7 @@
                             <div class="flex flex-wrap items-center gap-5 text-label text-white/60">
                                 <span class="flex items-center gap-2"><span class="size-3.5 rounded-[4px] bg-white/12"></span> Available</span>
                                 <span class="flex items-center gap-2"><span class="size-3.5 rounded-[4px] bg-[#f38c00]"></span> Selected</span>
+                                <span class="flex items-center gap-2"><span class="size-3.5 rounded-[4px] bg-white/5"></span> Taken</span>
                             </div>
                         </div>
                     </div>
@@ -184,7 +190,7 @@
                         <span class="text-body-lg font-medium text-[#f38c00]">TOTAL</span>
                         <span class="text-h3 font-semibold tracking-tight text-white" x-text="money(grandTotal)"></span>
                     </div>
-                    <button type="button" @click="openCheckout()" class="mt-2 w-full rounded-[10px] bg-[#f38c00] py-4 text-body-lg font-semibold text-white transition hover:bg-[#dd7f00] sm:w-[260px]">{{ cms('cinemamovie.book_label') }}</button>
+                    <button type="button" @click="openCheckout()" :disabled="holding" class="mt-2 w-full rounded-[10px] bg-[#f38c00] py-4 text-body-lg font-semibold text-white transition hover:bg-[#dd7f00] disabled:opacity-60 sm:w-[260px]"><span x-show="!holding">{{ cms('cinemamovie.book_label') }}</span><span x-show="holding" x-cloak>Reserving seats…</span></button>
                 </div>
 
                 <a href="{{ route('cinema') }}" wire:navigate class="text-body font-medium text-white/60 transition hover:text-white">&larr; Back to all movies</a>

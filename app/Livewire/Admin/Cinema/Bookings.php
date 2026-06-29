@@ -127,6 +127,8 @@ class Bookings extends Component
             'status' => 'cancelled',
             'payment_status' => $b->payment_status === 'paid' ? 'refunded' : $b->payment_status,
         ]);
+        // Free the seats so they can be booked again.
+        \App\Models\CinemaSeatHold::where('cinema_booking_id', $b->id)->delete();
         $this->safeMail($b->customer_email, fn () => new CinemaBookingCancelled($b->fresh()));
         $this->dispatch('toast', type: 'success', message: 'Booking '.$b->code.' cancelled — guest notified, refund marked.');
     }
@@ -200,6 +202,11 @@ class Bookings extends Component
             'payment_method' => 'manual',
             'paid_at' => $this->cMarkPaid ? now() : null,
         ]);
+
+        // Reserve the seats so the public site can't double-book them.
+        if ($seats) {
+            \App\Models\CinemaSeatHold::claimForBooking($movie->id, $data['cDate'], $data['cTime'], $seats, $b->reference, $b);
+        }
 
         if ($b->customer_email) {
             try {
