@@ -102,6 +102,7 @@
             ]],
             ['key' => 'cinema', 'label' => 'Cinema', 'icon' => 'cinema', 'children' => [
                 ['label' => 'Movies', 'href' => route('admin.cinema.movies'), 'active' => request()->routeIs('admin.cinema.movies')],
+                ['label' => 'Snacks', 'href' => route('admin.cinema.snacks'), 'active' => request()->routeIs('admin.cinema.snacks')],
                 ['label' => 'Bookings', 'href' => route('admin.cinema.bookings'), 'active' => request()->routeIs('admin.cinema.bookings')],
             ]],
             ['key' => 'gym', 'label' => 'Gym', 'icon' => 'gym', 'children' => [

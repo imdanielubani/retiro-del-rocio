@@ -28,7 +28,7 @@ class CinemaBookingReceived extends Notification
             'movie' => $b->movie_title,
             'amount' => $b->amountLabel(),
             'title' => 'New cinema booking',
-            'message' => trim($b->movie_title.' · '.$b->ticketTypeLabel().' · '.$b->amountLabel()),
+            'message' => trim($b->movie_title.' · '.$b->roomLabel().' · '.$b->amountLabel()),
             'url' => route('admin.cinema.bookings'),
         ];
     }

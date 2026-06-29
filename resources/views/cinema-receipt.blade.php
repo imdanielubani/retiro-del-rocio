@@ -40,8 +40,8 @@
                 <tr><td class="k">Movie</td><td class="v">{{ $b->movie_title }}</td></tr>
                 <tr><td class="k">Date</td><td class="v">{{ optional($b->show_date)->format('M j, Y') ?: '—' }}</td></tr>
                 <tr><td class="k">Time</td><td class="v">{{ $b->show_time ?: '—' }}</td></tr>
-                <tr><td class="k">Tickets</td><td class="v">{{ $b->ticketTypeLabel() }}</td></tr>
-                <tr><td class="k">Seats</td><td class="v">{{ $b->seatsLabel() }}</td></tr>
+                <tr><td class="k">Private room</td><td class="v">{{ $b->roomLabel() }}</td></tr>
+                <tr><td class="k">Guests</td><td class="v">{{ $b->guestsLabel() }}</td></tr>
                 @if ($b->snacksLabel() !== '—')<tr><td class="k">Snacks</td><td class="v">{{ $b->snacksLabel() }}</td></tr>@endif
                 <tr><td class="k">Payment method</td><td class="v">{{ $b->methodLabel() }}</td></tr>
                 @if ($b->reference)<tr><td class="k">Reference</td><td class="v">{{ $b->reference }}</td></tr>@endif

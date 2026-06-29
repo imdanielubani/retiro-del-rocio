@@ -19,6 +19,18 @@
                                 Your tickets for <strong>{{ $booking->movie_title }}</strong> at {{ config('app.name') }} are confirmed. Show this Ticket ID at the entrance.
                             </p>
 
+                            @php $poster = $booking->movie?->posterUrl(); @endphp
+                            @if ($poster)
+                                <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
+                                    <tr>
+                                        <td style="border-radius:10px;overflow:hidden;">
+                                            <img src="{{ $poster }}" alt="{{ $booking->movie_title }}" width="150"
+                                                 style="display:block;width:150px;height:auto;border-radius:10px;border:1px solid #eef0ec;">
+                                        </td>
+                                    </tr>
+                                </table>
+                            @endif
+
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:15px;line-height:1.6;border:1px solid #eef0ec;border-radius:10px;">
                                 <tr>
                                     <td style="padding:12px 16px;color:#6b7280;width:170px;border-bottom:1px solid #f1f1ee;">Ticket ID</td>
@@ -33,12 +45,12 @@
                                     <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ optional($booking->show_date)->format('l, M j, Y') }}@if ($booking->show_time) · {{ $booking->show_time }}@endif</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Seats</td>
-                                    <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ $booking->seatsLabel() }}</td>
+                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Private room</td>
+                                    <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ $booking->roomLabel() }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Tickets</td>
-                                    <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ $booking->ticketTypeLabel() }}</td>
+                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Guests</td>
+                                    <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ $booking->guestsLabel() }}</td>
                                 </tr>
                                 @if ($booking->snacksLabel() !== '—')
                                 <tr>
@@ -46,6 +58,14 @@
                                     <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ $booking->snacksLabel() }}</td>
                                 </tr>
                                 @endif
+                                <tr>
+                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Convenience fee</td>
+                                    <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ $booking->feeLabel() }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Taxes (VAT)</td>
+                                    <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ $booking->taxesLabel() }}</td>
+                                </tr>
                                 <tr>
                                     <td style="padding:12px 16px;color:#6b7280;">Total paid</td>
                                     <td style="padding:12px 16px;font-weight:bold;color:#16a34a;">{{ $booking->amountLabel() }}</td>

@@ -100,7 +100,7 @@
                 <table class="w-full min-w-[1040px] border-collapse">
                     <thead>
                         <tr class="bg-[#f9fafb] text-left">
-                            @foreach (['Ticket ID','Guest','Movie','Tickets','Date & Time','Amount','Payment','Status','Action'] as $col)
+                            @foreach (['Ticket ID','Guest','Movie','Room','Date & Time','Amount','Payment','Status','Action'] as $col)
                                 <th @class(['border-b border-[#e5e7eb] px-4 py-2.5 text-[11px] uppercase tracking-[0.5px] text-[#6b7280]','text-right' => $col === 'Action'])>{{ $col }}</th>
                             @endforeach
                         </tr>
@@ -111,8 +111,8 @@
                             <tr wire:key="cb-{{ $b->id }}" class="border-b border-[#e5e7eb] {{ $loop->even ? 'bg-[#f9fafb]' : 'bg-white' }}">
                                 <td class="px-4 py-3.5 text-[13px] font-bold text-[#f38c00]">{{ $b->code }}</td>
                                 <td class="px-4 py-3.5"><p class="text-[13px] font-medium text-[#1e1e1e]">{{ $b->customer_name ?: '—' }}</p><p class="text-[11px] text-[#9ca3af]">{{ $b->customer_email }}</p></td>
-                                <td class="px-4 py-3.5"><p class="max-w-[180px] truncate text-[13px] text-[#374151]">{{ $b->movie_title }}</p><p class="text-[11px] text-[#9ca3af]">{{ $b->seatsLabel() }}</p></td>
-                                <td class="px-4 py-3.5 text-[12px] text-[#374151]">{{ $b->ticketTypeLabel() }}</td>
+                                <td class="px-4 py-3.5"><p class="max-w-[180px] truncate text-[13px] text-[#374151]">{{ $b->movie_title }}</p><p class="text-[11px] text-[#9ca3af]">{{ $b->guestsLabel() }}</p></td>
+                                <td class="px-4 py-3.5 text-[12px] text-[#374151]">{{ $b->roomLabel() }}</td>
                                 <td class="px-4 py-3.5 text-[12px] text-[#374151]">{{ optional($b->show_date)->format('M j, Y') }}<span class="block text-[11px] text-[#9ca3af]">{{ $b->show_time }}</span></td>
                                 <td class="px-4 py-3.5 text-[13px] font-bold text-[#1e1e1e]">{{ $b->amountLabel() }}</td>
                                 <td class="px-4 py-3.5"><span class="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold" style="background: {{ $pB }}; color: {{ $pC }};">{{ $b->paymentLabel() }}</span></td>
@@ -137,8 +137,8 @@
                             </div>
                         </div>
                         <div class="flex items-center justify-between"><p class="text-[14px] font-medium text-[#1e1e1e]">{{ $b->customer_name ?: '—' }}</p><p class="text-[14px] font-bold text-[#1e1e1e]">{{ $b->amountLabel() }}</p></div>
-                        <p class="truncate text-[12px] text-[#6b7280]">{{ $b->movie_title }} · {{ $b->ticketTypeLabel() }}</p>
-                        <div class="flex items-center justify-between text-[12px] text-[#6b7280]"><span>{{ optional($b->show_date)->format('M j') }} · {{ $b->show_time }}</span><span>{{ $b->seatsLabel() }}</span></div>
+                        <p class="truncate text-[12px] text-[#6b7280]">{{ $b->movie_title }} · {{ $b->roomLabel() }}</p>
+                        <div class="flex items-center justify-between text-[12px] text-[#6b7280]"><span>{{ optional($b->show_date)->format('M j') }} · {{ $b->show_time }}</span><span>{{ $b->guestsLabel() }}</span></div>
                         <div class="flex justify-end pt-1">@include('admin.cinema.partials.booking-menu', ['b' => $b])</div>
                     </div>
                 @endforeach

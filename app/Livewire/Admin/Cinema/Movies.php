@@ -35,9 +35,7 @@ class Movies extends Component
 
     public string $fTrailer = '';
 
-    public $fAdultPrice = 5000;
-
-    public $fChildPrice = 3000;
+    public $fRoomPrice = 40000;
 
     public string $fClassification = 'now_showing';
 
@@ -56,7 +54,7 @@ class Movies extends Component
     public ?string $fBackdropPath = null; // existing path
 
     protected $validationAttributes = [
-        'fTitle' => 'title', 'fAdultPrice' => 'adult price', 'fChildPrice' => 'child price',
+        'fTitle' => 'title', 'fRoomPrice' => 'room price',
         'fPoster' => 'poster', 'fBackdrop' => 'backdrop',
     ];
 
@@ -76,11 +74,10 @@ class Movies extends Component
     {
         $this->reset([
             'editingId', 'fTitle', 'fGenre', 'fDuration', 'fRating', 'fSynopsis', 'fTrailer',
-            'fAdultPrice', 'fChildPrice', 'fClassification', 'fShowtimes', 'fFeatured', 'fActive',
+            'fRoomPrice', 'fClassification', 'fShowtimes', 'fFeatured', 'fActive',
             'fPoster', 'fBackdrop', 'fPosterPath', 'fBackdropPath',
         ]);
-        $this->fAdultPrice = 5000;
-        $this->fChildPrice = 3000;
+        $this->fRoomPrice = 40000;
         $this->fClassification = 'now_showing';
         $this->fActive = true;
         $this->fShowtimes = "10:30 AM\n1:00 PM\n4:00 PM\n7:00 PM\n10:00 PM";
@@ -98,8 +95,7 @@ class Movies extends Component
         $this->fRating = (string) $m->rating;
         $this->fSynopsis = (string) $m->synopsis;
         $this->fTrailer = (string) $m->trailer_url;
-        $this->fAdultPrice = $m->adult_price;
-        $this->fChildPrice = $m->child_price;
+        $this->fRoomPrice = $m->room_price;
         $this->fClassification = $m->classification ?: 'now_showing';
         $this->fShowtimes = implode("\n", $m->showtimeList());
         $this->fFeatured = $m->is_featured;
@@ -120,8 +116,7 @@ class Movies extends Component
             'fRating' => ['nullable', 'string', 'max:20'],
             'fSynopsis' => ['nullable', 'string', 'max:3000'],
             'fTrailer' => ['nullable', 'url', 'max:255'],
-            'fAdultPrice' => ['required', 'integer', 'min:0'],
-            'fChildPrice' => ['required', 'integer', 'min:0'],
+            'fRoomPrice' => ['required', 'integer', 'min:0'],
             'fClassification' => ['required', 'in:now_showing,coming_soon'],
             'fShowtimes' => ['nullable', 'string', 'max:2000'],
             'fFeatured' => ['boolean'],
@@ -147,8 +142,7 @@ class Movies extends Component
             'rating' => $data['fRating'] ?: null,
             'synopsis' => $data['fSynopsis'] ?: null,
             'trailer_url' => $data['fTrailer'] ?: null,
-            'adult_price' => (int) $data['fAdultPrice'],
-            'child_price' => (int) $data['fChildPrice'],
+            'room_price' => (int) $data['fRoomPrice'],
             'classification' => $data['fClassification'],
             'showtimes' => $showtimes,
             'poster_image' => $posterPath,

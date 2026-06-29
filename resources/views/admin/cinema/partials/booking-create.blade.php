@@ -45,17 +45,16 @@
                         @error('cTime') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
                     </div>
                     <div class="flex flex-col gap-1.5">
-                        <label class="text-[12px] font-semibold text-[#374151]">Adult tickets</label>
-                        <input type="number" min="0" max="20" wire:model="cAdult" class="h-11 rounded-xl border border-[#e5e7eb] px-3.5 text-[14px] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
-                        @error('cAdult') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
+                        <label class="text-[12px] font-semibold text-[#374151]">Private room</label>
+                        <select wire:model="cRoom" class="h-11 rounded-xl border border-[#e5e7eb] px-3 text-[14px] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
+                            @foreach (\App\Models\Movie::ROOMS as $room)<option value="{{ $room }}">{{ $room }}</option>@endforeach
+                        </select>
+                        @error('cRoom') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
                     </div>
                     <div class="flex flex-col gap-1.5">
-                        <label class="text-[12px] font-semibold text-[#374151]">Child tickets</label>
-                        <input type="number" min="0" max="20" wire:model="cChild" class="h-11 rounded-xl border border-[#e5e7eb] px-3.5 text-[14px] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
-                    </div>
-                    <div class="flex flex-col gap-1.5 sm:col-span-2">
-                        <label class="text-[12px] font-semibold text-[#374151]">Seats <span class="font-normal text-[#9ca3af]">(optional, e.g. A1, A2, B5)</span></label>
-                        <input type="text" wire:model="cSeats" placeholder="A1, A2" class="h-11 rounded-xl border border-[#e5e7eb] px-3.5 text-[14px] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
+                        <label class="text-[12px] font-semibold text-[#374151]">Guests <span class="font-normal text-[#9ca3af]">(up to {{ \App\Models\Movie::SEATS_PER_ROOM }})</span></label>
+                        <input type="number" min="1" max="{{ \App\Models\Movie::SEATS_PER_ROOM }}" wire:model="cGuests" class="h-11 rounded-xl border border-[#e5e7eb] px-3.5 text-[14px] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
+                        @error('cGuests') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
                     </div>
                     <label class="flex cursor-pointer items-center gap-2.5 rounded-xl border border-[#e5e7eb] bg-[#f9fafb] px-3.5 py-3 sm:col-span-2">
                         <input type="checkbox" wire:model="cMarkPaid" class="size-4 rounded border-[#d1d5db] text-[#f38c00] focus:ring-[#f38c00]/30">

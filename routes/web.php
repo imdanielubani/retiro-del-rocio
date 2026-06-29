@@ -717,7 +717,7 @@ Route::get('cinema/{movie:slug}', function (Movie $movie) {
     ]);
 })->name('cinema.movie');
 
-// Seats already taken for a showing (booked or actively held) — drives the seat map.
+// Private rooms already taken for a showing (booked or actively held) — drives the room picker.
 Route::get('cinema/{movie:slug}/seats', function (Movie $movie) {
     $date = request('date');
     $time = request('time');
@@ -729,19 +729,19 @@ Route::get('cinema/{movie:slug}/seats', function (Movie $movie) {
     return response()->json(['taken' => CinemaSeatHold::takenSeats($movie->id, $date, $time)]);
 })->name('cinema.seats');
 
-// Hold the chosen seats before payment so nobody else can take them.
+// Hold the chosen private room before payment so nobody else can take it.
 Route::post('cinema/hold', function () {
     $data = request()->validate([
         'movie' => ['required', 'string', 'exists:movies,slug'],
         'date' => ['required', 'date'],
         'time' => ['required', 'string', 'max:30'],
-        'seats' => ['required', 'array', 'min:1', 'max:20'],
-        'seats.*' => ['string', 'max:8'],
+        'room' => ['required', 'string', 'in:'.implode(',', Movie::ROOMS)],
         'token' => ['required', 'string', 'max:80'],
     ]);
 
     $movie = Movie::where('slug', $data['movie'])->first();
-    $result = CinemaSeatHold::placeHold($movie->id, $data['date'], $data['time'], $data['seats'], $data['token']);
+    // The holds table locks one row per (movie,date,time,room) — exactly one booking per room.
+    $result = CinemaSeatHold::placeHold($movie->id, $data['date'], $data['time'], [$data['room']], $data['token']);
 
     return response()->json($result);
 })->name('cinema.hold');
@@ -761,9 +761,8 @@ Route::post('cinema/book', function () {
         'movie' => ['required', 'string', 'exists:movies,slug'],
         'date' => ['required', 'date'],
         'time' => ['required', 'string', 'max:30'],
-        'seats' => ['nullable', 'string', 'max:2000'],
-        'adult' => ['required', 'integer', 'min:0', 'max:20'],
-        'child' => ['required', 'integer', 'min:0', 'max:20'],
+        'room' => ['required', 'string', 'in:'.implode(',', Movie::ROOMS)],
+        'guests' => ['required', 'integer', 'min:1', 'max:'.Movie::SEATS_PER_ROOM],
         'snacks' => ['nullable', 'string', 'max:4000'],
         'name' => ['required', 'string', 'max:160'],
         'email' => ['required', 'email', 'max:190'],
@@ -772,14 +771,16 @@ Route::post('cinema/book', function () {
     ]);
 
     $movie = Movie::where('slug', $data['movie'])->first();
-    $seats = collect(json_decode($data['seats'] ?? '[]', true) ?: [])->filter()->values()->all();
     $snacks = collect(json_decode($data['snacks'] ?? '[]', true) ?: [])
         ->map(fn ($s) => ['name' => (string) ($s['name'] ?? ''), 'qty' => (int) ($s['qty'] ?? 0), 'price' => (int) ($s['price'] ?? 0)])
         ->filter(fn ($s) => $s['qty'] > 0)->values()->all();
 
-    $ticketsTotal = $data['adult'] * (int) $movie->adult_price + $data['child'] * (int) $movie->child_price;
+    $roomPrice = (int) $movie->room_price;      // flat price for the whole private room
     $snacksTotal = collect($snacks)->sum(fn ($s) => $s['qty'] * $s['price']);
-    $amount = $ticketsTotal + $snacksTotal;
+    $subtotal = $roomPrice + $snacksTotal;
+    $fee = 2000;                                // convenience fee (mirrors spa)
+    $taxes = (int) round($subtotal * 0.075);    // VAT 7.5%
+    $amount = $subtotal + $fee + $taxes;
 
     // Verify the payment with Paystack before recording anything.
     try {
@@ -809,10 +810,13 @@ Route::post('cinema/book', function () {
             'movie_title' => $movie->title,
             'show_date' => $data['date'],
             'show_time' => $data['time'],
-            'seats' => $seats,
-            'adult_tickets' => $data['adult'],
-            'child_tickets' => $data['child'],
+            'room' => $data['room'],
+            'guests' => $data['guests'],
+            'seats' => [],
             'snacks' => $snacks,
+            'subtotal' => $subtotal,
+            'fee' => $fee,
+            'taxes' => $taxes,
             'amount' => $amount,
             'customer_name' => $data['name'],
             'customer_email' => $data['email'],
@@ -823,14 +827,13 @@ Route::post('cinema/book', function () {
             'paid_at' => data_get($body, 'data.paid_at') ?? now(),
         ]);
 
-        // Lock the seats to this booking (the hold was placed before payment). If
-        // any seat was lost in the rare hold-expiry race, refund + notify rather
+        // Lock the private room to this booking (the hold was placed before payment).
+        // If the room was lost in the rare hold-expiry race, refund + notify rather
         // than double-book it.
-        if (! empty($seats)) {
-            $secured = CinemaSeatHold::claimForBooking($movie->id, $data['date'], $data['time'], $seats, $data['reference'], $booking);
-            $lost = array_values(array_diff($seats, $secured));
+        {
+            $secured = CinemaSeatHold::claimForBooking($movie->id, $data['date'], $data['time'], [$data['room']], $data['reference'], $booking);
 
-            if ($lost) {
+            if (! in_array($data['room'], $secured, true)) {
                 $booking->update(['status' => 'cancelled', 'payment_status' => 'refunded']);
                 if ($booking->customer_email) {
                     try {
@@ -842,7 +845,7 @@ Route::post('cinema/book', function () {
 
                 return redirect()->route('cinema.movie', $movie)->with('toast', [
                     'type' => 'error',
-                    'message' => 'Sorry, seat'.(count($lost) > 1 ? 's' : '').' '.implode(', ', $lost).' '.(count($lost) > 1 ? 'were' : 'was').' just taken. Your payment will be refunded within 24 hours.',
+                    'message' => 'Sorry, '.$data['room'].' was just booked for that showtime. Your payment will be refunded within 24 hours.',
                 ]);
             }
         }
@@ -857,9 +860,11 @@ Route::post('cinema/book', function () {
             'movie_title' => $booking->movie_title,
             'date' => optional($booking->show_date)->format('M j, Y'),
             'time' => $booking->show_time,
-            'seats' => $booking->seatsLabel(),
-            'ticket_type' => $booking->ticketTypeLabel(),
+            'room' => $booking->roomLabel(),
+            'guests' => $booking->guestsLabel(),
             'snacks' => $booking->snacksLabel(),
+            'fee' => $booking->feeLabel(),
+            'taxes' => $booking->taxesLabel(),
             'total' => $booking->amountLabel(),
             'poster' => $movie->posterUrl(),
             'customer_name' => $booking->customer_name,
@@ -964,8 +969,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
             return view('restaurant-receipt', ['r' => $reservation]);
         })->name('restaurant.receipt');
 
-        // Cinema — movies + ticket bookings
+        // Cinema — movies, snacks + ticket bookings
         Route::get('cinema/movies', App\Livewire\Admin\Cinema\Movies::class)->name('cinema.movies');
+        Route::get('cinema/snacks', App\Livewire\Admin\Cinema\Snacks::class)->name('cinema.snacks');
         Route::get('cinema/bookings', App\Livewire\Admin\Cinema\Bookings::class)->name('cinema.bookings');
         Route::get('cinema/bookings/{booking}/receipt', function (CinemaBooking $booking) {
             return view('cinema-receipt', ['b' => $booking]);

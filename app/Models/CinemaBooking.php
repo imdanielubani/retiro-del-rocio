@@ -9,7 +9,8 @@ class CinemaBooking extends Model
 {
     protected $fillable = [
         'code', 'reference', 'movie_id', 'movie_title', 'show_date', 'show_time',
-        'seats', 'adult_tickets', 'child_tickets', 'snacks', 'amount',
+        'room', 'guests', 'seats', 'adult_tickets', 'child_tickets', 'snacks',
+        'subtotal', 'fee', 'taxes', 'amount',
         'customer_name', 'customer_email', 'customer_phone',
         'status', 'payment_status', 'payment_method', 'paid_at',
     ];
@@ -18,8 +19,12 @@ class CinemaBooking extends Model
         'show_date' => 'date',
         'seats' => 'array',
         'snacks' => 'array',
+        'guests' => 'integer',
         'adult_tickets' => 'integer',
         'child_tickets' => 'integer',
+        'subtotal' => 'integer',
+        'fee' => 'integer',
+        'taxes' => 'integer',
         'amount' => 'integer',
         'paid_at' => 'datetime',
     ];
@@ -44,9 +49,36 @@ class CinemaBooking extends Model
         return '₦'.number_format($this->amount);
     }
 
+    public function subtotalLabel(): string
+    {
+        return '₦'.number_format($this->subtotal);
+    }
+
+    public function feeLabel(): string
+    {
+        return '₦'.number_format($this->fee);
+    }
+
+    public function taxesLabel(): string
+    {
+        return '₦'.number_format($this->taxes);
+    }
+
     public function seatsLabel(): string
     {
         return collect($this->seats ?? [])->implode(', ') ?: '—';
+    }
+
+    public function roomLabel(): string
+    {
+        return $this->room ?: '—';
+    }
+
+    public function guestsLabel(): string
+    {
+        $g = (int) $this->guests;
+
+        return $g > 0 ? $g.' '.Str::plural('guest', $g) : '—';
     }
 
     public function ticketTypeLabel(): string

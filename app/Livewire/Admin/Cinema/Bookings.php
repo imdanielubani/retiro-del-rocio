@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Cinema;
 use App\Mail\CinemaBookingCancelled;
 use App\Mail\CinemaBookingConfirmation;
 use App\Models\CinemaBooking;
+use App\Models\CinemaSeatHold;
 use App\Models\Movie;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -56,11 +57,9 @@ class Bookings extends Component
 
     public string $cTime = '';
 
-    public $cAdult = 1;
+    public string $cRoom = 'Room 1';
 
-    public $cChild = 0;
-
-    public string $cSeats = '';
+    public $cGuests = 1;
 
     public bool $cMarkPaid = true;
 
@@ -150,9 +149,9 @@ class Bookings extends Component
 
     public function openCreate(): void
     {
-        $this->reset(['cName', 'cEmail', 'cPhone', 'cMovieId', 'cDate', 'cTime', 'cAdult', 'cChild', 'cSeats', 'cMarkPaid']);
-        $this->cAdult = 1;
-        $this->cChild = 0;
+        $this->reset(['cName', 'cEmail', 'cPhone', 'cMovieId', 'cDate', 'cTime', 'cRoom', 'cGuests', 'cMarkPaid']);
+        $this->cRoom = 'Room 1';
+        $this->cGuests = 1;
         $this->cMarkPaid = true;
         $this->resetValidation();
         $this->showCreate = true;
@@ -167,20 +166,23 @@ class Bookings extends Component
             'cMovieId' => ['required', 'integer', 'exists:movies,id'],
             'cDate' => ['required', 'date'],
             'cTime' => ['required', 'string', 'max:30'],
-            'cAdult' => ['required', 'integer', 'min:0', 'max:20'],
-            'cChild' => ['required', 'integer', 'min:0', 'max:20'],
-            'cSeats' => ['nullable', 'string', 'max:255'],
+            'cRoom' => ['required', 'string', 'in:'.implode(',', Movie::ROOMS)],
+            'cGuests' => ['required', 'integer', 'min:1', 'max:'.Movie::SEATS_PER_ROOM],
         ]);
 
-        if ($data['cAdult'] + $data['cChild'] < 1) {
-            $this->addError('cAdult', 'Add at least one ticket.');
+        $movie = Movie::find($data['cMovieId']);
+
+        // Block if that private room is already taken for the showtime.
+        if (in_array($data['cRoom'], CinemaSeatHold::takenSeats($movie->id, $data['cDate'], $data['cTime']), true)) {
+            $this->addError('cRoom', $data['cRoom'].' is already booked for that date & time.');
 
             return;
         }
 
-        $movie = Movie::find($data['cMovieId']);
-        $seats = collect(preg_split('/[,\s]+/', $this->cSeats))->map(fn ($s) => trim($s))->filter()->values()->all();
-        $amount = $data['cAdult'] * (int) $movie->adult_price + $data['cChild'] * (int) $movie->child_price;
+        $subtotal = (int) $movie->room_price;
+        $fee = 2000;
+        $taxes = (int) round($subtotal * 0.075);
+        $amount = $subtotal + $fee + $taxes;
 
         $b = CinemaBooking::create([
             'code' => CinemaBooking::makeCode(),
@@ -189,10 +191,13 @@ class Bookings extends Component
             'movie_title' => $movie->title,
             'show_date' => $data['cDate'],
             'show_time' => $data['cTime'],
-            'seats' => $seats,
-            'adult_tickets' => $data['cAdult'],
-            'child_tickets' => $data['cChild'],
+            'room' => $data['cRoom'],
+            'guests' => $data['cGuests'],
+            'seats' => [],
             'snacks' => [],
+            'subtotal' => $subtotal,
+            'fee' => $fee,
+            'taxes' => $taxes,
             'amount' => $amount,
             'customer_name' => $data['cName'],
             'customer_email' => $data['cEmail'],
@@ -203,10 +208,8 @@ class Bookings extends Component
             'paid_at' => $this->cMarkPaid ? now() : null,
         ]);
 
-        // Reserve the seats so the public site can't double-book them.
-        if ($seats) {
-            \App\Models\CinemaSeatHold::claimForBooking($movie->id, $data['cDate'], $data['cTime'], $seats, $b->reference, $b);
-        }
+        // Lock the private room so the public site can't double-book it.
+        CinemaSeatHold::claimForBooking($movie->id, $data['cDate'], $data['cTime'], [$data['cRoom']], $b->reference, $b);
 
         if ($b->customer_email) {
             try {

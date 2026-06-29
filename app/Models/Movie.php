@@ -9,7 +9,7 @@ class Movie extends Model
     protected $fillable = [
         'title', 'slug', 'genre', 'duration', 'rating', 'synopsis',
         'poster_image', 'backdrop_image', 'trailer_url',
-        'adult_price', 'child_price', 'classification', 'showtimes',
+        'adult_price', 'child_price', 'room_price', 'classification', 'showtimes',
         'is_featured', 'is_active', 'sort_order',
     ];
 
@@ -17,10 +17,16 @@ class Movie extends Model
         'showtimes' => 'array',
         'adult_price' => 'integer',
         'child_price' => 'integer',
+        'room_price' => 'integer',
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
         'sort_order' => 'integer',
     ];
+
+    /** The bookable private rooms per showtime, and how many seats each holds. */
+    public const ROOMS = ['Room 1', 'Room 2'];
+
+    public const SEATS_PER_ROOM = 4;
 
     public function getRouteKeyName(): string
     {
@@ -75,6 +81,11 @@ class Movie extends Model
     public function childPriceLabel(): string
     {
         return '₦'.number_format($this->child_price);
+    }
+
+    public function roomPriceLabel(): string
+    {
+        return '₦'.number_format($this->room_price);
     }
 
     public function classificationLabel(): string

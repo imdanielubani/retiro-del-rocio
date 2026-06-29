@@ -70,8 +70,8 @@
                         </div>
                         <div class="mt-auto flex items-end justify-between border-t border-[#f1f1ee] pt-2.5">
                             <div class="text-[12px] text-[#6b7280]">
-                                <p>Adult <span class="font-semibold text-[#1e1e1e]">{{ $m->adultPriceLabel() }}</span></p>
-                                <p>Child <span class="font-semibold text-[#1e1e1e]">{{ $m->childPriceLabel() }}</span></p>
+                                <p>Private room <span class="font-semibold text-[#1e1e1e]">{{ $m->roomPriceLabel() }}</span></p>
+                                <p class="text-[11px]">{{ \App\Models\Movie::SEATS_PER_ROOM }} seats · {{ count(\App\Models\Movie::ROOMS) }} rooms / show</p>
                             </div>
                             <span class="text-[11px] text-[#9ca3af]">{{ $bookingCounts[$m->id] ?? 0 }} {{ \Illuminate\Support\Str::plural('booking', $bookingCounts[$m->id] ?? 0) }}</span>
                         </div>
@@ -116,15 +116,10 @@
                                 <option value="coming_soon">Coming Soon</option>
                             </select>
                         </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-[12px] font-semibold text-[#374151]">Adult price (₦)</label>
-                            <input type="number" min="0" wire:model="fAdultPrice" class="h-11 rounded-xl border border-[#e5e7eb] px-3.5 text-[14px] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
-                            @error('fAdultPrice') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
-                        </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-[12px] font-semibold text-[#374151]">Child price (₦)</label>
-                            <input type="number" min="0" wire:model="fChildPrice" class="h-11 rounded-xl border border-[#e5e7eb] px-3.5 text-[14px] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
-                            @error('fChildPrice') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
+                        <div class="flex flex-col gap-1.5 sm:col-span-2">
+                            <label class="text-[12px] font-semibold text-[#374151]">Private room price (₦) <span class="font-normal text-[#9ca3af]">— charged per whole {{ \App\Models\Movie::SEATS_PER_ROOM }}-seat room</span></label>
+                            <input type="number" min="0" wire:model="fRoomPrice" class="h-11 rounded-xl border border-[#e5e7eb] px-3.5 text-[14px] focus:border-[#f38c00] focus:outline-none focus:ring-2 focus:ring-[#f38c00]/15">
+                            @error('fRoomPrice') <span class="text-[11px] text-[#dc2626]">{{ $message }}</span> @enderror
                         </div>
                         <div class="flex flex-col gap-1.5 sm:col-span-2">
                             <label class="text-[12px] font-semibold text-[#374151]">Trailer URL <span class="font-normal text-[#9ca3af]">(YouTube, optional)</span></label>
