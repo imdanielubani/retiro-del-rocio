@@ -173,9 +173,11 @@
                         <div class="flex max-w-[650px] flex-col gap-5 px-8 lg:px-14">
                             <h2 class="text-3xl font-semibold leading-tight tracking-tight text-white lg:text-h1">{{ cms('cinema.weekend_title') }}</h2>
                             <p class="text-body leading-relaxed text-white/80 lg:text-body-lg">{{ cms('cinema.weekend_text') }}</p>
+                            @php $weekendUrl = cms('cinema.weekend_url') ?: route('cinema.movies'); @endphp
                             <div>
-                                <a href="#top-movies" class="inline-flex items-center gap-2.5 rounded-[10px] bg-[#f38c00] px-8 py-3.5 text-body-lg font-semibold text-white transition hover:bg-[#dd7f00]">
-                                    Book Ticket
+                                <a href="{{ $weekendUrl }}" @if (\Illuminate\Support\Str::startsWith($weekendUrl, '/')) wire:navigate @endif
+                                   class="inline-flex items-center gap-2.5 rounded-[10px] bg-[#f38c00] px-8 py-3.5 text-body-lg font-semibold text-white transition hover:bg-[#dd7f00]">
+                                    {{ cms('cinema.weekend_button') }}
                                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                                 </a>
                             </div>

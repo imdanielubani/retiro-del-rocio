@@ -501,6 +501,8 @@ $pages = [
 
             ['key' => 'cinema.weekend_title', 'label' => 'Weekend band heading', 'type' => 'text', 'default' => 'Book Tickets To Your Favourite Movie This Weekend'],
             ['key' => 'cinema.weekend_text', 'label' => 'Weekend band text', 'type' => 'textarea', 'default' => 'Reserve your seats in advance and enjoy a premium cinema experience with the people you love.'],
+            ['key' => 'cinema.weekend_button', 'label' => 'Weekend band — button text', 'type' => 'text', 'default' => 'Book Ticket'],
+            ['key' => 'cinema.weekend_url', 'label' => 'Weekend band — button link (URL or movie page)', 'type' => 'text', 'default' => '/cinema/movies'],
             ['key' => 'cinema.weekend_image', 'label' => 'Weekend band image', 'type' => 'image', 'default' => 'images/Background Image.png'],
 
             ['key' => 'cinema.comingsoon_title', 'label' => 'Coming Soon heading', 'type' => 'text', 'default' => 'Coming Soon'],
