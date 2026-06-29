@@ -700,6 +700,13 @@ Route::post('restaurant/reserve', function () {
 */
 Route::view('cinema', 'cinema')->name('cinema');
 
+// Browse all movies (now showing + coming soon) with type + genre filters.
+Route::get('cinema/movies', function () {
+    return view('cinema-all', [
+        'movies' => Movie::active()->ordered()->get(),
+    ]);
+})->name('cinema.movies');
+
 Route::get('cinema/{movie:slug}', function (Movie $movie) {
     abort_unless($movie->is_active, 404);
 

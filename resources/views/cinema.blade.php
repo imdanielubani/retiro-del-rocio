@@ -10,12 +10,9 @@
         $top10 = $nowShowing->take(10);
         $comingSoon = \App\Models\Movie::active()->comingSoon()->ordered()->get();
 
-        $platforms = [
-            ['name' => 'Netflix', 'img' => 'images/Netflix svg.png'],
-            ['name' => 'Disney+', 'img' => 'images/Disney svg.png'],
-            ['name' => 'IMDb', 'img' => 'images/IMDb svg.png'],
-            ['name' => 'Rotten Tomatoes', 'img' => 'images/Rotten Tomatoes svg.png'],
-        ];
+        $platforms = collect(cms_array('cinema.platforms'))
+            ->filter(fn ($p) => ! empty($p['image']))
+            ->values();
     @endphp
 
     <div class="bg-[#0e0e10]">
@@ -121,14 +118,29 @@
             </section>
         @endif
 
-        {{-- ============================ PLATFORM LOGOS ============================ --}}
-        <div class="w-full border-y border-white/10 bg-[#121214] py-8">
-            <x-layouts.container class="flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
-                @foreach ($platforms as $p)
-                    <img src="{{ asset($p['img']) }}" alt="{{ $p['name'] }}" class="h-7 w-auto object-contain opacity-80 grayscale transition hover:opacity-100 hover:grayscale-0 lg:h-9" loading="lazy">
-                @endforeach
-            </x-layouts.container>
-        </div>
+        {{-- ============================ PLATFORM LOGOS (MARQUEE) ============================ --}}
+        @if ($platforms->isNotEmpty())
+            @php
+                // Repeat the logos until one strip is wide enough to overflow any
+                // screen, so the marquee always stays full and loops with no gap.
+                $strip = collect();
+                while ($strip->count() < 16) {
+                    $strip = $strip->concat($platforms);
+                }
+            @endphp
+            <div class="group w-full overflow-hidden border-y border-white/10 bg-[#121214] py-8">
+                <div class="marquee-track flex w-max items-center group-hover:[animation-play-state:paused]">
+                    {{-- Two identical strips make the scroll loop seamlessly (translate -50%). --}}
+                    @for ($copy = 0; $copy < 2; $copy++)
+                        @foreach ($strip as $p)
+                            <img src="{{ \App\Models\SiteContent::imageUrl($p['image']) }}" alt="{{ $p['name'] ?? '' }}"
+                                 class="h-7 w-auto shrink-0 object-contain pr-14 lg:h-9 lg:pr-20" loading="lazy" decoding="async"
+                                 aria-hidden="{{ $copy === 1 ? 'true' : 'false' }}">
+                        @endforeach
+                    @endfor
+                </div>
+            </div>
+        @endif
 
         {{-- ============================ TOP 10 THIS WEEK ============================ --}}
         @if ($top10->isNotEmpty())
@@ -139,6 +151,11 @@
                             <h2 class="text-2xl font-semibold tracking-tight text-white lg:text-h2">{{ cms('cinema.top10_title') }}</h2>
                             <p class="text-body text-white/55">{{ cms('cinema.top10_text') }}</p>
                         </div>
+                        <a href="{{ route('cinema.movies') }}" wire:navigate
+                           class="inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/25 px-5 py-2.5 text-body font-medium text-white transition hover:bg-white/10">
+                            View All
+                            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                        </a>
                     </div>
                     @include('partials.cinema-carousel', ['movies' => $top10])
                 </x-layouts.container>
@@ -151,9 +168,9 @@
                 <div class="relative overflow-hidden rounded-[22px]">
                     <x-img src="{{ cms_image('cinema.weekend_image') }}" alt="" sizes="100vw" loading="lazy" decoding="async"
                            class="h-[360px] w-full object-cover lg:h-[460px]" />
-                    <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
                     <div class="absolute inset-0 flex items-center">
-                        <div class="flex max-w-[560px] flex-col gap-5 px-8 lg:px-14">
+                        <div class="flex max-w-[650px] flex-col gap-5 px-8 lg:px-14">
                             <h2 class="text-3xl font-semibold leading-tight tracking-tight text-white lg:text-h1">{{ cms('cinema.weekend_title') }}</h2>
                             <p class="text-body leading-relaxed text-white/80 lg:text-body-lg">{{ cms('cinema.weekend_text') }}</p>
                             <div>
@@ -172,9 +189,16 @@
         @if ($comingSoon->isNotEmpty())
             <section id="top-movies" class="w-full py-16 lg:py-20">
                 <x-layouts.container>
-                    <div class="mb-8 flex flex-col gap-1">
-                        <h2 class="text-2xl font-semibold tracking-tight text-white lg:text-h2">{{ cms('cinema.comingsoon_title') }}</h2>
-                        <p class="text-body text-white/55">{{ cms('cinema.comingsoon_text') }}</p>
+                    <div class="mb-8 flex items-end justify-between gap-4">
+                        <div class="flex flex-col gap-1">
+                            <h2 class="text-2xl font-semibold tracking-tight text-white lg:text-h2">{{ cms('cinema.comingsoon_title') }}</h2>
+                            <p class="text-body text-white/55">{{ cms('cinema.comingsoon_text') }}</p>
+                        </div>
+                        <a href="{{ route('cinema.movies', ['type' => 'coming_soon']) }}" wire:navigate
+                           class="inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/25 px-5 py-2.5 text-body font-medium text-white transition hover:bg-white/10">
+                            View All
+                            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                        </a>
                     </div>
                     @include('partials.cinema-carousel', ['movies' => $comingSoon])
                 </x-layouts.container>

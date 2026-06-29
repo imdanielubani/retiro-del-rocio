@@ -487,7 +487,7 @@ $pages = [
     'cinema' => [
         'label' => 'Cinema',
         'category' => 'core',
-        'chips' => ['Offer', 'Now Showing', 'Top 10', 'Weekend', 'Coming Soon'],
+        'chips' => ['Offer', 'Now Showing', 'Logos', 'Top 10', 'Weekend', 'Coming Soon'],
         'preview' => '/cinema',
         'fields' => [
             ['key' => 'cinema.offer_text', 'label' => 'Offer ticker text', 'type' => 'text', 'default' => 'Special Offer: Buy 2 tickets, get 1 FREE! Valid this weekend only.'],
@@ -501,10 +501,18 @@ $pages = [
 
             ['key' => 'cinema.weekend_title', 'label' => 'Weekend band heading', 'type' => 'text', 'default' => 'Book Tickets To Your Favourite Movie This Weekend'],
             ['key' => 'cinema.weekend_text', 'label' => 'Weekend band text', 'type' => 'textarea', 'default' => 'Reserve your seats in advance and enjoy a premium cinema experience with the people you love.'],
-            ['key' => 'cinema.weekend_image', 'label' => 'Weekend band image', 'type' => 'image', 'default' => 'images/image 5.jpg'],
+            ['key' => 'cinema.weekend_image', 'label' => 'Weekend band image', 'type' => 'image', 'default' => 'images/Background Image.png'],
 
             ['key' => 'cinema.comingsoon_title', 'label' => 'Coming Soon heading', 'type' => 'text', 'default' => 'Coming Soon'],
             ['key' => 'cinema.comingsoon_text', 'label' => 'Coming Soon subtext', 'type' => 'text', 'default' => 'Get ready for the movies arriving soon at our cinema'],
+
+            ['key' => 'cinema.platforms', 'label' => 'Platform & rating logos (scrolling marquee)', 'type' => 'repeater', 'item' => ['name' => 'Name', 'image' => 'Logo image'], 'image_cols' => ['image'], 'default' => [
+                ['name' => 'Netflix', 'image' => 'images/Netflix svg.png'],
+                ['name' => 'Disney+', 'image' => 'images/Disney svg.png'],
+                ['name' => 'Prime Video', 'image' => 'images/Peime video.png'],
+                ['name' => 'IMDb', 'image' => 'images/IMDb svg.png'],
+                ['name' => 'Rotten Tomatoes', 'image' => 'images/Rotten Tomatoes svg.png'],
+            ]],
         ],
     ],
 

@@ -21,6 +21,9 @@ class Edit extends Component
     /** @var array<string,array<int,array<string,string>>> binding-name => repeater rows */
     public array $repeaters = [];
 
+    /** @var array<string,array<int,array<string,mixed>>> binding-name => row index => col => upload */
+    public array $repeaterUploads = [];
+
     public function mount(string $page = 'landing'): void
     {
         abort_unless(array_key_exists($page, config('cms.pages')), 404);
@@ -61,6 +64,7 @@ class Edit extends Component
             'uploads.*' => ['nullable', 'image', 'max:5120'],
             'values.*' => ['nullable', 'string', 'max:5000'],
             'repeaters' => ['array'],
+            'repeaterUploads.*.*.*' => ['nullable', 'image', 'max:5120'],
         ];
     }
 
@@ -103,11 +107,29 @@ class Edit extends Component
 
             if ($field['type'] === 'repeater') {
                 $cols = array_keys($field['item']);
+                $imageCols = $field['image_cols'] ?? [];
+
+                // Fold any per-row image uploads into the row data first.
+                $rows = [];
+                foreach ($this->repeaters[$name] ?? [] as $i => $row) {
+                    foreach ($imageCols as $col) {
+                        $upload = $this->repeaterUploads[$name][$i][$col] ?? null;
+                        if ($upload) {
+                            $path = $upload->store('cms', 'public');
+                            \App\Support\ImageOptimizer::optimize($path);
+                            $row[$col] = $path;
+                        }
+                    }
+                    $rows[] = $row;
+                }
+
+                // Keep only rows that have at least one non-empty column.
                 $rows = array_values(array_filter(
-                    $this->repeaters[$name] ?? [],
+                    $rows,
                     fn ($row) => collect($cols)->contains(fn ($c) => trim((string) ($row[$c] ?? '')) !== '')
                 ));
                 SiteContent::put($key, json_encode($rows, JSON_UNESCAPED_UNICODE));
+                $this->repeaters[$name] = $rows; // reflect stored paths back into the form
 
                 continue;
             }
@@ -130,6 +152,7 @@ class Edit extends Component
         }
 
         $this->uploads = [];
+        $this->repeaterUploads = [];
 
         $this->dispatch('toast', type: 'success', message: config("cms.pages.{$this->page}.label").' content updated.');
     }

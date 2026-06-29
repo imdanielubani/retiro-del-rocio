@@ -56,6 +56,24 @@
     display: none !important;
 }
 
+/* Logo marquee — continuous horizontal scroll. The track holds two identical
+   copies of the logos, so translating it by -50% loops seamlessly. */
+@keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+.marquee-track {
+    animation: marquee 55s linear infinite;
+    will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+        animation: none;
+    }
+}
+
 /* Hide scrollbar while keeping the element scrollable. */
 @utility no-scrollbar {
     scrollbar-width: none;
