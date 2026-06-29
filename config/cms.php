@@ -109,7 +109,7 @@ $pages = [
                 ['label' => 'Experience', 'url' => '/experience'],
                 ['label' => 'Gym', 'url' => '/gym'],
                 ['label' => 'Cinema', 'url' => '#'],
-                ['label' => 'Restaurant', 'url' => '#'],
+                ['label' => 'Restaurant', 'url' => '/restaurant'],
                 ['label' => 'Spa/Wellness', 'url' => '/spa-wellness'],
             ]],
             ['key' => 'nav.cta_label', 'label' => 'Button text', 'type' => 'text', 'default' => 'Get in touch'],
@@ -408,6 +408,79 @@ $pages = [
             ['key' => 'gym.offer_3_text', 'label' => 'Offer 3 text', 'type' => 'textarea', 'default' => 'Structured programs and accountability to help you burn fat and build lasting habits.'],
             ['key' => 'gym.offer_4_title', 'label' => 'Offer 4 title', 'type' => 'text', 'default' => 'Cardio Training'],
             ['key' => 'gym.offer_4_text', 'label' => 'Offer 4 text', 'type' => 'textarea', 'default' => 'Boost stamina and heart health with high-energy cardio workouts for every level.'],
+        ],
+    ],
+
+    'restaurant' => [
+        'label' => 'Restaurant',
+        'category' => 'core',
+        'chips' => ['Hero', 'Opening Hours', 'Signature Dishes', 'Culinary', 'Reservation'],
+        'preview' => '/restaurant',
+        'fields' => [
+            // Hero
+            ['key' => 'restaurant.hero_image', 'label' => 'Hero image', 'type' => 'image', 'default' => 'images/image 383.jpg'],
+            ['key' => 'restaurant.hero_title', 'label' => 'Hero heading', 'type' => 'text', 'default' => 'Experience Fine Dining'],
+            ['key' => 'restaurant.hero_text', 'label' => 'Hero subtext', 'type' => 'textarea', 'default' => 'Discover a dining experience where exceptional cuisine, elegant ambiance, and attentive service come together. From breakfast to late-night dining, every meal is crafted to delight your senses.'],
+            ['key' => 'restaurant.reserve_label', 'label' => 'Reserve button text', 'type' => 'text', 'default' => 'Reserve Table'],
+
+            // Opening hours
+            ['key' => 'restaurant.hours_title', 'label' => 'Opening hours heading', 'type' => 'text', 'default' => 'Opening Hours'],
+            ['key' => 'restaurant.hours_text', 'label' => 'Opening hours subtext', 'type' => 'textarea', 'default' => 'Whether you’re starting your day with breakfast, enjoying a leisurely lunch, or indulging in an elegant dinner, we’re ready to serve you.'],
+            ['key' => 'restaurant.breakfast_hours', 'label' => 'Breakfast hours', 'type' => 'text', 'default' => '7:00AM - 10:30AM'],
+            ['key' => 'restaurant.lunch_hours', 'label' => 'Lunch hours', 'type' => 'text', 'default' => '12:30PM - 4:00PM'],
+            ['key' => 'restaurant.dinner_hours', 'label' => 'Dinner hours', 'type' => 'text', 'default' => '6:00PM - 10:30PM'],
+
+            // Signature dishes
+            ['key' => 'restaurant.dishes_title', 'label' => 'Signature dishes heading', 'type' => 'text', 'default' => 'Explore our Signature Dishes'],
+            ['key' => 'restaurant.dishes_text', 'label' => 'Signature dishes subtext', 'type' => 'textarea', 'default' => 'Prepared with the finest ingredients and inspired by both local and international flavours, our signature dishes offer an unforgettable culinary journey.'],
+            ['key' => 'restaurant.dish_1_image', 'label' => 'Dish 1 image', 'type' => 'image', 'default' => 'images/image 40.jpg'],
+            ['key' => 'restaurant.dish_1_title', 'label' => 'Dish 1 title', 'type' => 'text', 'default' => 'Herb Rusted Curry'],
+            ['key' => 'restaurant.dish_1_text', 'label' => 'Dish 1 text', 'type' => 'textarea', 'default' => 'Slow-cooked curry with aromatic herbs and spices, served with steamed rice.'],
+            ['key' => 'restaurant.dish_2_image', 'label' => 'Dish 2 image', 'type' => 'image', 'default' => 'images/image 403.jpg'],
+            ['key' => 'restaurant.dish_2_title', 'label' => 'Dish 2 title', 'type' => 'text', 'default' => 'Grilled Seafood Platter'],
+            ['key' => 'restaurant.dish_2_text', 'label' => 'Dish 2 text', 'type' => 'textarea', 'default' => 'A selection of the freshest seafood, char-grilled to perfection with citrus butter.'],
+            ['key' => 'restaurant.dish_3_image', 'label' => 'Dish 3 image', 'type' => 'image', 'default' => 'images/image 4044.jpg'],
+            ['key' => 'restaurant.dish_3_title', 'label' => 'Dish 3 title', 'type' => 'text', 'default' => 'Signature Beef Steak'],
+            ['key' => 'restaurant.dish_3_text', 'label' => 'Dish 3 text', 'type' => 'textarea', 'default' => 'Tender prime cut grilled to your liking, paired with seasonal vegetables.'],
+
+            // Culinary excellence
+            ['key' => 'restaurant.culinary_title', 'label' => 'Culinary heading', 'type' => 'text', 'default' => 'Explore our Culinary Excellence'],
+            ['key' => 'restaurant.culinary_text', 'label' => 'Culinary text', 'type' => 'textarea', 'default' => 'We create experiences that go beyond great food. Enjoy a warm atmosphere, exceptional hospitality, and moments worth sharing with family, friends, and colleagues.'],
+            ['key' => 'restaurant.culinary_image', 'label' => 'Culinary image', 'type' => 'image', 'default' => 'images/image 411.jpg'],
+
+            // More than a dining destination
+            ['key' => 'restaurant.dining_title', 'label' => '“More than dining” heading', 'type' => 'text', 'default' => 'More Than a Dining Destination'],
+            ['key' => 'restaurant.dining_text', 'label' => '“More than dining” text', 'type' => 'textarea', 'default' => 'Experience a vibrant blend of flavors, atmosphere, and hospitality. Whether you’re joining us for a casual lunch, a romantic dinner, or celebratory drinks, every visit promises something memorable.'],
+            ['key' => 'restaurant.dining_image', 'label' => '“More than dining” image', 'type' => 'image', 'default' => 'images/image 431.jpg'],
+
+        ],
+    ],
+
+    'restaurantreservation' => [
+        'label' => 'Restaurant Reservation',
+        'category' => 'service',
+        'chips' => ['Popup', 'Summary'],
+        'preview' => '/restaurant',
+        'fields' => [
+            ['key' => 'restaurant.reservation_title', 'label' => 'Popup heading', 'type' => 'text', 'default' => 'Reservation'],
+            ['key' => 'restaurant.reservation_text', 'label' => 'Popup intro text', 'type' => 'textarea', 'default' => 'Whether you’re joining us for a casual lunch, a romantic dinner, or celebratory drinks, every visit promises something memorable.'],
+            ['key' => 'restaurant.summary_text', 'label' => 'Reservation Summary description', 'type' => 'textarea', 'default' => 'Please review your reservation details below before continuing to payment. A small refundable fee secures your table and is returned when you honour your reservation.'],
+        ],
+    ],
+
+    'restaurantcheckout' => [
+        'label' => 'Restaurant Checkout',
+        'category' => 'service',
+        'chips' => ['Checkout', 'Payment', 'Success'],
+        'preview' => '/restaurant',
+        'fields' => [
+            // Checkout
+            ['key' => 'restaurant.reservation_fee', 'label' => 'Refundable reservation fee (₦)', 'type' => 'text', 'default' => '10000'],
+            ['key' => 'restaurant.cancellation_policy', 'label' => 'Cancellation policy', 'type' => 'textarea', 'default' => 'Your reservation fee is fully refundable when you honour your reservation or cancel at least 24 hours in advance. No-shows and late cancellations may forfeit the fee.'],
+
+            // Success
+            ['key' => 'restaurant.success_title', 'label' => 'Success heading', 'type' => 'text', 'default' => 'Reservation Successful!'],
+            ['key' => 'restaurant.success_text', 'label' => 'Success message', 'type' => 'textarea', 'default' => 'Your reservation is confirmed.'],
         ],
     ],
 ];

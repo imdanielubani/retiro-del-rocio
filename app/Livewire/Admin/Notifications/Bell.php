@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Notifications;
 use App\Notifications\BookingReceived;
 use App\Notifications\GymMembershipReceived;
 use App\Notifications\MessageReceived;
+use App\Notifications\RestaurantReservationReceived;
 use App\Notifications\SpaBookingReceived;
 use Livewire\Component;
 
@@ -74,6 +75,9 @@ class Bell extends Component
         $gymNotifs = $user
             ? $user->notifications()->where('type', GymMembershipReceived::class)->latest()->take(5)->get()
             : collect();
+        $restoNotifs = $user
+            ? $user->notifications()->where('type', RestaurantReservationReceived::class)->latest()->take(5)->get()
+            : collect();
         $notifCount = $user ? $user->unreadNotifications()->count() : 0;
 
         return view('admin.notifications.bell', compact(
@@ -81,6 +85,7 @@ class Bell extends Component
             'bookingNotifs',
             'spaNotifs',
             'gymNotifs',
+            'restoNotifs',
             'notifCount',
         ));
     }

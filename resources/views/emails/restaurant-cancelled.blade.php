@@ -3,46 +3,46 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spa Reservation Cancelled</title>
+    <title>Reservation Cancelled</title>
 </head>
 <body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,Helvetica,sans-serif;color:#1e1e1e;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:24px 0;">
         <tr>
             <td align="center">
                 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;">
-                    @include('emails.partials.header', ['subtitle' => 'Spa & Wellness reservation'])
+                    @include('emails.partials.header', ['subtitle' => 'Restaurant reservation'])
                     <tr>
                         <td style="padding:32px;">
                             <div style="display:inline-block;background:#fee2e2;color:#dc2626;font-size:13px;font-weight:bold;padding:6px 14px;border-radius:999px;">Reservation cancelled</div>
-                            <h2 style="margin:18px 0 6px;font-size:20px;">Dear {{ $booking->customer_name ?: 'Guest' }},</h2>
+                            <h2 style="margin:18px 0 6px;font-size:20px;">Dear {{ $reservation->customer_name ?: 'Guest' }},</h2>
                             <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#374151;">
-                                We're writing to let you know that your spa reservation with {{ config('app.name') }} has been cancelled.
-                                @if ($booking->payment_status === 'refunded')
-                                    A refund of {{ $booking->totalLabel() }} will be processed to your original payment method within 24 hours.
+                                We're writing to let you know that your {{ $reservation->areaLabel() }} with {{ config('app.name') }} has been cancelled.
+                                @if ($reservation->payment_status === 'refunded')
+                                    A refund of {{ $reservation->feeLabel() }} will be processed to your original payment method within 24 hours.
                                 @endif
                                 Here are the details of the cancelled reservation:
                             </p>
 
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:15px;line-height:1.6;border:1px solid #eef0ec;border-radius:10px;">
                                 <tr>
-                                    <td style="padding:12px 16px;color:#6b7280;width:170px;border-bottom:1px solid #f1f1ee;">Reservation reference</td>
-                                    <td style="padding:12px 16px;font-weight:bold;border-bottom:1px solid #f1f1ee;">{{ $booking->sessionCode() }}</td>
+                                    <td style="padding:12px 16px;color:#6b7280;width:180px;border-bottom:1px solid #f1f1ee;">Reservation ID</td>
+                                    <td style="padding:12px 16px;font-weight:bold;border-bottom:1px solid #f1f1ee;">{{ $reservation->code }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Service(s)</td>
-                                    <td style="padding:12px 16px;font-weight:bold;border-bottom:1px solid #f1f1ee;">{{ $booking->servicesLabel() }}</td>
+                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Type</td>
+                                    <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ $reservation->areaLabel() }}@if ($reservation->table_label) · {{ $reservation->table_label }}@endif</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Date</td>
-                                    <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ optional($booking->date)->format('l, M j, Y') ?: '—' }}</td>
+                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Guests</td>
+                                    <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ $reservation->guestsLabel() }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Time</td>
-                                    <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ $booking->time ?: '—' }}</td>
+                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Date &amp; time</td>
+                                    <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ optional($reservation->reserved_date)->format('l, M j, Y') }}@if ($reservation->reserved_time) · {{ $reservation->timeLabel() }}@endif</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:12px 16px;color:#6b7280;">Amount</td>
-                                    <td style="padding:12px 16px;font-weight:bold;">{{ $booking->totalLabel() }}</td>
+                                    <td style="padding:12px 16px;color:#6b7280;">@if ($reservation->payment_status === 'refunded')Refund amount @else Fee @endif</td>
+                                    <td style="padding:12px 16px;font-weight:bold;@if ($reservation->payment_status === 'refunded')color:#16a34a;@endif">{{ $reservation->feeLabel() }}</td>
                                 </tr>
                             </table>
 

@@ -16,9 +16,12 @@ use App\Mail\GymMembershipConfirmation;
 use App\Mail\PickupConfirmation;
 use App\Mail\SpaReservation;
 use App\Models\Booking;
+use App\Mail\RestaurantReservationConfirmation;
 use App\Models\GymMembership;
 use App\Models\GymPlan;
 use App\Models\ContactMessage;
+use App\Models\RestaurantReservation;
+use App\Models\RestaurantTable;
 use App\Models\Room;
 use App\Models\SpaBooking;
 use App\Models\SpaService;
@@ -26,6 +29,7 @@ use App\Models\User;
 use App\Notifications\BookingReceived;
 use App\Notifications\GymMembershipReceived;
 use App\Notifications\MessageReceived;
+use App\Notifications\RestaurantReservationReceived;
 use App\Notifications\SpaBookingReceived;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Carbon;
@@ -486,6 +490,9 @@ Route::get('spa-wellness/callback', function () {
             ]
         );
 
+        // Surface the booking ID on the success screen.
+        session(['spa_success' => array_merge($order, ['code' => $spaBooking->sessionCode()])]);
+
         if ($spaBooking->customer_email) {
             Mail::to($spaBooking->customer_email)->send(new SpaReservation($spaBooking));
         }
@@ -585,6 +592,101 @@ Route::post('gym/subscribe', function () {
     return redirect()->route('gym');
 })->name('gym.subscribe');
 
+/*
+|--------------------------------------------------------------------------
+| Restaurant reservation flow (Paystack)
+|--------------------------------------------------------------------------
+*/
+Route::view('restaurant', 'restaurant')->name('restaurant');
+
+// Reserve — called via a hidden POST after a successful Paystack charge.
+Route::post('restaurant/reserve', function () {
+    $data = request()->validate([
+        'reference' => ['required', 'string', 'max:190'],
+        'area' => ['required', 'in:dining,lounge'],
+        'table_id' => ['nullable', 'integer', 'exists:restaurant_tables,id'],
+        'occasion' => ['nullable', 'string', 'max:120'],
+        'guests' => ['required', 'integer', 'min:1', 'max:30'],
+        'date' => ['required', 'date'],
+        'time' => ['nullable', 'string', 'max:20'],
+        'special_request' => ['nullable', 'string', 'max:1000'],
+        'name' => ['required', 'string', 'max:160'],
+        'email' => ['required', 'email', 'max:190'],
+        'phone' => ['nullable', 'string', 'max:40'],
+        'channel' => ['nullable', 'string', 'max:30'],
+    ]);
+
+    $table = ! empty($data['table_id']) ? RestaurantTable::find($data['table_id']) : null;
+    $fee = (int) preg_replace('/[^0-9]/', '', cms('restaurant.reservation_fee')) ?: 10000;
+
+    // Verify the payment with Paystack before recording anything.
+    try {
+        $response = Http::withToken(config('services.paystack.secret_key'))->acceptJson()
+            ->get(rtrim(config('services.paystack.payment_url'), '/').'/transaction/verify/'.$data['reference']);
+        $body = $response->json();
+
+        if (! $response->ok() || data_get($body, 'data.status') !== 'success') {
+            return redirect()->route('restaurant')->with('toast', [
+                'type' => 'error',
+                'message' => 'We could not verify your payment. If you were charged, contact us with reference: '.$data['reference'],
+            ]);
+        }
+    } catch (Throwable $e) {
+        report($e);
+
+        return redirect()->route('restaurant')->with('toast', ['type' => 'error', 'message' => 'Payment verification failed. Please try again or contact us.']);
+    }
+
+    $phone = $data['phone'] ? '+234'.ltrim($data['phone'], '+0') : null;
+
+    try {
+        $reservation = RestaurantReservation::create([
+            'code' => RestaurantReservation::makeCode(),
+            'reference' => $data['reference'],
+            'area' => $data['area'],
+            'restaurant_table_id' => $table?->id,
+            'table_label' => $table?->name,
+            'occasion' => $data['occasion'] ?? null,
+            'guests' => $data['guests'],
+            'reserved_date' => $data['date'],
+            'reserved_time' => $data['time'] ?? null,
+            'special_request' => $data['special_request'] ?? null,
+            'customer_name' => $data['name'],
+            'customer_email' => $data['email'],
+            'customer_phone' => $phone,
+            'status' => 'confirmed',
+            'payment_status' => 'paid',
+            'fee' => $fee,
+            'payment_method' => data_get($body, 'data.channel'),
+            'paid_at' => data_get($body, 'data.paid_at') ?? now(),
+        ]);
+
+        if ($reservation->customer_email) {
+            Mail::to($reservation->customer_email)->send(new RestaurantReservationConfirmation($reservation));
+        }
+        Notification::send(User::admins()->get(), new RestaurantReservationReceived($reservation));
+
+        session(['restaurant_success' => [
+            'code' => $reservation->code,
+            'area_label' => $reservation->areaLabel(),
+            'occasion' => $reservation->occasion ?: '—',
+            'guests_label' => $reservation->guestsLabel(),
+            'date' => optional($reservation->reserved_date)->format('M j, Y'),
+            'time' => $reservation->timeLabel(),
+            'fee_label' => $reservation->feeLabel(),
+            'customer_name' => $reservation->customer_name,
+            'customer_email' => $reservation->customer_email,
+            'customer_phone' => $reservation->customer_phone,
+        ]]);
+    } catch (Throwable $e) {
+        report($e);
+
+        return redirect()->route('restaurant')->with('toast', ['type' => 'error', 'message' => 'Your payment went through but we could not save your reservation. Please contact us with reference: '.$data['reference']]);
+    }
+
+    return redirect()->route('restaurant');
+})->name('restaurant.reserve');
+
 Route::view('contact-us', 'contact')->name('contact');
 Route::post('contact-us', function () {
     $data = request()->validate([
@@ -665,6 +767,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('gym/memberships/{membership}/receipt', function (GymMembership $membership) {
             return view('gym-receipt', ['m' => $membership]);
         })->name('gym.receipt');
+
+        // Restaurant — tables, lounge + reservations
+        Route::get('restaurant/tables', App\Livewire\Admin\Restaurant\Tables::class)->name('restaurant.tables');
+        Route::get('restaurant/lounge', App\Livewire\Admin\Restaurant\Lounge::class)->name('restaurant.lounge');
+        Route::get('restaurant/reservations', App\Livewire\Admin\Restaurant\Reservations::class)->name('restaurant.reservations');
+        Route::get('restaurant/reservations/{reservation}/receipt', function (RestaurantReservation $reservation) {
+            return view('restaurant-receipt', ['r' => $reservation]);
+        })->name('restaurant.receipt');
 
         // Payment — transactions captured from checkout
         Route::get('payment', App\Livewire\Admin\Payment\Index::class)->name('payment.index');

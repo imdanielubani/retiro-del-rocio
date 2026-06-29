@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Bookings;
 
+use App\Mail\BookingCancelled;
 use App\Mail\BookingReservation;
 use App\Models\Booking;
 use App\Models\Room;
@@ -332,7 +333,16 @@ class Index extends Component
         $this->freeUnit($booking);
         $booking->save();
 
-        $this->dispatch('toast', type: 'success', message: $booking->bookingCode().' cancelled.');
+        // Notify the guest their booking is cancelled and a refund is on the way.
+        if ($booking->customer_email) {
+            try {
+                Mail::to($booking->customer_email)->send(new BookingCancelled($booking));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        $this->dispatch('toast', type: 'success', message: $booking->bookingCode().' cancelled — guest notified.');
     }
 
     // Release the room number a booking currently holds.

@@ -435,24 +435,27 @@
                             </div>
                         </div>
 
-                        {{-- Right: success + customer + actions --}}
-                        <div class="flex flex-col gap-9">
-                            <div class="flex flex-col gap-6">
-                                <img loading="lazy" src="{{ asset('images/checkcircle.png') }}" alt="Success" class="size-[120px] object-contain lg:size-[150px]">
-                                <div class="flex flex-col gap-1.5">
-                                    <h2 class="text-h3 font-bold tracking-tight text-[#f38c00] lg:text-h2">{{ cms('spacheckout.success_title') }}</h2>
-                                    <p class="text-body text-white">{{ cms('spacheckout.success_text') }}</p>
-                                </div>
+                        {{-- Right: success + ID + customer + actions --}}
+                        <div class="flex flex-col items-center gap-6 text-center">
+                            <img loading="lazy" src="{{ asset('images/checkcircle.png') }}" alt="Success" class="size-[120px] object-contain lg:size-[150px]">
+                            <div class="flex flex-col gap-1.5">
+                                <h2 class="text-h3 font-bold tracking-tight text-[#f38c00] lg:text-h2">{{ cms('spacheckout.success_title') }}</h2>
+                                <p class="text-body text-white/80">{{ cms('spacheckout.success_text') }}</p>
                             </div>
 
-                            <div class="flex flex-col gap-4 text-body text-white lg:text-body-lg">
-                                <p class="font-medium">Customer Details</p>
-                                <p class="flex flex-wrap gap-2"><span>Name:</span><span>{{ $spaOrder['customer_name'] ?: '—' }}</span></p>
-                                <p class="flex flex-wrap gap-2"><span>Contact number:</span><span>{{ $spaOrder['customer_phone'] ?: '—' }}</span></p>
-                                <p class="flex flex-wrap gap-2"><span>Email Address:</span><span class="break-all">{{ $spaOrder['customer_email'] ?: '—' }}</span></p>
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="text-label uppercase tracking-wide text-white/50">Booking ID</span>
+                                <span class="text-2xl font-bold tracking-tight text-white lg:text-3xl">{{ $spaOrder['code'] ?? '—' }}</span>
                             </div>
 
-                            <div class="flex flex-col gap-5">
+                            <div class="flex w-full flex-col gap-2 border-t border-white/15 pt-5 text-body text-white/80">
+                                <p class="font-medium text-white">Customer Details</p>
+                                <p class="flex justify-between gap-3"><span class="text-white/55">Name</span><span>{{ $spaOrder['customer_name'] ?: '—' }}</span></p>
+                                <p class="flex justify-between gap-3"><span class="text-white/55">Contact number</span><span>{{ $spaOrder['customer_phone'] ?: '—' }}</span></p>
+                                <p class="flex justify-between gap-3"><span class="text-white/55">Email Address</span><span class="break-all">{{ $spaOrder['customer_email'] ?: '—' }}</span></p>
+                            </div>
+
+                            <div class="flex w-full flex-col gap-5">
                                 <button type="button" onclick="window.print()" class="flex h-[70px] w-full items-center justify-center gap-2.5 rounded-[6px] bg-[#ba6d04] text-body-lg font-semibold text-white transition hover:bg-[#a35f03]">
                                     Download Receipt
                                     <svg class="icon-md shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>

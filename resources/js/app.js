@@ -201,6 +201,119 @@ window.gymMembership = function (config) {
     };
 };
 
+/*
+ * Restaurant reservation popup. Steps: reserve -> checkout -> success.
+ * Table/Lounge tabs, occasion/guests/date/time + preferred table selection,
+ * then customer details + Paystack for the refundable reservation fee. On a
+ * successful charge it submits a hidden POST form to restaurant/reserve, which
+ * verifies the payment, records the reservation and reopens at success.
+ */
+window.restaurantReservation = function (config) {
+    return {
+        tables: config.tables || [],
+        paystackKey: config.paystackKey || '',
+        fee: config.fee || 10000,
+        showModal: false,
+        step: config.successData ? 'success' : 'reserve',
+        area: 'dining', // dining | lounge
+        occasion: 'Casual Dining',
+        guests: 2,
+        date: '',
+        time: '',
+        tableId: null,
+        specialRequest: '',
+        name: '', email: '', phone: '',
+        channel: 'card',
+        success: config.successData || null,
+        payReference: '',
+
+        init() {
+            // Only show success right after a redirect (consumed-once data).
+            if (this.success) { this.step = 'success'; this.showModal = true; document.body.style.overflow = 'hidden'; }
+            this.pickFirstTable();
+        },
+        open() {
+            // A Reserve click always opens the fresh form, even right after a
+            // successful reservation (clears the consumed success screen).
+            this.success = null;
+            this.step = 'reserve';
+            this.showModal = true; document.body.style.overflow = 'hidden';
+        },
+        close() { this.showModal = false; document.body.style.overflow = ''; },
+
+        setArea(area) { this.area = area; this.pickFirstTable(); },
+        get areaTables() { return this.tables.filter((t) => t.area === this.area); },
+        pickFirstTable() { const list = this.areaTables; this.tableId = list.length ? list[0].id : null; },
+        selectTable(id) { this.tableId = id; },
+        isTable(id) { return this.tableId === id; },
+        get selectedTable() { return this.tables.find((t) => t.id === this.tableId) || null; },
+        get amountKobo() { return this.fee * 100; },
+        money(n) { return '₦' + (n || 0).toLocaleString(); },
+        get prettyDate() {
+            if (!this.date) return '—';
+            try { return new Date(this.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }); }
+            catch (e) { return this.date; }
+        },
+        get prettyTime() {
+            if (!this.time) return '—';
+            const parts = String(this.time).split(':');
+            let h = parseInt(parts[0], 10);
+            const m = parts[1] || '00';
+            if (isNaN(h)) return this.time;
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            return h + ':' + m + ' ' + ampm;
+        },
+
+        goCheckout() {
+            if (!this.date || !this.time) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please choose a date and time for your reservation.' } }));
+                return;
+            }
+            if (!this.selectedTable) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please select a preferred ' + (this.area === 'lounge' ? 'lounge space' : 'table') + '.' } }));
+                return;
+            }
+            this.step = 'checkout';
+        },
+        backToReserve() { this.step = 'reserve'; },
+
+        pay() {
+            if (!this.name || !this.email) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please enter your name and email to continue.' } }));
+                return;
+            }
+            if (!this.paystackKey) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Payments are not configured yet. Please add your Paystack keys.' } }));
+                return;
+            }
+            if (typeof PaystackPop === 'undefined') {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Payment library failed to load. Check your connection and try again.' } }));
+                return;
+            }
+            const channelMap = { card: 'card', bank: 'bank', transfer: 'bank_transfer' };
+            const handler = PaystackPop.setup({
+                key: this.paystackKey,
+                email: this.email,
+                amount: this.amountKobo,
+                currency: 'NGN',
+                channels: [channelMap[this.channel] || 'card'],
+                metadata: {
+                    name: this.name,
+                    phone: this.phone ? '+234' + this.phone : '',
+                    custom_fields: [
+                        { display_name: 'Reservation', variable_name: 'area', value: this.area === 'lounge' ? 'Lounge' : 'Table Reservation' },
+                        { display_name: 'Guests', variable_name: 'guests', value: String(this.guests) },
+                    ],
+                },
+                callback: (response) => { this.payReference = response.reference; this.$nextTick(() => this.$refs.form.submit()); },
+                onClose: () => { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Payment window closed before completing your reservation.' } })); },
+            });
+            handler.openIframe();
+        },
+    };
+};
+
 window.cmsImageUpload = function (model) {
     return {
         uploading: false,

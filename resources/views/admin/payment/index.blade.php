@@ -184,7 +184,8 @@
                                             'rounded-full px-1.5 py-0.5 text-[10px] font-semibold',
                                             'bg-[#f3e8ff] text-[#7c3aed]' => $t->sourceLabel() === 'Spa',
                                             'bg-[#fff7ed] text-[#c2620a]' => $t->sourceLabel() === 'Gym',
-                                            'bg-[#e0f2fe] text-[#0369a1]' => ! in_array($t->sourceLabel(), ['Spa', 'Gym'], true),
+                                            'bg-[#fef2f2] text-[#b91c1c]' => $t->sourceLabel() === 'Restaurant',
+                                            'bg-[#e0f2fe] text-[#0369a1]' => ! in_array($t->sourceLabel(), ['Spa', 'Gym', 'Restaurant'], true),
                                         ])>{{ $t->sourceLabel() }}</span>
                                     </span>
                                 </td>

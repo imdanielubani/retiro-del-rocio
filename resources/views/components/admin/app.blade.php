@@ -74,9 +74,9 @@
         ]],
         ['label' => 'Restaurant Management', 'items' => [
             ['key' => 'restaurant', 'label' => 'Restaurant', 'icon' => 'restaurant', 'children' => [
-                ['label' => 'Tables', 'href' => '#'],
-                ['label' => 'Lounge', 'href' => '#'],
-                ['label' => 'Reservations', 'href' => '#'],
+                ['label' => 'Tables', 'href' => route('admin.restaurant.tables'), 'active' => request()->routeIs('admin.restaurant.tables')],
+                ['label' => 'Lounge', 'href' => route('admin.restaurant.lounge'), 'active' => request()->routeIs('admin.restaurant.lounge')],
+                ['label' => 'Reservations', 'href' => route('admin.restaurant.reservations'), 'active' => request()->routeIs('admin.restaurant.reservations')],
             ]],
             ['key' => 'kitchen', 'label' => 'Kitchen', 'icon' => 'kitchen', 'children' => [
                 ['label' => 'Menu', 'href' => '#'],

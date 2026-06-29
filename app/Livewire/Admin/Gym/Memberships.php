@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Gym;
 
+use App\Mail\GymMembershipCancelled;
 use App\Mail\GymMembershipConfirmation;
 use App\Mail\GymMembershipSuspended;
 use App\Models\GymMembership;
@@ -184,7 +185,8 @@ class Memberships extends Component
             'status' => 'cancelled',
             'payment_status' => $m->payment_status === 'paid' ? 'refunded' : $m->payment_status,
         ]);
-        $this->dispatch('toast', type: 'success', message: 'Membership '.$m->code.' cancelled.');
+        $this->safeMail($m->customer_email, fn () => new GymMembershipCancelled($m->fresh()));
+        $this->dispatch('toast', type: 'success', message: 'Membership '.$m->code.' cancelled — member notified.');
     }
 
     /* ---- Add membership ---- */

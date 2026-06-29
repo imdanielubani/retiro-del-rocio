@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Payment;
 
 use App\Models\Booking;
 use App\Models\GymMembership;
+use App\Models\RestaurantReservation;
 use App\Models\SpaBooking;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
@@ -145,6 +146,35 @@ class Index extends Component
             });
     }
 
+    // Restaurant reservations, filtered. Date column = paid_at, fee = amount.
+    protected function restaurantQuery()
+    {
+        $dateCol = 'paid_at';
+
+        $statusMap = ['paid' => 'paid', 'pending' => 'pending', 'cancelled' => 'refunded'];
+
+        return RestaurantReservation::query()
+            ->when($this->search, fn ($q) => $q->where(fn ($w) => $w
+                ->where('code', 'like', "%{$this->search}%")
+                ->orWhere('customer_name', 'like', "%{$this->search}%")
+                ->orWhere('customer_email', 'like', "%{$this->search}%")
+                ->orWhere('table_label', 'like', "%{$this->search}%")
+                ->orWhere('id', 'like', "%{$this->search}%")))
+            ->when($this->status, fn ($q) => $q->where('payment_status', $statusMap[$this->status] ?? $this->status))
+            ->when($this->method, fn ($q) => $q->where('payment_method', $this->method))
+            ->when($this->year, fn ($q) => $q->whereYear($dateCol, $this->year))
+            ->when($this->month, fn ($q) => $q->whereMonth($dateCol, $this->month))
+            ->when($this->day, fn ($q) => $q->whereDay($dateCol, $this->day))
+            ->when($this->from, fn ($q) => $q->whereDate($dateCol, '>=', $this->from))
+            ->when($this->to, fn ($q) => $q->whereDate($dateCol, '<=', $this->to))
+            ->when($this->range, function ($q) use ($dateCol) {
+                [$start, $end] = $this->rangeBounds();
+                if ($start) {
+                    $q->whereBetween($dateCol, [$start, $end]);
+                }
+            });
+    }
+
     protected function rangeBounds(): array
     {
         $now = Carbon::now();
@@ -180,31 +210,37 @@ class Index extends Component
         // ---- Stat cards (room + spa combined) ----
         $monthRevenue = (int) Booking::where('status', 'paid')->whereBetween('paid_at', [$monthStart, $monthEnd])->sum('amount')
             + (int) SpaBooking::where('payment_status', 'paid')->whereBetween('paid_at', [$monthStart, $monthEnd])->sum('total')
-            + (int) GymMembership::where('payment_status', 'paid')->whereBetween('paid_at', [$monthStart, $monthEnd])->sum('price');
+            + (int) GymMembership::where('payment_status', 'paid')->whereBetween('paid_at', [$monthStart, $monthEnd])->sum('price')
+            + (int) RestaurantReservation::where('payment_status', 'paid')->whereBetween('paid_at', [$monthStart, $monthEnd])->sum('fee');
 
         $lastMonthRevenue = (int) Booking::where('status', 'paid')->whereBetween('paid_at', [$lastStart, $lastEnd])->sum('amount')
             + (int) SpaBooking::where('payment_status', 'paid')->whereBetween('paid_at', [$lastStart, $lastEnd])->sum('total')
-            + (int) GymMembership::where('payment_status', 'paid')->whereBetween('paid_at', [$lastStart, $lastEnd])->sum('price');
+            + (int) GymMembership::where('payment_status', 'paid')->whereBetween('paid_at', [$lastStart, $lastEnd])->sum('price')
+            + (int) RestaurantReservation::where('payment_status', 'paid')->whereBetween('paid_at', [$lastStart, $lastEnd])->sum('fee');
 
         $revenueDelta = $lastMonthRevenue > 0
             ? (int) round((($monthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100)
             : ($monthRevenue > 0 ? 100 : 0);
 
-        $totalTransactions = Booking::count() + SpaBooking::count() + GymMembership::count();
+        $totalTransactions = Booking::count() + SpaBooking::count() + GymMembership::count() + RestaurantReservation::count();
 
         $pendingAmount = (int) Booking::where('status', 'pending')->sum('amount')
             + (int) SpaBooking::where('payment_status', 'pending')->sum('total')
-            + (int) GymMembership::where('payment_status', 'pending')->sum('price');
+            + (int) GymMembership::where('payment_status', 'pending')->sum('price')
+            + (int) RestaurantReservation::where('payment_status', 'pending')->sum('fee');
         $pendingCount = Booking::where('status', 'pending')->count()
             + SpaBooking::where('payment_status', 'pending')->count()
-            + GymMembership::where('payment_status', 'pending')->count();
+            + GymMembership::where('payment_status', 'pending')->count()
+            + RestaurantReservation::where('payment_status', 'pending')->count();
 
         $refundsAmount = (int) Booking::where('status', 'cancelled')->sum('amount')
             + (int) SpaBooking::where('payment_status', 'refunded')->sum('total')
-            + (int) GymMembership::where('payment_status', 'refunded')->sum('price');
+            + (int) GymMembership::where('payment_status', 'refunded')->sum('price')
+            + (int) RestaurantReservation::where('payment_status', 'refunded')->sum('fee');
         $refundsThisMonth = Booking::where('status', 'cancelled')->whereBetween('updated_at', [$monthStart, $monthEnd])->count()
             + SpaBooking::where('payment_status', 'refunded')->whereBetween('updated_at', [$monthStart, $monthEnd])->count()
-            + GymMembership::where('payment_status', 'refunded')->whereBetween('updated_at', [$monthStart, $monthEnd])->count();
+            + GymMembership::where('payment_status', 'refunded')->whereBetween('updated_at', [$monthStart, $monthEnd])->count()
+            + RestaurantReservation::where('payment_status', 'refunded')->whereBetween('updated_at', [$monthStart, $monthEnd])->count();
 
         $stats = [
             'revenue' => [
@@ -234,8 +270,8 @@ class Index extends Component
         ];
 
         // ---- Filtered summary (both sources) ----
-        $summaryCount = (clone $this->roomQuery())->count() + (clone $this->spaQuery())->count() + (clone $this->gymQuery())->count();
-        $summaryAmount = (int) (clone $this->roomQuery())->sum('amount') + (int) (clone $this->spaQuery())->sum('total') + (int) (clone $this->gymQuery())->sum('price');
+        $summaryCount = (clone $this->roomQuery())->count() + (clone $this->spaQuery())->count() + (clone $this->gymQuery())->count() + (clone $this->restaurantQuery())->count();
+        $summaryAmount = (int) (clone $this->roomQuery())->sum('amount') + (int) (clone $this->spaQuery())->sum('total') + (int) (clone $this->gymQuery())->sum('price') + (int) (clone $this->restaurantQuery())->sum('fee');
 
         // Whether any filter is active (drives the "Clear all" button).
         $hasFilters = (bool) ($this->search || $this->range || $this->year || $this->month
@@ -245,6 +281,7 @@ class Index extends Component
         $rows = $this->roomQuery()->get()
             ->concat($this->spaQuery()->get())
             ->concat($this->gymQuery()->get())
+            ->concat($this->restaurantQuery()->get())
             ->sortByDesc(fn ($t) => ($t->paid_at ?? $t->created_at)?->timestamp ?? 0)
             ->values();
 
@@ -264,11 +301,13 @@ class Index extends Component
         $years = Booking::query()->selectRaw('DISTINCT YEAR(COALESCE(paid_at, created_at)) as y')->pluck('y')
             ->merge(SpaBooking::query()->selectRaw('DISTINCT YEAR(COALESCE(paid_at, created_at)) as y')->pluck('y'))
             ->merge(GymMembership::query()->selectRaw('DISTINCT YEAR(COALESCE(paid_at, created_at)) as y')->pluck('y'))
+            ->merge(RestaurantReservation::query()->selectRaw('DISTINCT YEAR(COALESCE(paid_at, created_at)) as y')->pluck('y'))
             ->filter()->unique()->sortDesc()->values();
 
         $methods = Booking::query()->whereNotNull('payment_method')->distinct()->pluck('payment_method')
             ->merge(SpaBooking::query()->whereNotNull('payment_method')->distinct()->pluck('payment_method'))
             ->merge(GymMembership::query()->whereNotNull('payment_method')->distinct()->pluck('payment_method'))
+            ->merge(RestaurantReservation::query()->whereNotNull('payment_method')->distinct()->pluck('payment_method'))
             ->filter()->unique()->sort()->values();
 
         return view('admin.payment.index', [
@@ -281,7 +320,7 @@ class Index extends Component
             'methods' => $methods,
         ])->layout('components.admin.app', [
             'title' => 'Payments',
-            'subtitle' => 'Transactions captured from room, spa & gym checkout',
+            'subtitle' => 'Transactions captured from room, spa, gym & restaurant checkout',
         ]);
     }
 }
