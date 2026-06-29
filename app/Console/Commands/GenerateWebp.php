@@ -26,9 +26,13 @@ class GenerateWebp extends Command
     public function handle(): int
     {
         if (! function_exists('imagewebp')) {
-            $this->error('GD with WebP support is not available on this PHP build.');
+            $this->components->warn('GD has no WebP support on this PHP build — skipping generation.');
+            $this->line('  This is safe to ignore. WebP files are generated during local development');
+            $this->line('  and deployed with the app; the site serves the original JPG/PNG when a');
+            $this->line('  .webp sibling is missing. To generate WebP here, enable WebP in PHP\'s GD');
+            $this->line('  extension (e.g. install libwebp + php-gd) and re-run this command.');
 
-            return self::FAILURE;
+            return self::SUCCESS;
         }
 
         @ini_set('memory_limit', '512M');

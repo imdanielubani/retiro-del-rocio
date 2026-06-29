@@ -85,7 +85,7 @@
             <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1fr_1fr] lg:gap-14">
                 {{-- Ticket card --}}
                 <div class="overflow-hidden rounded-[16px] bg-[#1b1b18]">
-                    <img :src="success ? success.poster : ''" alt="" class="h-[260px] w-full object-cover">
+                    <img :src="success ? success.poster : ''" alt="" loading="lazy" decoding="async" class="h-[260px] w-full object-cover">
                     <div class="flex flex-col gap-4 p-6">
                         <p class="text-title font-semibold text-white" x-text="success ? success.movie_title : ''"></p>
                         <div class="flex flex-wrap gap-x-8 gap-y-3 text-body text-white/80">
