@@ -16,10 +16,14 @@ use App\Mail\GymMembershipConfirmation;
 use App\Mail\PickupConfirmation;
 use App\Mail\SpaReservation;
 use App\Models\Booking;
+use App\Mail\CinemaBookingConfirmation;
 use App\Mail\RestaurantReservationConfirmation;
+use App\Models\CinemaBooking;
+use App\Models\CinemaSnack;
 use App\Models\GymMembership;
 use App\Models\GymPlan;
 use App\Models\ContactMessage;
+use App\Models\Movie;
 use App\Models\RestaurantReservation;
 use App\Models\RestaurantTable;
 use App\Models\Room;
@@ -27,6 +31,7 @@ use App\Models\SpaBooking;
 use App\Models\SpaService;
 use App\Models\User;
 use App\Notifications\BookingReceived;
+use App\Notifications\CinemaBookingReceived;
 use App\Notifications\GymMembershipReceived;
 use App\Notifications\MessageReceived;
 use App\Notifications\RestaurantReservationReceived;
@@ -687,6 +692,120 @@ Route::post('restaurant/reserve', function () {
     return redirect()->route('restaurant');
 })->name('restaurant.reserve');
 
+/*
+|--------------------------------------------------------------------------
+| Cinema ticket flow (Paystack)
+|--------------------------------------------------------------------------
+*/
+Route::view('cinema', 'cinema')->name('cinema');
+
+Route::get('cinema/{movie:slug}', function (Movie $movie) {
+    abort_unless($movie->is_active, 404);
+
+    return view('cinema-movie', [
+        'movie' => $movie,
+        'snacks' => CinemaSnack::active()->ordered()->get(),
+        'related' => Movie::active()->where('id', '!=', $movie->id)->where('classification', 'now_showing')->ordered()->take(5)->get(),
+    ]);
+})->name('cinema.movie');
+
+// Book — called via a hidden POST after a successful Paystack charge.
+Route::post('cinema/book', function () {
+    $data = request()->validate([
+        'reference' => ['required', 'string', 'max:190'],
+        'movie' => ['required', 'string', 'exists:movies,slug'],
+        'date' => ['required', 'date'],
+        'time' => ['required', 'string', 'max:30'],
+        'seats' => ['nullable', 'string', 'max:2000'],
+        'adult' => ['required', 'integer', 'min:0', 'max:20'],
+        'child' => ['required', 'integer', 'min:0', 'max:20'],
+        'snacks' => ['nullable', 'string', 'max:4000'],
+        'name' => ['required', 'string', 'max:160'],
+        'email' => ['required', 'email', 'max:190'],
+        'phone' => ['nullable', 'string', 'max:40'],
+        'channel' => ['nullable', 'string', 'max:30'],
+    ]);
+
+    $movie = Movie::where('slug', $data['movie'])->first();
+    $seats = collect(json_decode($data['seats'] ?? '[]', true) ?: [])->filter()->values()->all();
+    $snacks = collect(json_decode($data['snacks'] ?? '[]', true) ?: [])
+        ->map(fn ($s) => ['name' => (string) ($s['name'] ?? ''), 'qty' => (int) ($s['qty'] ?? 0), 'price' => (int) ($s['price'] ?? 0)])
+        ->filter(fn ($s) => $s['qty'] > 0)->values()->all();
+
+    $ticketsTotal = $data['adult'] * (int) $movie->adult_price + $data['child'] * (int) $movie->child_price;
+    $snacksTotal = collect($snacks)->sum(fn ($s) => $s['qty'] * $s['price']);
+    $amount = $ticketsTotal + $snacksTotal;
+
+    // Verify the payment with Paystack before recording anything.
+    try {
+        $response = Http::withToken(config('services.paystack.secret_key'))->acceptJson()
+            ->get(rtrim(config('services.paystack.payment_url'), '/').'/transaction/verify/'.$data['reference']);
+        $body = $response->json();
+
+        if (! $response->ok() || data_get($body, 'data.status') !== 'success') {
+            return redirect()->route('cinema.movie', $movie)->with('toast', [
+                'type' => 'error',
+                'message' => 'We could not verify your payment. If you were charged, contact us with reference: '.$data['reference'],
+            ]);
+        }
+    } catch (Throwable $e) {
+        report($e);
+
+        return redirect()->route('cinema.movie', $movie)->with('toast', ['type' => 'error', 'message' => 'Payment verification failed. Please try again or contact us.']);
+    }
+
+    $phone = $data['phone'] ? '+234'.ltrim($data['phone'], '+0') : null;
+
+    try {
+        $booking = CinemaBooking::create([
+            'code' => CinemaBooking::makeCode(),
+            'reference' => $data['reference'],
+            'movie_id' => $movie->id,
+            'movie_title' => $movie->title,
+            'show_date' => $data['date'],
+            'show_time' => $data['time'],
+            'seats' => $seats,
+            'adult_tickets' => $data['adult'],
+            'child_tickets' => $data['child'],
+            'snacks' => $snacks,
+            'amount' => $amount,
+            'customer_name' => $data['name'],
+            'customer_email' => $data['email'],
+            'customer_phone' => $phone,
+            'status' => 'confirmed',
+            'payment_status' => 'paid',
+            'payment_method' => data_get($body, 'data.channel'),
+            'paid_at' => data_get($body, 'data.paid_at') ?? now(),
+        ]);
+
+        if ($booking->customer_email) {
+            Mail::to($booking->customer_email)->send(new CinemaBookingConfirmation($booking));
+        }
+        Notification::send(User::admins()->get(), new CinemaBookingReceived($booking));
+
+        session(['cinema_success' => [
+            'code' => $booking->code,
+            'movie_title' => $booking->movie_title,
+            'date' => optional($booking->show_date)->format('M j, Y'),
+            'time' => $booking->show_time,
+            'seats' => $booking->seatsLabel(),
+            'ticket_type' => $booking->ticketTypeLabel(),
+            'snacks' => $booking->snacksLabel(),
+            'total' => $booking->amountLabel(),
+            'poster' => $movie->posterUrl(),
+            'customer_name' => $booking->customer_name,
+            'customer_email' => $booking->customer_email,
+            'customer_phone' => $booking->customer_phone,
+        ]]);
+    } catch (Throwable $e) {
+        report($e);
+
+        return redirect()->route('cinema.movie', $movie)->with('toast', ['type' => 'error', 'message' => 'Your payment went through but we could not save your booking. Please contact us with reference: '.$data['reference']]);
+    }
+
+    return redirect()->route('cinema.movie', $movie);
+})->name('cinema.book');
+
 Route::view('contact-us', 'contact')->name('contact');
 Route::post('contact-us', function () {
     $data = request()->validate([
@@ -775,6 +894,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('restaurant/reservations/{reservation}/receipt', function (RestaurantReservation $reservation) {
             return view('restaurant-receipt', ['r' => $reservation]);
         })->name('restaurant.receipt');
+
+        // Cinema — movies + ticket bookings
+        Route::get('cinema/movies', App\Livewire\Admin\Cinema\Movies::class)->name('cinema.movies');
+        Route::get('cinema/bookings', App\Livewire\Admin\Cinema\Bookings::class)->name('cinema.bookings');
+        Route::get('cinema/bookings/{booking}/receipt', function (CinemaBooking $booking) {
+            return view('cinema-receipt', ['b' => $booking]);
+        })->name('cinema.receipt');
 
         // Payment — transactions captured from checkout
         Route::get('payment', App\Livewire\Admin\Payment\Index::class)->name('payment.index');

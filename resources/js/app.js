@@ -314,6 +314,89 @@ window.restaurantReservation = function (config) {
     };
 };
 
+/*
+ * Cinema movie booking (movie detail page). Pick date/time, ticket counts,
+ * seats and snacks on the page; "Complete Booking" opens the checkout popup
+ * (customer details + Paystack). On a successful charge it submits a hidden
+ * POST to cinema/book, which records the booking and reopens at success.
+ */
+window.cinemaBooking = function (config) {
+    return {
+        movie: config.movie || {},
+        snacks: config.snacks || [],
+        paystackKey: config.paystackKey || '',
+        dates: [],
+        selectedDate: '',
+        selectedTime: config.movie && config.movie.showtimes && config.movie.showtimes[0] ? config.movie.showtimes[0] : '',
+        rows: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
+        cols: 12,
+        seats: [],
+        adult: 1,
+        child: 0,
+        snackQty: {},
+        name: '', email: '', phone: '',
+        channel: 'card',
+        showCheckout: false,
+        step: config.successData ? 'success' : 'checkout',
+        success: config.successData || null,
+        payReference: '',
+
+        init() {
+            // Build the next 7 selectable dates.
+            const today = new Date();
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(today); d.setDate(today.getDate() + i);
+                this.dates.push({ iso: d.toISOString().slice(0, 10), dow: d.toLocaleDateString('en-US', { weekday: 'short' }), day: d.getDate(), mon: d.toLocaleDateString('en-US', { month: 'short' }) });
+            }
+            this.selectedDate = this.dates[0].iso;
+            this.snacks.forEach((s) => { this.snackQty[s.id] = 0; });
+            if (this.success) { this.step = 'success'; this.showCheckout = true; document.body.style.overflow = 'hidden'; }
+        },
+
+        toggleSeat(id) {
+            const i = this.seats.indexOf(id);
+            if (i === -1) { this.seats.push(id); } else { this.seats.splice(i, 1); }
+        },
+        isSeat(id) { return this.seats.includes(id); },
+
+        get ticketsCount() { return this.adult + this.child; },
+        get ticketsTotal() { return this.adult * (this.movie.adult_price || 0) + this.child * (this.movie.child_price || 0); },
+        get snacksTotal() { return this.snacks.reduce((t, s) => t + (this.snackQty[s.id] || 0) * s.price, 0); },
+        get grandTotal() { return this.ticketsTotal + this.snacksTotal; },
+        get amountKobo() { return this.grandTotal * 100; },
+        money(n) { return '₦' + (n || 0).toLocaleString(); },
+        prettyDate(iso) { if (!iso) return '—'; try { return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }); } catch (e) { return iso; } },
+        get chosenSnacks() { return this.snacks.filter((s) => (this.snackQty[s.id] || 0) > 0).map((s) => ({ name: s.name, qty: this.snackQty[s.id], price: s.price })); },
+
+        openCheckout() {
+            if (this.ticketsCount < 1) { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please add at least one ticket.' } })); return; }
+            if (!this.selectedDate || !this.selectedTime) { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please choose a date and showtime.' } })); return; }
+            if (this.seats.length !== this.ticketsCount) { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please select ' + this.ticketsCount + ' seat' + (this.ticketsCount > 1 ? 's' : '') + ' to match your tickets.' } })); return; }
+            this.success = null; this.step = 'checkout';
+            this.showCheckout = true; document.body.style.overflow = 'hidden';
+        },
+        closeCheckout() { this.showCheckout = false; document.body.style.overflow = ''; },
+
+        pay() {
+            if (!this.name || !this.email) { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Please enter your name and email to continue.' } })); return; }
+            if (!this.paystackKey) { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Payments are not configured yet. Please add your Paystack keys.' } })); return; }
+            if (typeof PaystackPop === 'undefined') { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Payment library failed to load. Check your connection and try again.' } })); return; }
+            const channelMap = { card: 'card', bank: 'bank', transfer: 'bank_transfer' };
+            const handler = PaystackPop.setup({
+                key: this.paystackKey,
+                email: this.email,
+                amount: this.amountKobo,
+                currency: 'NGN',
+                channels: [channelMap[this.channel] || 'card'],
+                metadata: { name: this.name, phone: this.phone ? '+234' + this.phone : '', custom_fields: [{ display_name: 'Movie', variable_name: 'movie', value: this.movie.title }] },
+                callback: (response) => { this.payReference = response.reference; this.$nextTick(() => this.$refs.form.submit()); },
+                onClose: () => { window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Payment window closed before completing your booking.' } })); },
+            });
+            handler.openIframe();
+        },
+    };
+};
+
 window.cmsImageUpload = function (model) {
     return {
         uploading: false,

@@ -101,8 +101,8 @@
                 ['label' => 'Appointments', 'href' => route('admin.spa.bookings'), 'active' => request()->routeIs('admin.spa.bookings')],
             ]],
             ['key' => 'cinema', 'label' => 'Cinema', 'icon' => 'cinema', 'children' => [
-                ['label' => 'Movies', 'href' => '#'],
-                ['label' => 'Bookings', 'href' => '#'],
+                ['label' => 'Movies', 'href' => route('admin.cinema.movies'), 'active' => request()->routeIs('admin.cinema.movies')],
+                ['label' => 'Bookings', 'href' => route('admin.cinema.bookings'), 'active' => request()->routeIs('admin.cinema.bookings')],
             ]],
             ['key' => 'gym', 'label' => 'Gym', 'icon' => 'gym', 'children' => [
                 ['label' => 'Plans', 'href' => route('admin.gym.plans'), 'active' => request()->routeIs('admin.gym.plans')],

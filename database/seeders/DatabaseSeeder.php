@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             SpaServiceSeeder::class,
             GymPlanSeeder::class,
             RestaurantTableSeeder::class,
+            MovieSeeder::class,
+            CinemaSnackSeeder::class,
         ]);
     }
 }

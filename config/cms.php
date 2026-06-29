@@ -108,7 +108,7 @@ $pages = [
                 ['label' => 'Rooms & Apartment', 'url' => '/rooms-apartment'],
                 ['label' => 'Experience', 'url' => '/experience'],
                 ['label' => 'Gym', 'url' => '/gym'],
-                ['label' => 'Cinema', 'url' => '#'],
+                ['label' => 'Cinema', 'url' => '/cinema'],
                 ['label' => 'Restaurant', 'url' => '/restaurant'],
                 ['label' => 'Spa/Wellness', 'url' => '/spa-wellness'],
             ]],
@@ -481,6 +481,60 @@ $pages = [
             // Success
             ['key' => 'restaurant.success_title', 'label' => 'Success heading', 'type' => 'text', 'default' => 'Reservation Successful!'],
             ['key' => 'restaurant.success_text', 'label' => 'Success message', 'type' => 'textarea', 'default' => 'Your reservation is confirmed.'],
+        ],
+    ],
+
+    'cinema' => [
+        'label' => 'Cinema',
+        'category' => 'core',
+        'chips' => ['Offer', 'Now Showing', 'Top 10', 'Weekend', 'Coming Soon'],
+        'preview' => '/cinema',
+        'fields' => [
+            ['key' => 'cinema.offer_text', 'label' => 'Offer ticker text', 'type' => 'text', 'default' => 'Special Offer: Buy 2 tickets, get 1 FREE! Valid this weekend only.'],
+            ['key' => 'cinema.offer_terms', 'label' => 'Offer ticker — small print', 'type' => 'text', 'default' => 'Terms & Conditions Apply.'],
+
+            ['key' => 'cinema.nowshowing_title', 'label' => 'Now Showing heading', 'type' => 'text', 'default' => 'Now Showing With Special Offers'],
+            ['key' => 'cinema.nowshowing_text', 'label' => 'Now Showing subtext', 'type' => 'textarea', 'default' => 'Catch the latest blockbusters on the big screen with exclusive weekday and weekend offers made just for you.'],
+
+            ['key' => 'cinema.top10_title', 'label' => 'Top 10 heading', 'type' => 'text', 'default' => 'Top 10 Movies This Week'],
+            ['key' => 'cinema.top10_text', 'label' => 'Top 10 subtext', 'type' => 'text', 'default' => 'Top movies showing this week in our cinema'],
+
+            ['key' => 'cinema.weekend_title', 'label' => 'Weekend band heading', 'type' => 'text', 'default' => 'Book Tickets To Your Favourite Movie This Weekend'],
+            ['key' => 'cinema.weekend_text', 'label' => 'Weekend band text', 'type' => 'textarea', 'default' => 'Reserve your seats in advance and enjoy a premium cinema experience with the people you love.'],
+            ['key' => 'cinema.weekend_image', 'label' => 'Weekend band image', 'type' => 'image', 'default' => 'images/image 5.jpg'],
+
+            ['key' => 'cinema.comingsoon_title', 'label' => 'Coming Soon heading', 'type' => 'text', 'default' => 'Coming Soon'],
+            ['key' => 'cinema.comingsoon_text', 'label' => 'Coming Soon subtext', 'type' => 'text', 'default' => 'Get ready for the movies arriving soon at our cinema'],
+        ],
+    ],
+
+    'cinemamovie' => [
+        'label' => 'Cinema Movie Details',
+        'category' => 'service',
+        'chips' => ['Detail', 'Tickets', 'Snacks'],
+        'preview' => '/cinema',
+        'fields' => [
+            ['key' => 'cinemamovie.summary_label', 'label' => '“Summary” label', 'type' => 'text', 'default' => 'Summary'],
+            ['key' => 'cinemamovie.trailer_label', 'label' => '“Watch Trailer” label', 'type' => 'text', 'default' => 'Watch Trailer'],
+            ['key' => 'cinemamovie.date_label', 'label' => '“Date” label', 'type' => 'text', 'default' => 'Date'],
+            ['key' => 'cinemamovie.time_label', 'label' => '“Time” label', 'type' => 'text', 'default' => 'Time'],
+            ['key' => 'cinemamovie.seats_label', 'label' => '“Tickets & Seats” label', 'type' => 'text', 'default' => 'Choose Tickets & Seats'],
+            ['key' => 'cinemamovie.snacks_label', 'label' => '“Select Snacks” label', 'type' => 'text', 'default' => 'Select Snacks'],
+            ['key' => 'cinemamovie.order_label', 'label' => '“Order Details” label', 'type' => 'text', 'default' => 'Order Details'],
+            ['key' => 'cinemamovie.book_label', 'label' => 'Book button text', 'type' => 'text', 'default' => 'Complete Booking'],
+        ],
+    ],
+
+    'cinemacheckout' => [
+        'label' => 'Cinema Checkout',
+        'category' => 'service',
+        'chips' => ['Checkout', 'Payment', 'Success'],
+        'preview' => '/cinema',
+        'fields' => [
+            ['key' => 'cinemacheckout.cancellation_policy', 'label' => 'Cancellation policy', 'type' => 'textarea', 'default' => 'Tickets are refundable up to 2 hours before showtime. After that, tickets and snacks are non-refundable. A refund, when due, is processed within 24 hours.'],
+            ['key' => 'cinemacheckout.pay_label', 'label' => 'Pay button text', 'type' => 'text', 'default' => 'Complete Booking'],
+            ['key' => 'cinemacheckout.success_title', 'label' => 'Success heading', 'type' => 'text', 'default' => 'Payment Successful!'],
+            ['key' => 'cinemacheckout.success_text', 'label' => 'Success message', 'type' => 'textarea', 'default' => 'Your ticket has been successfully purchased.'],
         ],
     ],
 ];
