@@ -68,6 +68,25 @@ class Movie extends Model
         return \App\Models\SiteContent::imageUrl($this->backdrop_image ?: $this->poster_image ?: 'images/image 5.jpg');
     }
 
+    /**
+     * Absolute filesystem path to the poster, for embedding inline in emails
+     * ($message->embed). Returns null for remote URLs or missing files.
+     */
+    public function posterPath(): ?string
+    {
+        $path = $this->poster_image ?: 'images/image 5.jpg';
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return null;
+        }
+
+        $abs = str_starts_with($path, 'images/')
+            ? public_path($path)
+            : storage_path('app/public/'.$path);
+
+        return is_file($abs) ? $abs : null;
+    }
+
     public function showtimeList(): array
     {
         return collect($this->showtimes ?? [])->filter()->values()->all();

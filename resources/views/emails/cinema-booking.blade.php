@@ -19,12 +19,13 @@
                                 Your tickets for <strong>{{ $booking->movie_title }}</strong> at {{ config('app.name') }} are confirmed. Show this Ticket ID at the entrance.
                             </p>
 
-                            @php $poster = $booking->movie?->posterUrl(); @endphp
-                            @if ($poster)
+                            @php $posterPath = $booking->movie?->posterPath(); @endphp
+                            @if ($posterPath)
                                 <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
                                     <tr>
                                         <td style="border-radius:10px;overflow:hidden;">
-                                            <img src="{{ $poster }}" alt="{{ $booking->movie_title }}" width="150"
+                                            {{-- Embedded inline (CID) so it shows regardless of APP_URL — same as the header logo. --}}
+                                            <img src="{{ $message->embed($posterPath) }}" alt="{{ $booking->movie_title }}" width="150"
                                                  style="display:block;width:150px;height:auto;border-radius:10px;border:1px solid #eef0ec;">
                                         </td>
                                     </tr>

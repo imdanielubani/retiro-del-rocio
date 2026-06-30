@@ -165,20 +165,22 @@
         {{-- ============================ WEEKEND BAND ============================ --}}
         <section class="w-full py-6 lg:py-10">
             <x-layouts.container>
-                <div class="relative overflow-hidden rounded-[22px]">
+                @php $weekendUrl = cms('cinema.weekend_url') ?: route('cinema.movies'); @endphp
+                <div class="relative isolate overflow-hidden rounded-[16px] sm:rounded-[22px]">
+                    {{-- Background image fills the band (which grows to fit the content height). --}}
                     <x-img src="{{ cms_image('cinema.weekend_image') }}" alt="" sizes="100vw" loading="lazy" decoding="async"
-                           class="h-[360px] w-full object-cover lg:h-[460px]" />
-                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="flex max-w-[650px] flex-col gap-5 px-8 lg:px-14">
-                            <h2 class="text-3xl font-semibold leading-tight tracking-tight text-white lg:text-h1">{{ cms('cinema.weekend_title') }}</h2>
-                            <p class="text-body leading-relaxed text-white/80 lg:text-body-lg">{{ cms('cinema.weekend_text') }}</p>
-                            @php $weekendUrl = cms('cinema.weekend_url') ?: route('cinema.movies'); @endphp
+                           class="absolute inset-0 -z-10 h-full w-full object-cover" />
+                    {{-- Stronger overlay across the whole width on mobile; left-anchored from sm up. --}}
+                    <div class="absolute inset-0 -z-10 bg-gradient-to-r from-black/85 via-black/60 to-black/35 sm:from-black/80 sm:via-black/40 sm:to-transparent"></div>
+                    <div class="flex min-h-[340px] items-center sm:min-h-[400px] lg:min-h-[460px]">
+                        <div class="flex w-full max-w-[650px] flex-col gap-4 px-5 py-10 sm:gap-5 sm:px-8 sm:py-12 lg:px-14">
+                            <h2 class="text-2xl font-semibold leading-tight tracking-tight text-white sm:text-3xl lg:text-h1">{{ cms('cinema.weekend_title') }}</h2>
+                            <p class="text-body-sm leading-relaxed text-white/80 sm:text-body lg:text-body-lg">{{ cms('cinema.weekend_text') }}</p>
                             <div>
                                 <a href="{{ $weekendUrl }}" @if (\Illuminate\Support\Str::startsWith($weekendUrl, '/')) wire:navigate @endif
-                                   class="inline-flex items-center gap-2.5 rounded-[10px] bg-[#f38c00] px-8 py-3.5 text-body-lg font-semibold text-white transition hover:bg-[#dd7f00]">
+                                   class="inline-flex w-full items-center justify-center gap-2.5 rounded-[10px] bg-[#f38c00] px-6 py-3.5 text-body font-semibold text-white transition hover:bg-[#dd7f00] sm:w-auto sm:px-8 sm:text-body-lg">
                                     {{ cms('cinema.weekend_button') }}
-                                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                                    <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                                 </a>
                             </div>
                         </div>
