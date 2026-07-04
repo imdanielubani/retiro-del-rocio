@@ -69,6 +69,9 @@ class Snacks extends Component
         ]);
 
         $imagePath = $this->fImage ? $this->fImage->store('snacks', 'public') : $this->fImagePath;
+        if ($this->fImage) {
+            \App\Support\ImageOptimizer::optimize($imagePath);
+        }
 
         $payload = [
             'name' => $data['fName'],

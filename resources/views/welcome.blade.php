@@ -129,8 +129,9 @@
             {{-- Heading with the del.png wordmark sitting behind + below it (like the design) --}}
             <div class="relative">
                 {{-- Watermark: flush left, anchored just under the heading's first line, extending down --}}
-                <img loading="lazy" src="{{ asset('images/del.png') }}" alt="" aria-hidden="true"
-                     class="pointer-events-none absolute left-0 top-[78px] z-0 hidden w-full max-w-none select-none opacity-[10] lg:block">
+                <x-img src="{{ asset('images/del.png') }}" alt="" sizes="100vw"
+                     loading="lazy" aria-hidden="true"
+                     class="pointer-events-none absolute left-0 top-[78px] z-0 hidden w-full max-w-none select-none opacity-[10] lg:block" />
 
                 <div class="relative z-10 grid grid-cols-1 items-start gap-6 px-4 sm:px-8 lg:grid-cols-2 lg:gap-16 lg:px-[60px]">
                     <h2 class="text-4xl font-medium leading-tight tracking-tight text-white sm:text-6xl lg:text-[72px] lg:leading-[74px]">
@@ -143,8 +144,9 @@
             </div>
 
             {{-- Mobile: del.png wordmark shown below the text in a clear band (not behind text) --}}
-            <img loading="lazy" src="{{ asset('images/del.png') }}" alt="" aria-hidden="true"
-                 class="pointer-events-none mt-10 h-[62px] w-full max-w-none select-none object-contain object-left opacity-90 lg:hidden">
+            <x-img src="{{ asset('images/del.png') }}" alt="" sizes="100vw"
+                 loading="lazy" aria-hidden="true"
+                 class="pointer-events-none mt-10 h-[62px] w-full max-w-none select-none object-contain object-left opacity-90 lg:hidden" />
         </x-layouts.container>
 
     </section>
@@ -152,9 +154,9 @@
     
         {{-- Values strip (roll.jpg) — full-bleed, full viewport width --}}
         <div class="no-scrollbar mt-10 w-full overflow-x-auto lg:mt-14">
-            <img loading="lazy" src="{{ asset('images/roll.jpg') }}"
-                 alt="Wellness · Pureness · Tranquility · Luxury · Harmony"
-                 class="h-auto w-full min-w-[760px]">
+            <x-img src="{{ asset('images/roll.jpg') }}"
+                 alt="Wellness · Pureness · Tranquility · Luxury · Harmony" sizes="100vw"
+                 loading="lazy" class="h-auto w-full min-w-[760px]" />
         </div>
 
     {{-- ===== TEAL BACKDROP (Rectangle 611.jpg) behind offers #1 + destination ===== --}}

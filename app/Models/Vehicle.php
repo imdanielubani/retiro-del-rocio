@@ -86,13 +86,13 @@ class Vehicle extends Model
         }
 
         if (str_starts_with($path, 'images/')) {
-            return str_replace(' ', '%20', asset($path));
+            return \App\Support\Webp::url(str_replace(' ', '%20', asset($path)));
         }
 
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
             return $path;
         }
 
-        return Storage::disk('public')->url($path);
+        return \App\Support\Webp::url(Storage::disk('public')->url($path));
     }
 }

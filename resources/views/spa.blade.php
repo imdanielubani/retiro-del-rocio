@@ -129,8 +129,8 @@
     <section class="relative w-full overflow-hidden py-16 text-black lg:py-20"
              style="background-image: linear-gradient(95deg, #feefe4 2%, #fafaee 27%, #fafaee 68%, #f6d7c3 99%);">
         {{-- Faint spa background image overlay --}}
-        <img loading="lazy" src="{{ asset('images/spa/why-bg.jpg') }}" alt=""
-             class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.09]">
+        <x-img src="{{ asset('images/spa/why-bg.jpg') }}" alt="" sizes="100vw"
+             loading="lazy" class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.09]" />
 
         <x-layouts.container class="relative flex flex-col items-center gap-10 lg:gap-12">
             <h2 class="text-center text-[clamp(28px,4vw,41px)] font-light tracking-tight text-black">{{ cms('spa.why_title') }}</h2>

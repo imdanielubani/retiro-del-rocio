@@ -131,9 +131,15 @@ class Movies extends Component
         $posterPath = $this->fPoster
             ? $this->fPoster->store('movies', 'public')
             : $this->fPosterPath;
+        if ($this->fPoster) {
+            \App\Support\ImageOptimizer::optimize($posterPath);
+        }
         $backdropPath = $this->fBackdrop
             ? $this->fBackdrop->store('movies', 'public')
             : $this->fBackdropPath;
+        if ($this->fBackdrop) {
+            \App\Support\ImageOptimizer::optimize($backdropPath);
+        }
 
         $payload = [
             'title' => $data['fTitle'],
