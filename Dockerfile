@@ -28,8 +28,12 @@ FROM serversideup/php:8.4-fpm-nginx AS app
 USER root
 WORKDIR /var/www/html
 
-# Add the exif extension (required by spatie/image + medialibrary).
-RUN install-php-extensions exif
+# Add PHP extensions:
+#  - exif: required by spatie/image + medialibrary
+#  - gd:   (re)built WITH libwebp so ImageOptimizer / images:webp can generate
+#          .webp on upload. install-php-extensions compiles GD with webp, avif,
+#          freetype and jpeg support by default.
+RUN install-php-extensions exif gd
 
 # Install PHP dependencies in two steps for better layer caching.
 COPY composer.json composer.lock ./
