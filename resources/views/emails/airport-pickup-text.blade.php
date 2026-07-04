@@ -8,7 +8,7 @@ From: {{ $booking->pickupFrom() }}
 To: {{ $booking->pickupTo() }}
 Arrival date: {{ optional($booking->pickup_arrival_date ?: $booking->check_in)->format('l, M j, Y') ?: '—' }}
 Pick-up time: {{ $booking->pickup_time ?: '—' }}
-Flight number: {{ $booking->pickup_flight_number ?: '—' }}
+{{ $booking->pickupNumberLabel() }}: {{ $booking->pickup_flight_number ?: '—' }}
 Passengers: {{ $booking->pickupPassengersLabel() }}
 Pick-up fee: {{ $booking->pickupAmountLabel() }}
 

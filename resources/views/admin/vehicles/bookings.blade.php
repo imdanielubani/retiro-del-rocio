@@ -248,10 +248,10 @@
                         </div>
                     </div>
 
-                    {{-- Flight number (when provided) --}}
+                    {{-- Flight / Bus number (when provided) — label depends on pickup type --}}
                     @if ($selected->pickup_flight_number)
                         <div class="rounded-xl border border-[#eef0ec] p-3">
-                            <p class="text-[10px] font-semibold uppercase tracking-[0.5px] text-[#9ca3af]">Flight Number</p>
+                            <p class="text-[10px] font-semibold uppercase tracking-[0.5px] text-[#9ca3af]">{{ $selected->pickupNumberLabel() }}</p>
                             <p class="mt-1 text-[13px] font-semibold text-[#1e1e1e]">{{ $selected->pickup_flight_number }}</p>
                         </div>
                     @endif

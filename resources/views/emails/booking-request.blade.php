@@ -53,8 +53,13 @@
                                             <td style="padding:6px 0;color:#6b7280;">Pick-up time</td>
                                             <td style="padding:6px 0;">{{ $data['pickup_time'] ?: '—' }}</td>
                                         </tr>
+                                        @php
+                                            // Airport pickups collect a flight number; the local bus services
+                                            // (Valgee, Nengee, Plateau Riders) collect a bus number instead.
+                                            $numberLabel = (empty($data['location']) || str_contains(strtolower((string) $data['location']), 'airport')) ? 'Flight number' : 'Bus number';
+                                        @endphp
                                         <tr>
-                                            <td style="padding:6px 0;color:#6b7280;">Flight number</td>
+                                            <td style="padding:6px 0;color:#6b7280;">{{ $numberLabel }}</td>
                                             <td style="padding:6px 0;">{{ $data['flight_number'] ?: '—' }}</td>
                                         </tr>
                                     </table>

@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Observers\BookingObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 
+#[ObservedBy(BookingObserver::class)]
 class Booking extends Model
 {
     protected $fillable = [
@@ -13,6 +16,7 @@ class Booking extends Model
         'pickup_arrival_date', 'pickup_time', 'pickup_flight_number',
         'status', 'payment_method', 'paid_at',
         'refund_amount', 'refund_method', 'refund_status', 'room_unit_id',
+        'passcode', 'keyboard_pwd_id', 'qr_code_id', 'qr_code_link', 'ttlock_grants', 'ttlock_status', 'ttlock_error',
     ];
 
     protected $casts = [
@@ -25,6 +29,7 @@ class Booking extends Model
         'guests' => 'integer',
         'pickup_passengers' => 'integer',
         'refund_amount' => 'integer',
+        'ttlock_grants' => 'array',
     ];
 
     public function room()
@@ -35,6 +40,108 @@ class Booking extends Model
     public function roomUnit()
     {
         return $this->belongsTo(RoomUnit::class);
+    }
+
+    /* ---------------- TTLock smart-lock access ---------------- */
+
+    /**
+     * Every Access Gate lock id a passcode/QR is issued against.
+     * TTLOCK_LOCK_ID may be a comma-separated list for multi-gate setups
+     * (e.g. "32950580,32950590"); the guest gets one shared passcode that
+     * opens all of them. Returns a de-duplicated, trimmed list.
+     *
+     * @return string[]
+     */
+    public function lockIds(): array
+    {
+        $raw = (string) config('services.ttlock.lock_id');
+
+        return collect(explode(',', $raw))
+            ->map(fn ($id) => trim($id))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /** The primary/first Access Gate lock id (back-compat for single-gate callers). */
+    public function lockId(): ?string
+    {
+        return $this->lockIds()[0] ?? null;
+    }
+
+    /** True when more than one gate lock is configured. */
+    public function hasMultipleGates(): bool
+    {
+        return count($this->lockIds()) > 1;
+    }
+
+    /**
+     * Records needed to revoke access on every gate this booking holds.
+     * qrCodeId may be present on bookings issued before QR generation was
+     * removed, so revoke still cleans those up.
+     *
+     * @return array<int, array{lockId:string, keyboardPwdId:string, qrCodeId:?string}>
+     */
+    public function revokableGrants(): array
+    {
+        $grants = collect($this->ttlock_grants ?: [])
+            ->filter(fn ($g) => ! empty($g['lockId']) && ! empty($g['keyboardPwdId']))
+            ->map(fn ($g) => [
+                'lockId' => (string) $g['lockId'],
+                'keyboardPwdId' => (string) $g['keyboardPwdId'],
+                'qrCodeId' => isset($g['qrCodeId']) ? (string) $g['qrCodeId'] : null,
+            ])
+            ->values()
+            ->all();
+
+        // Fall back to the legacy single-gate columns for older bookings.
+        if (empty($grants) && $this->keyboard_pwd_id && $this->lockId()) {
+            $grants = [[
+                'lockId' => $this->lockId(),
+                'keyboardPwdId' => (string) $this->keyboard_pwd_id,
+                'qrCodeId' => $this->qr_code_id ? (string) $this->qr_code_id : null,
+            ]];
+        }
+
+        return $grants;
+    }
+
+    /**
+     * Guest access window as [start, end] Carbon instances.
+     * check_in/check_out are dates only, so we apply the configured
+     * default check-in / check-out times from the TTLock settings.
+     */
+    public function accessWindow(): array
+    {
+        $in = \Illuminate\Support\Carbon::parse($this->check_in)
+            ->setTimeFromTimeString(config('services.ttlock.checkin_time', '14:00'));
+        $out = \Illuminate\Support\Carbon::parse($this->check_out)
+            ->setTimeFromTimeString(config('services.ttlock.checkout_time', '12:00'));
+
+        return [$in, $out];
+    }
+
+    public function ttlockStatusLabel(): string
+    {
+        return match ($this->ttlock_status) {
+            'active' => 'Access active',
+            'pending' => 'Generating…',
+            'failed' => 'Failed',
+            'deleted', 'disabled' => 'Revoked',
+            default => 'No access',
+        };
+    }
+
+    public function ttlockStatusBadge(): string
+    {
+        return match ($this->ttlock_status) {
+            'active' => 'bg-[#dcfce7] text-[#16a34a]',
+            'pending' => 'bg-[#fef3c7] text-[#d97706]',
+            'failed' => 'bg-[#fee2e2] text-[#dc2626]',
+            'deleted', 'disabled' => 'bg-[#eef2f6] text-[#475569]',
+            default => 'bg-[#f3f4f6] text-[#6b7280]',
+        };
     }
 
     public function amountLabel(): string
@@ -122,6 +229,22 @@ class Booking extends Model
     public function pickupFrom(): string
     {
         return $this->pickup_location ?: 'Yakubu Gowon Airport (JOS)';
+    }
+
+    // Airport pickups collect a flight number; the local bus services (Valgee,
+    // Nengee, Plateau Riders) collect a bus number instead. Empty location is
+    // treated as the airport for backward compatibility with older bookings.
+    public function pickupIsAirport(): bool
+    {
+        $loc = strtolower((string) $this->pickup_location);
+
+        return $loc === '' || str_contains($loc, 'airport');
+    }
+
+    // Label for the flight/bus number field shown for this pickup.
+    public function pickupNumberLabel(): string
+    {
+        return $this->pickupIsAirport() ? 'Flight Number' : 'Bus Number';
     }
 
     public function pickupTo(): string

@@ -86,7 +86,13 @@
                 searchError: '',
                 doSearch() {
                     if (!this.arrivalDate || !this.pickupTime || !this.flightNumber) {
-                        this.searchError = 'Please enter your arrival date, pick-up time and flight number to see available vehicles.';
+                        const numberLabel = /airport/i.test(this.location) ? 'flight number' : 'bus number';
+                        this.searchError = 'Please enter your arrival date, pick-up time and ' + numberLabel + ' to see available vehicles.';
+                        this.searched = false;
+                        return false;
+                    }
+                    if (this.arrivalDate < this.today) {
+                        this.searchError = 'The arrival date cannot be in the past. Please choose today or a future date.';
                         this.searched = false;
                         return false;
                     }

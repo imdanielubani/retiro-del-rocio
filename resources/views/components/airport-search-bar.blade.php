@@ -52,7 +52,7 @@
             <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Arrival Date</p>
             <div class="flex items-center gap-[5px]">
                 <img loading="lazy" src="{{ asset('images/date.png') }}" alt="" class="icon-sm shrink-0 object-contain">
-                <input type="date" x-model="arrivalDate"
+                <input type="date" x-model="arrivalDate" :min="today"
                        @click="$event.target.showPicker && $event.target.showPicker()"
                        class="w-full min-w-0 cursor-pointer bg-transparent text-body-sm font-semibold tracking-tight text-[#202020] focus:outline-none [&::-webkit-calendar-picker-indicator]:hidden">
             </div>
@@ -69,10 +69,14 @@
             </div>
         </div>
 
-        {{-- Flight Number (guest inputs) --}}
+        {{-- Flight / Bus Number (guest inputs). The label depends on the pickup
+             location: "Flight Number" for the airport, "Bus Number" for the local
+             bus services (Valgee, Nengee, Plateau Riders). --}}
         <div class="flex h-[73px] flex-col justify-center rounded-[14px] border-[0.5px] border-black/20 bg-[#f6f6f6] px-[19px] lg:min-w-0 lg:flex-1">
-            <p class="text-label font-medium tracking-tight text-[#3c3c3c]">Flight Number</p>
-            <input type="text" x-model="flightNumber" placeholder="e.g. LOS3782923"
+            <p class="text-label font-medium tracking-tight text-[#3c3c3c]"
+               x-text="/airport/i.test(location) ? 'Flight Number' : 'Bus Number'">Flight Number</p>
+            <input type="text" x-model="flightNumber"
+                   :placeholder="/airport/i.test(location) ? 'e.g. LOS3782923' : 'e.g. BUS-1023'"
                    class="w-full bg-transparent text-body-sm font-semibold tracking-tight text-[#383838] placeholder:font-medium placeholder:text-[#7a7a7a] focus:outline-none">
         </div>
 

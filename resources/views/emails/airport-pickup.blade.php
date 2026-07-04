@@ -46,7 +46,7 @@
                                     <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ $booking->pickup_time ?: '—' }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">Flight number</td>
+                                    <td style="padding:12px 16px;color:#6b7280;border-bottom:1px solid #f1f1ee;">{{ $booking->pickupNumberLabel() }}</td>
                                     <td style="padding:12px 16px;border-bottom:1px solid #f1f1ee;">{{ $booking->pickup_flight_number ?: '—' }}</td>
                                 </tr>
                                 <tr>

@@ -63,8 +63,9 @@
         <section class="relative w-full bg-gradient-to-b from-[#1f1a13] via-black to-[#161310] pb-20 lg:pb-28">
             <x-layouts.container class="flex flex-col">
 
-                {{-- Opening hours card (overlaps the hero) --}}
-                <div class="-mt-16 rounded-[22px] border border-white/10 bg-[#20211c]/95 px-6 py-10 shadow-2xl backdrop-blur sm:-mt-20 lg:px-12 lg:py-12">
+                {{-- Opening hours card (overlaps the hero on larger screens; sits
+                     below it with a gap on mobile so it never touches the hero button) --}}
+                <div class="mt-10 rounded-[22px] border border-white/10 bg-[#20211c]/95 px-6 py-10 shadow-2xl backdrop-blur sm:-mt-20 lg:px-12 lg:py-12">
                     <div class="mx-auto flex max-w-[760px] flex-col items-center gap-2 text-center">
                         <h2 class="text-3xl font-semibold tracking-tight text-white lg:text-h2">{{ cms('restaurant.hours_title') }}</h2>
                         <p class="text-body leading-relaxed text-white/65 lg:text-body-lg">{{ cms('restaurant.hours_text') }}</p>

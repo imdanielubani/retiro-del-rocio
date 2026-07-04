@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Admin\Bookings;
 
+use App\Events\BookingCancelled as BookingCancelledEvent;
+use App\Events\BookingConfirmed;
 use App\Mail\BookingCancelled;
 use App\Mail\BookingReservation;
 use App\Models\Booking;
@@ -174,6 +176,13 @@ class Index extends Component
             } catch (\Throwable $e) {
                 report($e);
             }
+
+            // Provision TTLock smart-lock access (queued + guarded).
+            try {
+                BookingConfirmed::dispatch($booking->fresh());
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
 
         // Email the guest their booking confirmation (never block on a mail error).
@@ -333,6 +342,13 @@ class Index extends Component
         $this->freeUnit($booking);
         $booking->save();
 
+        // Revoke the guest's TTLock passcode immediately (queued + guarded).
+        try {
+            BookingCancelledEvent::dispatch($booking);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
         // Notify the guest their booking is cancelled and a refund is on the way.
         if ($booking->customer_email) {
             try {
@@ -365,6 +381,20 @@ class Index extends Component
 
         $booking->status = 'paid';
         $booking->save();
+
+        // Allocate a physical room number now that it's confirmed.
+        try {
+            $booking->autoAssignRoomUnit();
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        // Provision TTLock smart-lock access (passcode + QR + email); queued + guarded.
+        try {
+            BookingConfirmed::dispatch($booking->fresh());
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         $this->dispatch('toast', type: 'success', message: $booking->bookingCode().' confirmed.');
     }

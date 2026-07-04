@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class RoomUnit extends Model
 {
-    protected $fillable = ['room_id', 'number', 'status', 'booking_id'];
+    protected $fillable = ['room_id', 'number', 'status', 'booking_id', 'lock_id', 'lock_alias'];
+
+    public function hasLock(): bool
+    {
+        return filled($this->lock_id);
+    }
 
     public function room()
     {

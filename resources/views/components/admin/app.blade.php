@@ -137,7 +137,7 @@
             ['label' => 'Smart TVs', 'icon' => 'tv', 'href' => '#'],
         ]],
         ['label' => 'Access Control', 'items' => [
-            ['label' => 'TTLock', 'icon' => 'lock', 'href' => '#'],
+            ['label' => 'Gate Pass', 'icon' => 'lock', 'href' => route('admin.ttlock.locks'), 'active' => request()->routeIs('admin.ttlock.*')],
             ['label' => 'RFID Cards', 'icon' => 'card', 'href' => '#'],
             ['label' => 'Visitor Access', 'icon' => 'door', 'href' => '#'],
             ['label' => 'Access Logs', 'icon' => 'list', 'href' => '#'],

@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\BookingConfirmed;
 use App\Http\Controllers\Admin\Auth\LogoutController;
 use App\Livewire\Admin\Auth\ForgotPassword;
 use App\Livewire\Admin\Auth\Login;
@@ -262,6 +263,14 @@ Route::get('checkout/callback', function () {
             // Auto-allocate an available physical room number for the booked dates.
             try {
                 $booking->autoAssignRoomUnit();
+            } catch (Throwable $e) {
+                report($e);
+            }
+
+            // Provision TTLock smart-lock access (passcode + QR + email) for the
+            // confirmed booking. Queued + guarded, so it never blocks checkout.
+            try {
+                BookingConfirmed::dispatch($booking->fresh());
             } catch (Throwable $e) {
                 report($e);
             }
@@ -979,5 +988,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Payment — transactions captured from checkout
         Route::get('payment', App\Livewire\Admin\Payment\Index::class)->name('payment.index');
+
+        // Access Control — TTLock smart locks (lock mapping + passcode dashboard)
+        Route::get('access-control/ttlock', App\Livewire\Admin\Ttlock\Locks::class)->name('ttlock.locks');
     });
 });
